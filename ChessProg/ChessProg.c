@@ -1,6 +1,6 @@
 #include "ChessProg.h"
 
-
+//Guy 
 //**************** Memory allocation and standard functions monitoring ******************//
 
 /* During the program's run time we collect all the allocated pointers in a statically allocated array,

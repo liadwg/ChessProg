@@ -18,6 +18,15 @@
     <ClCompile Include="ChessProg.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="chess_logics.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="chess_ui.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="chess_utils.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChessProg.h">

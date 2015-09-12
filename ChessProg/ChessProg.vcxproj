@@ -79,6 +79,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ChessProg.c" />
+    <ClCompile Include="chess_logics.c" />
+    <ClCompile Include="chess_ui.c" />
+    <ClCompile Include="chess_utils.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChessProg.h" />

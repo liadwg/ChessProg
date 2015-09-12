@@ -80,6 +80,9 @@
   <ItemGroup>
     <ClCompile Include="ChessProg.c" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ChessProg.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

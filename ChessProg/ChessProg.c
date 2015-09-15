@@ -1,8 +1,6 @@
 #include "ChessProg.h"
 
 
-
-
 void print_line(){
 	int i;
 	printf("  |");

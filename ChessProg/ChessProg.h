@@ -67,8 +67,8 @@ typedef struct pos{
 
 typedef struct move{
 	Pos piece;
-	Pos* dest;
-	int captures;
+	Pos dest;
+	int promote; // value 0 means no promotion
 	struct move* next;
 } Move;
 

@@ -1,8 +1,6 @@
 #include "ChessProg.h"
 #include "chess_logics.c"
 
-
-
 void print_line(){
 	int i;
 	printf("  |");

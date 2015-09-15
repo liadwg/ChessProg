@@ -1,5 +1,5 @@
 #include "ChessProg.h"
-
+#include "chess_logics.c"
 
 
 
@@ -18,7 +18,7 @@ void print_board(char board[BOARD_SIZE][BOARD_SIZE])
 	print_line();
 	for (j = BOARD_SIZE - 1; j >= 0; j--)
 	{
-		printf((j < 9 ? " %d" : "%d"), j + 1);
+		printf((j < (BOARD_SIZE + 1) ? " %d" : "%d"), j + 1);
 		for (i = 0; i < BOARD_SIZE; i++){
 			printf("| %c ", board[i][j]);
 		}
@@ -35,23 +35,48 @@ void print_board(char board[BOARD_SIZE][BOARD_SIZE])
 void init_board(char board[BOARD_SIZE][BOARD_SIZE]){
 	int i, j;
 	for (i = 0; i < BOARD_SIZE; i++){
-		for (j = 0; j < BOARD_SIZE; j++){
-			if ((i + j) % 2 == 0){
-				if (j <= 3){
-					board[i][j] = WHITE_M;
-				}
-				else if (j >= 6){
-					board[i][j] = BLACK_M;
-				}
-				else{
-					board[i][j] = EMPTY;
-				}
-			}
-			else{
-				board[i][j] = EMPTY;
-			}
+		board[i][1] = BLACK_P;
+		board[i][BOARD_SIZE - 1] = WHITE_P;
+		for (j = 2; j < (BOARD_SIZE - 2); j++) board[i][j] = EMPTY;
+		switch (i){
+		case 0: case (BOARD_SIZE - 1) :
+			board[i][0] = BLACK_R;
+			board[i][BOARD_SIZE - 1] = WHITE_R;
+		case 1: case (BOARD_SIZE - 2) :
+			board[i][0] = BLACK_N;
+			board[i][BOARD_SIZE - 1] = WHITE_N;
+		case 2: case (BOARD_SIZE - 3) :
+			board[i][0] = BLACK_B;
+			board[i][BOARD_SIZE - 1] = WHITE_B;
+		case 3:
+			board[i][0] = BLACK_Q;
+			board[i][BOARD_SIZE - 1] = WHITE_Q;
+		case 4:
+			board[i][0] = BLACK_K;
+			board[i][BOARD_SIZE - 1] = WHITE_K;
 		}
 	}
+}
+
+int load_game(char * path){
+	xmlDoc *doc = NULL;
+	xmlNode *root_element = NULL;
+	if (doc = xmlReadFile(path, NULL, 0)) == NULL) return 0;
+	root_element = xmlDocGetRootElement(doc);
+	xmlNode *cur_node = NULL;
+	for (cur_node = root_element ; cur_node; cur_node = cur_node->next) {
+		if (cur_node->type == XML_ELEMENT_NODE) {
+			if (strcmp(cur_node->name, "next_turn") == 0) strcmp(cur_node->content, "White") //**next color is??** 
+			else if (strcmp(cur_node->name, "game_mode") == 0) game_mode = atoi(cur_node->content);
+			else if (strcmp(cur_node->name, "difficulty" == 0){
+				if (strcmp(cur_node->content, "best" == 0) minimax_depth = cmp_best(board);
+				else minimax_depth = atoi(cur_node->content);
+		}
+		print_element_names(cur_node->children);
+	xmlFreeDoc(doc);
+	xmlCleanupParser();
+	return 1;
+
 }
 
 // clears the board from all pieces
@@ -99,14 +124,34 @@ char* input2str(FILE* pFile){
 void exc(char* str, char board[BOARD_SIZE][BOARD_SIZE]){
 	char * word1;
 	word1 = strtok(str, " ");
-	if (strcmp(word1, "minimax_depth") == 0){
+	if (strcmp(word1, "game_mode") == 0){
 		int x = atoi(strtok(NULL, " "));
-		if (x > 6 || x < 1) printf(WRONG_MINIMAX_DEPTH);
-		else minimax_depth = x;
+		if (x < 1 || x > 2) printf(WRONG_GAME_MODE);
+		else{
+			game_mode = x;
+			printf("Running game in %s mode\n", game_mode == 1 ? "2 players" : "player vs.AI");
+		}
+	}
+	else if (strcmp(word1, "difficulty") == 0){ 
+		char * word2 = strtok(NULL, " ");
+		if (game_mode == 1) printf(WRONG_GAME_MODE); // didnt mentioned what message should be print
+		else{ 
+			if (strcmp(word1, "best") == 0) minimax_depth = cmp_best(board); // write this func
+			else{
+				int x = atoi(word2);
+				if (x > 4 || x < 1) printf(WRONG_MINIMAX_DEPTH);
+				else minimax_depth = x;
+			}
+		}
 	}
 	else if (strcmp(word1, "user_color") == 0){
 		char * color = strtok(NULL, " ");
-		if (strcmp(color, "black") == 0) user_color = BLACK;
+		if (game_mode == 1) printf(WRONG_GAME_MODE); // didnt mentioned what message should be print
+		else if (strcmp(color, "black") == 0) user_color = BLACK;
+	}
+	else if (strcmp(word1, "load") == 0){
+		char * path = strtok(NULL, " ");
+		load_game(path) ? print_board(board) : printf(WRONG_FILE_NAME); //**********************************
 	}
 	else if (strcmp(word1, "clear") == 0) clear_board(board);
 	else if (strcmp(word1, "rm") == 0){
@@ -265,7 +310,7 @@ int main(void)
 {
 	char board[BOARD_SIZE][BOARD_SIZE];
 	init_board(board);
-	printf(WELCOME_TO_DRAUGHTS);
+	//printf(WELCOME_TO_DRAUGHTS);
 	printf(ENTER_SETTINGS);
 	char *command = input2str(stdin);
 	int win_pos = 0;

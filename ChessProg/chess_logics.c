@@ -7,6 +7,7 @@ char curr_piece;
 COLOR curr_player;
 Move* best_move;
 COLOR user_color = WHITE;
+COLOR next_player = WHITE; // recently added 
 int minimax_depth = 1;
 int game_mode = 1; // 2 player mode
 

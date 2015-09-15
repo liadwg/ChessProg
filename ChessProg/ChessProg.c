@@ -1,5 +1,7 @@
 #include "ChessProg.h"
 #include "chess_logics.c"
+#include <libxml/parser.h>
+#include <libxml/tree.h>
 
 void print_line(){
 	int i;
@@ -59,22 +61,40 @@ void init_board(char board[BOARD_SIZE][BOARD_SIZE]){
 int load_game(char * path){
 	xmlDoc *doc = NULL;
 	xmlNode *root_element = NULL;
-	if (doc = xmlReadFile(path, NULL, 0)) == NULL) return 0;
+	int line_num = 0;
+	if ((doc = xmlReadFile(path, NULL, 0)) == NULL) return 0;
 	root_element = xmlDocGetRootElement(doc);
 	xmlNode *cur_node = NULL;
-	for (cur_node = root_element ; cur_node; cur_node = cur_node->next) {
-		if (cur_node->type == XML_ELEMENT_NODE) {
-			if (strcmp(cur_node->name, "next_turn") == 0) strcmp(cur_node->content, "White") //**next color is??** 
-			else if (strcmp(cur_node->name, "game_mode") == 0) game_mode = atoi(cur_node->content);
-			else if (strcmp(cur_node->name, "difficulty" == 0){
-				if (strcmp(cur_node->content, "best" == 0) minimax_depth = cmp_best(board);
-				else minimax_depth = atoi(cur_node->content);
+	for (cur_node = root_element; cur_node; cur_node = cur_node->next) {
+		if (/*cur_node->type == XML_ELEMENT_NODE &&*/ cur_node->strcmp(cur_node->name, "game") == 0) {
+			cur_node = cur_node->children;
+			for (cur_node = root_element; cur_node; cur_node = cur_node->next, line_num++){
+				if (cur_node->content == NULL) continue;
+				switch (line_num){
+				case 0: if (strcmp(cur_node->content, "White") == 0){} // change ? // next_turn
+				case 1: game_mode = atoi(cur_node->content); // game_mode
+				case 2: // difficulty
+					if (strcmp(cur_node->content, "best" == 0)) minimax_depth = cmp_best(board);
+					else minimax_depth = atoi(cur_node->content);
+				case 3: user_color = strcmp(cur_node->content, "White") == 0 ? WHITE : BLACK; // user_color
+				case 4: //board
+					cur_node = cur_node->children;
+					int j = 0;
+					clear_board(board);
+					for (cur_node = root_element; cur_node; cur_node = cur_node->next, j++){
+						char * row = cur_node->content;
+						for (int i = 0; i < BOARD_SIZE; i++){
+							if (row[i] == '_') board[i][j] = EMPTY;
+							else board[i][j] = row[i];
+						}
+					}
+				}
+			}
 		}
-		print_element_names(cur_node->children);
+	}
 	xmlFreeDoc(doc);
 	xmlCleanupParser();
 	return 1;
-
 }
 
 // clears the board from all pieces
@@ -149,36 +169,37 @@ void exc(char* str, char board[BOARD_SIZE][BOARD_SIZE]){
 	}
 	else if (strcmp(word1, "load") == 0){
 		char * path = strtok(NULL, " ");
-		load_game(path) ? print_board(board) : printf(WRONG_FILE_NAME); //**********************************
+		load_game(path) ? print_board(board) : printf(WRONG_FILE_NAME);
 	}
 	else if (strcmp(word1, "clear") == 0) clear_board(board);
-	else if (strcmp(word1, "rm") == 0){
-		char * coor1 = strtok(NULL, " <,>");
-		char * coor2 = strtok(NULL, " <,>");
-		if (coor1[0] < 'a' || coor1[0] > 'j' || atoi(coor2) < 1 ||
-			atoi(coor2) > 10 || (coor1[0] - 'a' + atoi(coor2) - 1) % 2 == 1) {
-			printf(WRONG_POSITION);
-		}
-		else board[coor1[0] - 'a'][atoi(coor2) - 1] = EMPTY;
+	else if (strcmp(word1, "next_player") == 0){
+		char * color = strtok(NULL, " ");
+		if (strcmp(color, "black") == 0) user_color = BLACK;
 	}
-	else if (strcmp(word1, "set") == 0){
+	else if ((strcmp(word1, "rm") == 0) || (strcmp(word1, "set") == 0)) {
 		char * coor1 = strtok(NULL, " <,>");
 		char * coor2 = strtok(NULL, " <,>");
-		if (coor1[0] < 'a' || coor1[0] > 'j' || atoi(coor2) < 1 ||
-			atoi(coor2) > 10 || (coor1[0] - 'a' + atoi(coor2) - 1) % 2 == 1){
-			printf(WRONG_POSITION);
-			return;
-		}
-		char * a = strtok(NULL, " ");
-		if (a == NULL) return;
-		char * b = strtok(NULL, " ");
-		if (strcmp(a, "black") == 0){
-			if (strcmp(b, "m") == 0) board[coor1[0] - 'a'][atoi(coor2) - 1] = BLACK_M;
-			else  board[coor1[0] - 'a'][atoi(coor2) - 1] = BLACK_K;
-		}
-		else {
-			if (strcmp(b, "m") == 0) board[coor1[0] - 'a'][atoi(coor2) - 1] = WHITE_M;
-			else  board[coor1[0] - 'a'][atoi(coor2) - 1] = WHITE_K;
+		if (coor1[0] < 'a' || coor1[0] > 'h' || atoi(coor2) < 1 || atoi(coor2) > 8) printf(WRONG_POSITION);
+		if (strcmp(word1, "rm") == 0) board[coor1[0] - 'a'][atoi(coor2) - 1] = EMPTY;
+		else{
+			char * a = strtok(NULL, " ");
+			if (a == NULL) return;
+			char * b = strtok(NULL, " ");
+			char piece;
+			char prev_piece;
+			if (strcmp(b, "king") == 0) piece = 'k';
+			if (strcmp(b, "queen") == 0) piece = 'q';
+			if (strcmp(b, "rook") == 0) piece = 'r';
+			if (strcmp(b, "knight") == 0) piece = 'n';
+			if (strcmp(b, "bishop") == 0) piece = 'b';
+			if (strcmp(b, "pawn") == 0) piece = 'm';
+			if (strcmp(a, "black") == 0) piece = toupper(piece);
+			prev_piece = board[coor1[0] - 'a'][atoi(coor2) - 1];
+			board[coor1[0] - 'a'][atoi(coor2) - 1] = piece;
+			if (!is_valid_board(board)){
+				board[coor1[0] - 'a'][atoi(coor2) - 1] = prev_piece;
+				printf(NO_PIECE);
+			}
 		}
 	}
 	else if (strcmp(word1, "print") == 0) print_board(board);

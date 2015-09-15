@@ -65,6 +65,60 @@ char get_piece_by_type(int type, COLOR player){
 	}
 }
 
+
+void piece_counter(char board[BOARD_SIZE][BOARD_SIZE], int * whites, int * blacks, int * bishop_fault){
+	int white_b = -1, black_b = -1;
+
+	for (int i = 0; i < BOARD_SIZE; i++){
+		for (int j = 0; j < BOARD_SIZE; j++){
+			switch (board[i][j]){
+			case WHITE_P:
+				whites[0]++;
+				break;
+			case WHITE_B:
+				whites[1]++;
+				if (white_b != -1 && (i + j) % 2 == white_b) bishop_fault = 1;
+				white_b = (i + j) % 2;
+				break;
+			case WHITE_N:
+				whites[2]++;
+				break;
+			case WHITE_R:
+				whites[3]++;
+				break;
+			case WHITE_Q:
+				whites[4]++;
+				break;
+			case WHITE_K:
+				whites[5]++;
+				break;
+			case BLACK_P:
+				blacks[0]++;
+				break;
+			case BLACK_B:
+				blacks[1]++;
+				if (black_b != -1 && (i + j) % 2 == black_b) bishop_fault = 1;
+				black_b = (i + j) % 2;
+				break;
+			case BLACK_N:
+				blacks[2]++;
+				break;
+			case BLACK_R:
+				blacks[3]++;
+				break;
+			case BLACK_Q:
+				blacks[4]++;
+				break;
+			case BLACK_K:
+				blacks[5]++;
+				break;
+			default:
+				break;
+			}
+		}
+	}
+}
+
 // frees moves linked list
 void clear_old_moves(Move* head){
 	if (head != NULL){
@@ -263,33 +317,17 @@ void print_moves(Move* head){
 	}
 }
 
-// calc_score helper func
-int get_piece_score(char piece, COLOR player){
-	if (player == WHITE) switch (piece){
-	case BLACK_M: return -1;
-	case BLACK_K: return -3;
-	case WHITE_M: return 1;
-	case WHITE_K: return 3;
-	}
-	else switch (piece){
-	case BLACK_M: return 1;
-	case BLACK_K: return 3;
-	case WHITE_M: return -1;
-	case WHITE_K: return -3;
-	}
-	return 0;
-}
-
 // calculates the score of the board from a player's prospective
 int calc_score(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
-	int score = 0, opposites = 0;
-	for (int i = 0; i < BOARD_SIZE; i++)
-		for (int j = 0; j < BOARD_SIZE; j++){
-		if (is_opposite(player, board[i][j])) opposites++;
-		score += get_piece_score(board[i][j], player);
-		}
-	if (opposites == 0) return 100;
-	return score;
+	int whites[6] = { 0 }, blacks[6] = { 0 };
+	int bishop_fault = 0;
+
+	piece_counter(board, &whites, &blacks, &bishop_fault);
+
+	int white_score = whites[0] + 3 * whites[1] + 3 * whites[2] + 5 * whites[3] + 9 * whites[4] + 400 * whites[5];
+	int black_score = blacks[0] + 3 * blacks[1] + 3 * blacks[2] + 5 * blacks[3] + 9 * blacks[4] + 400 * blacks[5];
+	if (player == WHITE) return white_score - black_score;
+	else return black_score - white_score;
 }
 
 // Helper func
@@ -369,58 +407,12 @@ int alpha_beta_minimax(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, int dep
 
 // safety check before starting the game
 int is_valid_board(char board[BOARD_SIZE][BOARD_SIZE]){
-	int whites[6] = { 0, 0, 0, 0, 0, 0 }, blacks[6] = { 0, 0, 0, 0, 0, 0 };
-	int white_b = -1, black_b = -1;
-	
-	for (int i = 0; i < BOARD_SIZE; i++){
-		for (int j = 0; j < BOARD_SIZE; j++){
-			switch (board[i][j]){
-			case WHITE_P:
-				whites[0]++;
-				break;
-			case WHITE_B:
-				whites[1]++;
-				if (white_b != -1 && (i + j) % 2 == white_b) return 0;
-				white_b = (i + j) % 2;
-				break;
-			case WHITE_N:
-				whites[2]++;
-				break;
-			case WHITE_R:
-				whites[3]++;
-				break;
-			case WHITE_Q:
-				whites[4]++;
-				break;
-			case WHITE_K:
-				whites[5]++;
-				break;
-			case BLACK_P:
-				blacks[0]++;
-				break;
-			case BLACK_B:
-				blacks[1]++;
-				if (black_b != -1 && (i + j) % 2 == black_b) return 0;
-				black_b = (i + j) % 2;
-				break;
-			case BLACK_N:
-				blacks[2]++;
-				break;
-			case BLACK_R:
-				blacks[3]++;
-				break;
-			case BLACK_Q:
-				blacks[4]++;
-				break;
-			case BLACK_K:
-				blacks[5]++;
-				break;
-			default:
-				break;
-			}
-		}
-	}
-	if (whites[0] > 8 || whites[5] != 1 || whites[4] > 1 || blacks[0] > 8 || blacks[5] != 1 || blacks[4] > 1) return 0;
+	int whites[6] = { 0 }, blacks[6] = { 0 };
+	int bishop_fault = 0;
+	 
+	piece_counter(board, &whites, &blacks, &bishop_fault);
+
+	if (whites[0] > 8 || whites[5] != 1 || whites[4] > 1 || blacks[0] > 8 || blacks[5] != 1 || blacks[4] > 1 || bishop_fault) return 0;
 	for (int i = 1; i < 4; i++) if (whites[i] > 2 || blacks[i] > 2) return 0;
 	return 1;
 }

@@ -77,6 +77,7 @@ typedef struct move{
 	Pos piece;
 	Pos dest;
 	char promote; // value 0 means no promotion
+	int score;
 	struct move* next;
 } Move;
 

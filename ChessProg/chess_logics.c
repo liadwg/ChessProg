@@ -1,4 +1,5 @@
 #include "ChessProg.h"
+#include "chess_utils.c"
 
 // Globals
 Move* moves = NULL;
@@ -67,8 +68,8 @@ char get_piece_by_type(int type, COLOR player){
 }
 
 
-void piece_counter(char board[BOARD_SIZE][BOARD_SIZE], int * whites, int * blacks, int * bishop_fault){
-	int white_b = -1, black_b = -1;
+int piece_counter(char board[BOARD_SIZE][BOARD_SIZE], int * whites, int * blacks){
+	int white_b = -1, black_b = -1, bishop_fault = 0;
 
 	for (int i = 0; i < BOARD_SIZE; i++){
 		for (int j = 0; j < BOARD_SIZE; j++){
@@ -118,6 +119,7 @@ void piece_counter(char board[BOARD_SIZE][BOARD_SIZE], int * whites, int * black
 			}
 		}
 	}
+	return bishop_fault;
 }
 
 // frees moves linked list
@@ -252,17 +254,21 @@ void get_moves_by_piece(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, Pos pi
 	switch (board[piece.col][piece.row]){
 	case WHITE_B:
 	case BLACK_B:
-		return get_bishop_moves(board, player, piece);
+		get_bishop_moves(board, player, piece);
+		return;
 	case WHITE_R:
 	case BLACK_R:
-		return get_rook_moves(board, player, piece);
+		get_rook_moves(board, player, piece);
+		return;
 	case WHITE_Q:
 	case BLACK_Q:
 		get_bishop_moves(board, player, piece);
-		return get_rook_moves(board, player, piece);
+		get_rook_moves(board, player, piece);
+		return;
 	case BLACK_P:
 	case WHITE_P:
-		return get_pawn_moves;
+		get_pawn_moves(board, player, piece);
+		return;
 	case WHITE_K:
 	case BLACK_K:
 		tmp_dests = malloc(sizeof(Pos) * 8);
@@ -321,9 +327,8 @@ void print_moves(Move* head){
 // calculates the score of the board from a player's prospective
 int calc_score(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
 	int whites[6] = { 0 }, blacks[6] = { 0 };
-	int bishop_fault = 0;
 
-	piece_counter(board, &whites, &blacks, &bishop_fault);
+	piece_counter(board, &whites, &blacks);
 
 	int white_score = whites[0] + 3 * whites[1] + 3 * whites[2] + 5 * whites[3] + 9 * whites[4] + 400 * whites[5];
 	int black_score = blacks[0] + 3 * blacks[1] + 3 * blacks[2] + 5 * blacks[3] + 9 * blacks[4] + 400 * blacks[5];
@@ -411,7 +416,7 @@ int is_valid_board(char board[BOARD_SIZE][BOARD_SIZE]){
 	int whites[6] = { 0 }, blacks[6] = { 0 };
 	int bishop_fault = 0;
 	 
-	piece_counter(board, &whites, &blacks, &bishop_fault);
+	bishop_fault = piece_counter(board, &whites, &blacks);
 
 	if (whites[0] > 8 || whites[5] != 1 || whites[4] > 1 || blacks[0] > 8 || blacks[5] != 1 || blacks[4] > 1 || bishop_fault) return 0;
 	for (int i = 1; i < 4; i++) if (whites[i] > 2 || blacks[i] > 2) return 0;

@@ -25,6 +25,7 @@
 #define EMPTY ' '
 
 #define BOARD_SIZE 8
+#define BOARD_LIMIT 1000000
 
 typedef char** board_t;
 
@@ -69,7 +70,7 @@ typedef struct pos{
 typedef struct move{
 	Pos piece;
 	Pos dest;
-	int promote; // value 0 means no promotion
+	char promote; // value 0 means no promotion
 	struct move* next;
 } Move;
 

@@ -6,6 +6,8 @@ if one of the standard functions fail, we free all pointers before aborting the 
 After we ran some tests we came to a conclusion that the maximum number of pointers allocated in a specific moment does not exceed 150-200,
 So we gave a very big buffer and used a fail safe so that if the array would fill up it wouldn't interfere with the program's functionality. */
 
+#include "ChessProg.h"
+
 void* mem_list[1000];
 int mem_count = 0;
 int fail_safe = 1;
@@ -85,3 +87,11 @@ void safe_free(void * mem){
 	free(mem);
 }
 #define free(x) safe_free(x)
+
+#define foreach(item, array) \
+    for(int keep = 1, \
+            count = 0,\
+            size = sizeof (array) / sizeof *(array); \
+        keep && count != size; \
+        keep = !keep, count++) \
+      for(item = (array) + count; keep; keep = !keep)

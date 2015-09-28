@@ -257,9 +257,19 @@ void print_move(Move* move){
 	printf("\n");
 }
 
+
 void print_moves(Move* head){
 	while (head != NULL){
 		print_move(head);
+		head = head->next;
+	}
+}
+
+void print_piece_moves(Move* head, int col, int row){
+	while (head != NULL){
+		if (head->piece.col == col && head->piece.col == row){
+			print_move(head);
+		}
 		head = head->next;
 	}
 }

@@ -36,7 +36,8 @@ typedef char** board_t;
 #define WRONG_MINIMAX_DEPTH "Wrong value for minimax depth. The value should be between 1 to 4\n"
 #define WRONG_FILE_NAME "Wrong file name\n"
 #define WRONG_POSITION "Invalid position on the board\n"
-#define NO_PIECE "Setting this piece creates an invalid board\n"  
+#define NO_PIECE "Setting this piece creates an invalid board\n"
+#define NO_DISC "The specified position does not contain your piece\n"
 #define WROND_BOARD_INITIALIZATION "Wrong board initialization\n"
 
 
@@ -46,18 +47,23 @@ typedef char** board_t;
 #define WRONG_ROOK_POSITION "Wrong position for a rook\n" 
 #define ILLEGAL_CALTLING_MOVE "Illegal castling move\n"  
 
-#define TIE "The game ends in a tie\n"
 
 #define perror_message(func_name) (perror("Error: standard function %s has failed", func_name));
 #define print_message(message) (printf("%s", message));
 
-#define ENTER_YOUR_MOVE "Enter your move:\n" 
-#define WHITE_WIN "White player wins!\n" 
-#define BLACK_WIN "Black player wins!\n" 
+#define ENTER_YOUR_MOVE "%s player - Enter your move:\n" 
+#define WHITE_WIN "MATE! White player wins!\n" 
+#define BLACK_WIN "MATE! Black player wins!\n" 
+#define TIE "The game ends in a tie\n"
+#define CHECK "Check!\n"
 
-#define QUIT 2
-#define WIN_POS 0
+#define QUIT 0
 #define GAME_ON 1
+#define WIN_POS 2
+#define TIE_POS 3
+
+
+
 
 typedef enum { WHITE = 0, BLACK = 1 } COLOR;
 
@@ -106,10 +112,13 @@ int alpha_beta_minimax(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, int dep
 int is_valid_board(char board[BOARD_SIZE][BOARD_SIZE]);
 void print_board(char board[BOARD_SIZE][BOARD_SIZE]);
 void init_board(char board[BOARD_SIZE][BOARD_SIZE]);
+int load_game(char * path, char board[BOARD_SIZE][BOARD_SIZE]);
 void clear_board(char board[BOARD_SIZE][BOARD_SIZE]);
 char* input2str(FILE* pFile);
+char name2piece(char * name, char * color);
 void exc(char* str, char board[BOARD_SIZE][BOARD_SIZE]);
 int computer_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color);
+int piece2type(char * piece);
 int user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color);
 int is_valid_piece(char board[BOARD_SIZE][BOARD_SIZE], Move * move, COLOR color);
 Move * is_valid_move(Move * moves, Move * new_move);

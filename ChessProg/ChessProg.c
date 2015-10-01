@@ -97,6 +97,38 @@ int load_game(char * path, char board[BOARD_SIZE][BOARD_SIZE]){
 	return 1;
 }
 
+int save_game(char board[BOARD_SIZE][BOARD_SIZE], COLOR color, char * file_name){
+	xmlDocPtr doc = NULL;       /* document pointer */
+	xmlNodePtr root_node = NULL, board_node = NULL;/* node pointers */
+	
+	LIBXML_TEST_VERSION;
+
+	doc = xmlNewDoc(BAD_CAST "1.0");
+	root_node = xmlNewNode(NULL, BAD_CAST "game");
+	xmlDocSetRootElement(doc, root_node);
+
+	xmlNewChild(root_node, NULL, BAD_CAST "next_turn", BAD_CAST color);
+	xmlNewChild(root_node, NULL, BAD_CAST "game_mode", BAD_CAST game_mode);
+
+	if (game_mode == 2){
+		xmlNewChild(root_node, NULL, BAD_CAST "difficulty", BAD_CAST minimax_depth);
+		xmlNewChild(root_node, NULL, BAD_CAST "user_color", BAD_CAST user_color);
+	}
+	board_node = xmlNewChild(root_node, NULL, BAD_CAST "board", NULL);
+	for (int i = 0; i < BOARD_SIZE; i++){
+		char * line = malloc(8);
+		for (int j = 0; j < BOARD_SIZE; j++){
+			if (board[i][j] == EMPTY) line[j] = '_';
+			else line[j] = board[i][j];
+		}
+		xmlNewChild(board_node, NULL, BAD_CAST("row_%d", j), BAD_CAST line);
+	}
+	if (xmlSaveFormatFileEnc(file_name, doc, "UTF-8", 1) == -1) return 0;
+	xmlFreeDoc(doc);
+	xmlCleanupParser();
+	return 1;
+}
+
 // clears the board from all pieces
 void clear_board(char board[BOARD_SIZE][BOARD_SIZE]){
 	int i, j;
@@ -290,41 +322,20 @@ int user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 				best_depth = 0;
 			}
 			alpha_beta_minimax(board, color, 0, -100, 100);
-			print_best_moves(best_move->score);
+			print_best_moves(moves_head, best_move->score);
 			minimax_depth = prev_depth;
 			best_depth = prev_best_depth;
 		}
 		else if (strcmp(word1, "save") == 0){
 			char * file_name = strtok(NULL, " <,>");
-			xmlDocPtr doc = NULL;       /* document pointer */
-			xmlNodePtr root_node = NULL, node = NULL, node1 = NULL;/* node pointers */
-			xmlDtdPtr dtd = NULL;       /* DTD pointer */
-			char buff[256];
-			int i, j;
-
-			LIBXML_TEST_VERSION;
-
-			doc = xmlNewDoc(BAD_CAST "1.0");
-			root_node = xmlNewNode(NULL, BAD_CAST "game");
-			xmlDocSetRootElement(doc, root_node);
-
-			xmlNewChild(root_node, NULL, BAD_CAST "next_turn", BAD_CAST color);
-			xmlNewChild(root_node, NULL, BAD_CAST "game_mode", BAD_CAST game_mode);
-
-			xmlNewChild(root_node, NULL, BAD_CAST "difficulty", BAD_CAST minimax_depth);
-			if (game_mode == 2){
-				xmlNewChild(root_node, NULL, BAD_CAST "user_color", BAD_CAST user_color);
-				xmlNewChild(root_node, NULL, BAD_CAST "Ibrightvalue", BAD_CAST "no");
+			FILE * file = fopen(file_name, "r");
+			if (file != NULL){
+				fclose;
+				printf(WRONG_FILE_NAME);
 			}
-			xmlNewChild(root_node, NULL, BAD_CAST "Dimtime", BAD_CAST "no");
-			/*
-			*      * Dumping document to stdio or file
-			*           */
-			xmlSaveFormatFileEnc(file_name, doc, "UTF-8", 1);
-
-			xmlFreeDoc(doc);
-
-			xmlCleanupParser();
+			else{
+				save_game(board, color, file_name);
+			}
 		}
 		else if (strcmp(word1, "move") == 0 || strcmp(word1, "get_score") == 0){
 			char * piece_coor1 = strtok(NULL, " <,>");

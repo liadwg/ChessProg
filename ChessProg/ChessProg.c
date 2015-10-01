@@ -33,6 +33,16 @@ void print_board(char board[BOARD_SIZE][BOARD_SIZE])
 	printf("\n");
 }
 
+// clears the board from all pieces
+void clear_board(char board[BOARD_SIZE][BOARD_SIZE]){
+	int i, j;
+	for (i = 0; i < BOARD_SIZE; i++){
+		for (j = 0; j < BOARD_SIZE; j++){
+			board[i][j] = EMPTY;
+		}
+	}
+}
+
 void init_board(char board[BOARD_SIZE][BOARD_SIZE]){
 	int i, j;
 	for (i = 0; i < BOARD_SIZE; i++){
@@ -57,6 +67,14 @@ void init_board(char board[BOARD_SIZE][BOARD_SIZE]){
 			board[i][BOARD_SIZE - 1] = WHITE_K;
 		}
 	}
+}
+
+int piece2type(char * piece){
+	if (piece == NULL) return 0;
+	if (strcmp(piece, "queen") == 0) return 1;
+	if (strcmp(piece, "bishop") == 0) return 2;
+	if (strcmp(piece, "rook") == 0) return 3;
+	if (strcmp(piece, "knight") == 0) return 4;
 }
 
 int load_game(char * path, char board[BOARD_SIZE][BOARD_SIZE]){
@@ -96,16 +114,6 @@ int load_game(char * path, char board[BOARD_SIZE][BOARD_SIZE]){
 	xmlFreeDoc(doc);
 	xmlCleanupParser();
 	return 1;
-}
-
-// clears the board from all pieces
-void clear_board(char board[BOARD_SIZE][BOARD_SIZE]){
-	int i, j;
-	for (i = 0; i < BOARD_SIZE; i++){
-		for (j = 0; j < BOARD_SIZE; j++){
-			board[i][j] = EMPTY;
-		}
-	}
 }
 
 // handles user input (unknown length), returns a string without redundant white spaces after each new line
@@ -218,6 +226,18 @@ void exc(char* str, char board[BOARD_SIZE][BOARD_SIZE]){
 	return;
 }
 
+// executes a specific move on the given board
+void exc_move(char board[BOARD_SIZE][BOARD_SIZE], Move * move){
+	Pos cur, cap;
+	cur.col = move->piece.col;
+	cur.row = move->piece.row;
+	board[move->dest.col][move->dest.row] = board[cur.col][cur.row];
+	if (board[cur.col][cur.row] == BLACK_P && move->dest.row == 0)
+		board[move->dest.col][move->dest.row] = name2piece(get_piece_name_by_type(move->promote), "black"); // change it!
+	if (board[cur.col][cur.row] == WHITE_P && move->dest.row == BOARD_SIZE - 1)
+		board[move->dest.col][move->dest.row] = name2piece(get_piece_name_by_type(move->promote), "white");
+}
+
 // manages the computer's turn
 int computer_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 	int ret_val;
@@ -238,14 +258,6 @@ int computer_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 	}
 	clear_old_moves(moves_head);
 	return ret_val;
-}
-
-int piece2type(char * piece){
-	if (piece == NULL) return 0;
-	if (strcmp(piece, "queen") == 0) return 1;
-	if (strcmp(piece, "bishop") == 0) return 2;
-	if (strcmp(piece, "rook") == 0) return 3;
-	if (strcmp(piece, "knight") == 0) return 4;
 }
 
 // manages the users turn, game state user input loop
@@ -291,7 +303,7 @@ int user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 				best_depth = 0;
 			}
 			alpha_beta_minimax(board, color, 0, -100, 100);
-			print_best_moves(best_move->score);
+			print_best_moves(moves_head, best_move->score);
 			minimax_depth = prev_depth;
 			best_depth = prev_best_depth;
 		}
@@ -372,18 +384,6 @@ int user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 	clear_old_moves(new_move);
 	clear_old_moves(moves_head);
 	return ret_val;
-}
-
-// executes a specific move on the given board
-void exc_move(char board[BOARD_SIZE][BOARD_SIZE], Move * move){
-	Pos cur, cap;
-	cur.col = move->piece.col;
-	cur.row = move->piece.row;
-	board[move->dest.col][move->dest.row] = board[cur.col][cur.row];
-	if (board[cur.col][cur.row] == BLACK_P && move->dest.row == 0) 
-		board[move->dest.col][move->dest.row] = name2piece(get_piece_name_by_type(move->promote), "black"); // change it!
-	if (board[cur.col][cur.row] == WHITE_P && move->dest.row == BOARD_SIZE - 1) 
-		board[move->dest.col][move->dest.row] = name2piece(get_piece_name_by_type(move->promote), "white");
 }
 
 int main(void)

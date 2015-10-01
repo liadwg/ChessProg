@@ -1,5 +1,6 @@
 #include "ChessProg.h"
 #include "chess_logics.c"
+#include "sdl_test.c"
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
@@ -468,6 +469,8 @@ int main(void)
 		command = input2str(stdin);
 	}
 	free(command);
+	//main_sdl();
+	//return 0;
 }
 
 

@@ -184,7 +184,8 @@ void exc(char* str, char board[BOARD_SIZE][BOARD_SIZE]){
 	}
 	else if (strcmp(word1, "load") == 0){
 		char * path = strtok(NULL, " ");
-		load_game(path, board) ? print_board(board) : printf(WRONG_FILE_NAME);
+		if (load_game(path, board)) print_board(board);
+		else printf(WRONG_FILE_NAME);
 	}
 	else if (strcmp(word1, "clear") == 0) clear_board(board);
 	else if (strcmp(word1, "next_player") == 0){
@@ -293,55 +294,57 @@ int user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 			minimax_depth = prev_depth;
 			best_depth = prev_best_depth;
 		}
-		else if (strcmp(word1, "get_score") == 0){
-			char * depth = strtok(command, " ");
-			strtok(NULL, " <,>");
-			char * piece_coor1 = strtok(NULL, " <,>");
-			char * piece_coor2 = strtok(NULL, " <,>");
-			char * piece_promote = strtok(NULL, " <,>");
-			int col = piece_coor1[0] - 'a';
-			int row = atoi(piece_coor2) - 1;
-			if (piece_promote == NULL){
-				if ((color == BLACK && new_move->dest.row == 0) || (color == WHITE && new_move->dest.row == BOARD_SIZE - 1))
-					piece_promote = "queen";
-			}
-			new_move->promote = piece2type(piece_promote); 
+		else if (strcmp(word1, "save") == 0){
+			char * file_name = strtok(NULL, " <,>");
+			xmlDocPtr doc = NULL;       /* document pointer */
+			xmlNodePtr root_node = NULL, node = NULL, node1 = NULL;/* node pointers */
+			xmlDtdPtr dtd = NULL;       /* DTD pointer */
+			char buff[256];
+			int i, j;
 
-			int prev_best_depth = best_depth;
-			int prev_depth = depth;
-			if (strcmp(depth, "best") == 0){
-				minimax_depth = 4;
-				best_depth = 1;
+			LIBXML_TEST_VERSION;
+
+			doc = xmlNewDoc(BAD_CAST "1.0");
+			root_node = xmlNewNode(NULL, BAD_CAST "game");
+			xmlDocSetRootElement(doc, root_node);
+
+			xmlNewChild(root_node, NULL, BAD_CAST "next_turn", BAD_CAST color);
+			xmlNewChild(root_node, NULL, BAD_CAST "game_mode", BAD_CAST game_mode);
+
+			xmlNewChild(root_node, NULL, BAD_CAST "difficulty", BAD_CAST minimax_depth);
+			if (game_mode == 2){
+				xmlNewChild(root_node, NULL, BAD_CAST "user_color", BAD_CAST user_color);
+				xmlNewChild(root_node, NULL, BAD_CAST "Ibrightvalue", BAD_CAST "no");
 			}
-			else{
-				minimax_depth = atoi(depth);
-				best_depth = 0;
-			}
-			alpha_beta_minimax(board, color, 0, -100, 100);
-			print_best_moves(best_move->score);
-			minimax_depth = prev_depth;
-			best_depth = prev_best_depth;
-		}/***************/
-		else if (strcmp(word1, "move") == 0){
+			xmlNewChild(root_node, NULL, BAD_CAST "Dimtime", BAD_CAST "no");
+			/*
+			*      * Dumping document to stdio or file
+			*           */
+			xmlSaveFormatFileEnc(file_name, doc, "UTF-8", 1);
+
+			xmlFreeDoc(doc);
+
+			xmlCleanupParser();
+		}
+		else if (strcmp(word1, "move") == 0 || strcmp(word1, "get_score") == 0){
 			char * piece_coor1 = strtok(NULL, " <,>");
 			char * piece_coor2 = strtok(NULL, " <,>");
-			char * piece_promote = strtok(NULL, " <,>");
 			new_move->piece.col = piece_coor1[0] - 'a';
 			new_move->piece.row = atoi(piece_coor2) - 1;
+			if (!is_valid_pos(new_move->piece)){
+				printf(WRONG_POSITION);
+				continue;
+			}
+			char * dest_coor1 = strtok(NULL, " <,>to");
+			char * dest_coor2 = strtok(NULL, " <,>to");
+			new_move->dest.col = dest_coor1[0] - 'a';
+			new_move->dest.row = atoi(dest_coor2) - 1;
+			char * piece_promote = strtok(NULL, " <,>");
 			if (piece_promote == NULL){
 				if ((color == BLACK && new_move->dest.row == 0) || (color == WHITE && new_move->dest.row == BOARD_SIZE - 1))
 					piece_promote = "queen";
 			}
 			new_move->promote = piece2type(piece_promote);
-			if (!is_valid_pos(new_move->piece)){
-				printf(WRONG_POSITION);
-				continue;
-			}
-
-			char * dest_coor1 = strtok(NULL, " <,>to");
-			char * dest_coor2 = strtok(NULL, " <,>to");
-			new_move->dest.col = dest_coor1[0] - 'a';
-			new_move->dest.row = atoi(dest_coor2) - 1;
 			if (!is_valid_pos(new_move->dest)) printf(WRONG_POSITION);
 			if (!is_valid_piece(board, new_move, color)){
 				printf(NO_DISC);
@@ -352,11 +355,14 @@ int user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 				printf(ILLEGAL_MOVE);
 				continue;
 			}
-			else{
+			else if (strcmp(word1, "move") == 0){
 				exc_move(board, move2do);
 				print_board(board);
 				ret_val = GAME_ON;
 				break;
+			}
+			else if (strcmp(word1, "get_score") == 0){
+				printf(move2do->score);
 			}
 		}
 		else printf(ILLEGAL_COMMAND);

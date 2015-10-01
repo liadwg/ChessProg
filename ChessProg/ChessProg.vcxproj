@@ -59,7 +59,7 @@
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>SDL.lib;SDLmain.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
@@ -87,10 +87,12 @@
     <ClCompile Include="chess_logics.c" />
     <ClCompile Include="chess_ui.c" />
     <ClCompile Include="chess_utils.c" />
-    <ClCompile Include="sdl_test.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChessProg.h" />
+    <ClInclude Include="chess_logics.h" />
+    <ClInclude Include="chess_ui.h" />
+    <ClInclude Include="chess_utils.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

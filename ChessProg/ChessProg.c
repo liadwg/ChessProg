@@ -1,8 +1,4 @@
 #include "ChessProg.h"
-#include "chess_logics.c"
-#include "sdl_test.c"
-#include <libxml/parser.h>
-#include <libxml/tree.h>
 
 void print_line(){
 	int i;
@@ -147,18 +143,6 @@ char* input2str(FILE* pFile){
 	return str;
 }
 
-char name2piece(char * name, char * color){
-	char piece;
-	if (strcmp(name, "king") == 0) piece = 'k';
-	if (strcmp(name, "queen") == 0) piece = 'q';
-	if (strcmp(name, "rook") == 0) piece = 'r';
-	if (strcmp(name, "knight") == 0) piece = 'n';
-	if (strcmp(name, "bishop") == 0) piece = 'b';
-	if (strcmp(name, "pawn") == 0) piece = 'm';
-	if (strcmp(color, "black") == 0) piece = toupper(piece);
-	return piece;
-}
-
 // settings state input loop - gets the user's command and handles it
 void exc(char* str, char board[BOARD_SIZE][BOARD_SIZE]){
 	char * word1;
@@ -224,18 +208,6 @@ void exc(char* str, char board[BOARD_SIZE][BOARD_SIZE]){
 	else if (strcmp(word1, "print") == 0) print_board(board);
 	else printf(ILLEGAL_COMMAND);
 	return;
-}
-
-// executes a specific move on the given board
-void exc_move(char board[BOARD_SIZE][BOARD_SIZE], Move * move){
-	Pos cur, cap;
-	cur.col = move->piece.col;
-	cur.row = move->piece.row;
-	board[move->dest.col][move->dest.row] = board[cur.col][cur.row];
-	if (board[cur.col][cur.row] == BLACK_P && move->dest.row == 0)
-		board[move->dest.col][move->dest.row] = name2piece(get_piece_name_by_type(move->promote), "black"); // change it!
-	if (board[cur.col][cur.row] == WHITE_P && move->dest.row == BOARD_SIZE - 1)
-		board[move->dest.col][move->dest.row] = name2piece(get_piece_name_by_type(move->promote), "white");
 }
 
 // manages the computer's turn

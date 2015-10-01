@@ -27,12 +27,18 @@
     <ClCompile Include="chess_utils.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sdl_test.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChessProg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="chess_logics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="chess_utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="chess_ui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

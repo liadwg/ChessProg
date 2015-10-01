@@ -8,6 +8,23 @@
 #include <string.h>
 #include <stdarg.h>
 
+#ifndef CHESS_LOGICS_
+#include "chess_logics.h"
+#endif CHESS_LOGICS_
+
+#ifndef CHESS_UTILS_
+#include "chess_utils.h"
+#endif CHESS_UTILS_
+
+#ifndef CHESS_UI_
+#include "chess_ui.h"
+#endif CHESS_UI_
+
+#include <libxml/parser.h>
+#include <libxml/tree.h>
+
+
+
 #define WHITE_P 'm'
 #define WHITE_B 'b'
 #define WHITE_N 'n'

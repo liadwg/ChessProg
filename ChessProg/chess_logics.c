@@ -1,5 +1,4 @@
-#include "ChessProg.h"
-#include "chess_utils.c"
+#include "chess_logics.h"
 
 // Globals
 Move* moves = NULL;
@@ -39,6 +38,18 @@ char* get_piece_name_by_type(int type){
 	case 4:
 		return "knight";
 	}
+}
+
+char name2piece(char * name, char * color){
+	char piece;
+	if (strcmp(name, "king") == 0) piece = 'k';
+	if (strcmp(name, "queen") == 0) piece = 'q';
+	if (strcmp(name, "rook") == 0) piece = 'r';
+	if (strcmp(name, "knight") == 0) piece = 'n';
+	if (strcmp(name, "bishop") == 0) piece = 'b';
+	if (strcmp(name, "pawn") == 0) piece = 'm';
+	if (strcmp(color, "black") == 0) piece = toupper(piece);
+	return piece;
 }
 
 char get_piece_by_type(int type, COLOR player){
@@ -228,6 +239,19 @@ int piece_counter(char board[BOARD_SIZE][BOARD_SIZE], int * whites, int * blacks
 		}
 	}
 	return bishop_fault;
+}
+
+
+// executes a specific move on the given board
+void exc_move(char board[BOARD_SIZE][BOARD_SIZE], Move * move){
+	Pos cur, cap;
+	cur.col = move->piece.col;
+	cur.row = move->piece.row;
+	board[move->dest.col][move->dest.row] = board[cur.col][cur.row];
+	if (board[cur.col][cur.row] == BLACK_P && move->dest.row == 0)
+		board[move->dest.col][move->dest.row] = name2piece(get_piece_name_by_type(move->promote), "black"); // change it!
+	if (board[cur.col][cur.row] == WHITE_P && move->dest.row == BOARD_SIZE - 1)
+		board[move->dest.col][move->dest.row] = name2piece(get_piece_name_by_type(move->promote), "white");
 }
 
 int clear_illegal_moves(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){

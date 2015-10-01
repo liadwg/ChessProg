@@ -488,7 +488,6 @@ int calc_score(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
 }
 
 
-
 // minimax recursive func, using alpha-beta pruning
 int alpha_beta_minimax(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, int depth, int alpha, int beta){
 	Move* move_list = get_all_moves(board, player);
@@ -506,19 +505,19 @@ int alpha_beta_minimax(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, int dep
 
 	if (depth == 0){
 		best_move = curr_move;
+		best_move->score = 100;
 		if (curr_move->next == NULL) return 100;
 	}
 
-	int tmp;
 	char init_board[BOARD_SIZE][BOARD_SIZE];
 	duplicate_board(board, init_board);
 	// MAX
 	if (depth % 2 == 0){
 		while (curr_move != NULL){
 			exc_move(board, curr_move);
-			tmp = alpha_beta_minimax(board, (player == 0), depth + 1, alpha, beta);
-			if (tmp > alpha){
-				alpha = tmp;
+			curr_move->score = alpha_beta_minimax(board, (player == 0), depth + 1, alpha, beta);
+			if (curr_move->score > alpha){
+				alpha = curr_move->score;
 				if (depth == 0) best_move = curr_move;
 			}
 			if (alpha >= beta){
@@ -538,9 +537,9 @@ int alpha_beta_minimax(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, int dep
 	else{
 		while (curr_move != NULL){
 			exc_move(board, curr_move);
-			tmp = alpha_beta_minimax(board, (player == 0), depth + 1, alpha, beta);
-			if (tmp < beta){
-				beta = tmp;
+			curr_move->score = alpha_beta_minimax(board, (player == 0), depth + 1, alpha, beta);
+			if (curr_move->score < beta){
+				beta = curr_move->score;
 				if (depth == 0) best_move = curr_move;
 			}
 			if (alpha >= beta){

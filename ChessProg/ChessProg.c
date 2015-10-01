@@ -1,5 +1,6 @@
 #include "ChessProg.h"
 #include "chess_logics.c"
+#include "sdl_test.c"
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
@@ -32,6 +33,16 @@ void print_board(char board[BOARD_SIZE][BOARD_SIZE])
 	printf("\n");
 }
 
+// clears the board from all pieces
+void clear_board(char board[BOARD_SIZE][BOARD_SIZE]){
+	int i, j;
+	for (i = 0; i < BOARD_SIZE; i++){
+		for (j = 0; j < BOARD_SIZE; j++){
+			board[i][j] = EMPTY;
+		}
+	}
+}
+
 void init_board(char board[BOARD_SIZE][BOARD_SIZE]){
 	int i, j;
 	for (i = 0; i < BOARD_SIZE; i++){
@@ -56,6 +67,14 @@ void init_board(char board[BOARD_SIZE][BOARD_SIZE]){
 			board[i][BOARD_SIZE - 1] = WHITE_K;
 		}
 	}
+}
+
+int piece2type(char * piece){
+	if (piece == NULL) return 0;
+	if (strcmp(piece, "queen") == 0) return 1;
+	if (strcmp(piece, "bishop") == 0) return 2;
+	if (strcmp(piece, "rook") == 0) return 3;
+	if (strcmp(piece, "knight") == 0) return 4;
 }
 
 int load_game(char * path, char board[BOARD_SIZE][BOARD_SIZE]){
@@ -100,7 +119,7 @@ int load_game(char * path, char board[BOARD_SIZE][BOARD_SIZE]){
 int save_game(char board[BOARD_SIZE][BOARD_SIZE], COLOR color, char * file_name){
 	xmlDocPtr doc = NULL;       /* document pointer */
 	xmlNodePtr root_node = NULL, board_node = NULL;/* node pointers */
-	
+
 	LIBXML_TEST_VERSION;
 
 	doc = xmlNewDoc(BAD_CAST "1.0");
@@ -121,7 +140,7 @@ int save_game(char board[BOARD_SIZE][BOARD_SIZE], COLOR color, char * file_name)
 			if (board[i][j] == EMPTY) line[j] = '_';
 			else line[j] = board[i][j];
 		}
-		xmlNewChild(board_node, NULL, BAD_CAST("row_%d", j), BAD_CAST line);
+		xmlNewChild(board_node, NULL, BAD_CAST("row_%d", i), BAD_CAST line);
 	}
 	if (xmlSaveFormatFileEnc(file_name, doc, "UTF-8", 1) == -1) return 0;
 	xmlFreeDoc(doc);
@@ -249,6 +268,18 @@ void exc(char* str, char board[BOARD_SIZE][BOARD_SIZE]){
 	return;
 }
 
+// executes a specific move on the given board
+void exc_move(char board[BOARD_SIZE][BOARD_SIZE], Move * move){
+	Pos cur, cap;
+	cur.col = move->piece.col;
+	cur.row = move->piece.row;
+	board[move->dest.col][move->dest.row] = board[cur.col][cur.row];
+	if (board[cur.col][cur.row] == BLACK_P && move->dest.row == 0)
+		board[move->dest.col][move->dest.row] = name2piece(get_piece_name_by_type(move->promote), "black"); // change it!
+	if (board[cur.col][cur.row] == WHITE_P && move->dest.row == BOARD_SIZE - 1)
+		board[move->dest.col][move->dest.row] = name2piece(get_piece_name_by_type(move->promote), "white");
+}
+
 // manages the computer's turn
 int computer_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 	int ret_val;
@@ -269,14 +300,6 @@ int computer_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 	}
 	clear_old_moves(moves_head);
 	return ret_val;
-}
-
-int piece2type(char * piece){
-	if (piece == NULL) return 0;
-	if (strcmp(piece, "queen") == 0) return 1;
-	if (strcmp(piece, "bishop") == 0) return 2;
-	if (strcmp(piece, "rook") == 0) return 3;
-	if (strcmp(piece, "knight") == 0) return 4;
 }
 
 // manages the users turn, game state user input loop
@@ -384,18 +407,6 @@ int user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 	return ret_val;
 }
 
-// executes a specific move on the given board
-void exc_move(char board[BOARD_SIZE][BOARD_SIZE], Move * move){
-	Pos cur, cap;
-	cur.col = move->piece.col;
-	cur.row = move->piece.row;
-	board[move->dest.col][move->dest.row] = board[cur.col][cur.row];
-	if (board[cur.col][cur.row] == BLACK_P && move->dest.row == 0) 
-		board[move->dest.col][move->dest.row] = name2piece(get_piece_name_by_type(move->promote), "black"); // change it!
-	if (board[cur.col][cur.row] == WHITE_P && move->dest.row == BOARD_SIZE - 1) 
-		board[move->dest.col][move->dest.row] = name2piece(get_piece_name_by_type(move->promote), "white");
-}
-
 int main(void)
 {
 	char board[BOARD_SIZE][BOARD_SIZE];
@@ -485,6 +496,8 @@ int main(void)
 		command = input2str(stdin);
 	}
 	free(command);
+	//main_sdl();
+	//return 0;
 }
 
 

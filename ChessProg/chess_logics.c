@@ -465,6 +465,15 @@ void print_piece_moves(Move* head, int col, int row){
 	}
 }
 
+void print_best_moves(Move* head, int score){
+	while (head != NULL){
+		if (head->score == score){
+			print_move(head);
+		}
+		head = head->next;
+	}
+}
+
 // calculates the score of the board from a player's prospective
 int calc_score(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
 	int whites[6] = { 0 }, blacks[6] = { 0 };

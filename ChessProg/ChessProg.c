@@ -166,7 +166,10 @@ void exc(char* str, char board[BOARD_SIZE][BOARD_SIZE]){
 		char * word2 = strtok(NULL, " ");
 		if (game_mode == 1) printf(WRONG_GAME_MODE); // didnt mentioned what message should be print
 		else{ 
-			if (strcmp(word1, "best") == 0) minimax_depth = cmp_best(board); // write this func
+			if (strcmp(word1, "best") == 0){
+				minimax_depth = 4;
+				best_depth = 1;
+			}
 			else{
 				int x = atoi(word2);
 				if (x > 4 || x < 1) printf(WRONG_MINIMAX_DEPTH);
@@ -275,12 +278,50 @@ int user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 		}
 		else if (strcmp(word1, "get_best_moves") == 0){
 			char * depth = strtok(command, " ");
+			int prev_best_depth = best_depth;
+			int prev_depth = depth;
 			if (strcmp(depth, "best") == 0){
-
+				minimax_depth = 4;
+				best_depth = 1;
 			}
-			print_moves(moves_head);
-			continue;
+			else{
+				minimax_depth = atoi(depth);
+				best_depth = 0;
+			}
+			alpha_beta_minimax(board, color, 0, -100, 100);
+			print_best_moves(best_move->score);
+			minimax_depth = prev_depth;
+			best_depth = prev_best_depth;
 		}
+		else if (strcmp(word1, "get_score") == 0){
+			char * depth = strtok(command, " ");
+			strtok(NULL, " <,>");
+			char * piece_coor1 = strtok(NULL, " <,>");
+			char * piece_coor2 = strtok(NULL, " <,>");
+			char * piece_promote = strtok(NULL, " <,>");
+			int col = piece_coor1[0] - 'a';
+			int row = atoi(piece_coor2) - 1;
+			if (piece_promote == NULL){
+				if ((color == BLACK && new_move->dest.row == 0) || (color == WHITE && new_move->dest.row == BOARD_SIZE - 1))
+					piece_promote = "queen";
+			}
+			new_move->promote = piece2type(piece_promote); 
+
+			int prev_best_depth = best_depth;
+			int prev_depth = depth;
+			if (strcmp(depth, "best") == 0){
+				minimax_depth = 4;
+				best_depth = 1;
+			}
+			else{
+				minimax_depth = atoi(depth);
+				best_depth = 0;
+			}
+			alpha_beta_minimax(board, color, 0, -100, 100);
+			print_best_moves(best_move->score);
+			minimax_depth = prev_depth;
+			best_depth = prev_best_depth;
+		}/***************/
 		else if (strcmp(word1, "move") == 0){
 			char * piece_coor1 = strtok(NULL, " <,>");
 			char * piece_coor2 = strtok(NULL, " <,>");
@@ -296,7 +337,7 @@ int user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 				printf(WRONG_POSITION);
 				continue;
 			}
-			int i = 0;
+
 			char * dest_coor1 = strtok(NULL, " <,>to");
 			char * dest_coor2 = strtok(NULL, " <,>to");
 			new_move->dest.col = dest_coor1[0] - 'a';
@@ -371,13 +412,15 @@ int main(void)
 					int user_ret_val = user_turn(board, WHITE);
 					if (user_ret_val == QUIT) break;
 					if (user_ret_val == WIN_POS || user_ret_val == TIE_POS){
-						(user_ret_val == WIN_POS) ? printf(BLACK_WIN) : printf(TIE);
+						if (user_ret_val == WIN_POS) printf(BLACK_WIN);
+						else printf(TIE);
 						end_pos = 1;
 						break;
 					}
 					int comp_ret_val = computer_turn(board, BLACK);
 					if (comp_ret_val == WIN_POS || comp_ret_val == TIE_POS){
-						comp_ret_val == WIN_POS ? printf(WHITE_WIN) : printf(TIE);
+						if (comp_ret_val == WIN_POS) printf(WHITE_WIN);
+						else printf(TIE);
 						end_pos = 1;
 						break;
 					}
@@ -385,14 +428,16 @@ int main(void)
 				else{
 					int comp_ret_val = computer_turn(board, WHITE);
 					if (comp_ret_val == WIN_POS || comp_ret_val == TIE_POS){
-						comp_ret_val == WIN_POS ? printf(BLACK_WIN) : printf(TIE);
+						if (comp_ret_val == WIN_POS) printf(BLACK_WIN);
+						else printf(TIE);
 						end_pos = 1;
 						break;
 					}
 					int user_ret_val = user_turn(board, BLACK);
 					if (user_ret_val == QUIT) break;
 					if (user_ret_val == WIN_POS || user_ret_val == TIE_POS){
-						comp_ret_val == WIN_POS ? printf(WHITE_WIN) : printf(TIE);
+						if (comp_ret_val == WIN_POS) printf(WHITE_WIN);
+						else printf(TIE);
 						end_pos = 1;
 						break;
 					}
@@ -402,14 +447,16 @@ int main(void)
 				int w_ret_val = user_turn(board, WHITE);
 				if (w_ret_val == QUIT) break;
 				if (w_ret_val == WIN_POS || w_ret_val == TIE_POS){
-					w_ret_val == WIN_POS ? printf(BLACK_WIN) : printf(TIE);
+					if (w_ret_val == WIN_POS) printf(BLACK_WIN);
+					else printf(TIE);
 					end_pos = 1;
 					break;
 				}
 				int b_ret_val = user_turn(board, BLACK);
 				if (b_ret_val == QUIT) break;
 				if (b_ret_val == WIN_POS || b_ret_val == TIE_POS){
-					b_ret_val == WIN_POS ? printf(WHITE_WIN) : printf(TIE);
+					if (b_ret_val == WIN_POS) printf(WHITE_WIN); 
+					else printf(TIE);
 					end_pos = 1;
 					break;
 				}

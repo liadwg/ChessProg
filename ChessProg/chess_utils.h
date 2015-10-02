@@ -1,3 +1,5 @@
+// currently deprecated
+
 #ifndef CHESS_UTILS_
 #define CHESS_UTILS_
 

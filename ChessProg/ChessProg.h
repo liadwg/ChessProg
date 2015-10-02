@@ -7,10 +7,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
-
-#ifndef CHESS_UTILS_
-#include "chess_utils.h"
-#endif CHESS_UTILS_
+//
+//#ifndef CHESS_UTILS_
+//#include "chess_utils.h"
+//#endif CHESS_UTILS_
 
 #ifndef CHESS_LOGICS_
 #include "chess_logics.h"

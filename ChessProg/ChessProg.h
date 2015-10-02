@@ -8,13 +8,13 @@
 #include <string.h>
 #include <stdarg.h>
 
-#ifndef CHESS_LOGICS_
-#include "chess_logics.h"
-#endif CHESS_LOGICS_
-
 #ifndef CHESS_UTILS_
 #include "chess_utils.h"
 #endif CHESS_UTILS_
+
+#ifndef CHESS_LOGICS_
+#include "chess_logics.h"
+#endif CHESS_LOGICS_
 
 #ifndef CHESS_UI_
 #include "chess_ui.h"

@@ -144,16 +144,6 @@ int save_game(char board[BOARD_SIZE][BOARD_SIZE], COLOR color, char * file_name)
 	return 1;
 }
 
-// clears the board from all pieces
-void clear_board(char board[BOARD_SIZE][BOARD_SIZE]){
-	int i, j;
-	for (i = 0; i < BOARD_SIZE; i++){
-		for (j = 0; j < BOARD_SIZE; j++){
-			board[i][j] = EMPTY;
-		}
-	}
-}
-
 // handles user input (unknown length), returns a string without redundant white spaces after each new line
 char* input2str(FILE* pFile){
 	char *str;

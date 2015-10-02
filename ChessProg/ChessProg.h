@@ -7,7 +7,23 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
-//
+
+
+typedef enum { WHITE = 0, BLACK = 1 } COLOR;
+
+typedef struct pos{
+	int col;
+	int row;
+} Pos;
+
+typedef struct move{
+	Pos piece;
+	Pos dest;
+	char promote; // value 0 means no promotion
+	int score;
+	struct move* next;
+} Move;
+
 //#ifndef CHESS_UTILS_
 //#include "chess_utils.h"
 //#endif CHESS_UTILS_
@@ -81,23 +97,6 @@ typedef char** board_t;
 #define TIE_POS 3
 
 
-
-
-typedef enum { WHITE = 0, BLACK = 1 } COLOR;
-
-typedef struct pos{
-	int col;
-	int row;
-} Pos;
-
-typedef struct move{
-	Pos piece;
-	Pos dest;
-	char promote; // value 0 means no promotion
-	int score;
-	struct move* next;
-} Move;
-
 //// Memory allocation and standard functions monitoring
 //void add_to_list(void* mem);
 //void remove_from_list(void* mem);
@@ -142,12 +141,12 @@ typedef struct move{
 
 // Globals
 extern COLOR user_color;
-extern int minimax_depth;
-extern Move* moves;
-extern Move* moves_head;
-extern char curr_piece;
+//extern int minimax_depth;
+//extern Move* moves;
+//extern Move* moves_head;
+//extern char curr_piece;
 extern COLOR curr_player;
-extern Move* best_move;
+//extern Move* best_move;
 
 #endif CHESS_
 

@@ -95,7 +95,10 @@ int load_game(char * path, char board[BOARD_SIZE][BOARD_SIZE]){
 				case 0: if (strcmp(cur_node->content, "White") == 0){} // change ? // next_turn
 				case 1: game_mode = atoi(cur_node->content); // game_mode
 				case 2: // difficulty
-					if (strcmp(cur_node->content, "best" == 0)) minimax_depth = cmp_best(board);
+					if (strcmp(cur_node->content, "best" == 0)){
+						minimax_depth = 4;
+						best_depth = 1;
+					}
 					else minimax_depth = atoi(cur_node->content);
 				case 3: user_color = strcmp(cur_node->content, "White") == 0 ? WHITE : BLACK; // user_color
 				case 4: //board

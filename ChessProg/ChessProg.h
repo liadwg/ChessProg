@@ -36,8 +36,8 @@ typedef struct move{
 #include "chess_ui.h"
 #endif CHESS_UI_
 
-#include <libxml/parser.h>
-#include <libxml/tree.h>
+//#include <libxml/parser.h>
+//#include <libxml/tree.h>
 
 
 

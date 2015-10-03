@@ -43,6 +43,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <Xml Include="packages.config" />
   </ItemGroup>
 </Project>

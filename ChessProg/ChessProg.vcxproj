@@ -43,8 +43,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\liadwg\Documents\Visual Studio 2013\Projects\ChessProg\ChessProg\SDL-devel-1.2.15-VC\SDL-1.2.15\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\liadwg\Documents\Visual Studio 2013\Projects\ChessProg\ChessProg\SDL-devel-1.2.15-VC\SDL-1.2.15\lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\liadwg\Documents\Visual Studio 2013\Projects\ChessProg\packages\libxml2.2.7.8.7\build\native\include\libxml;C:\Users\liadwg\Documents\Visual Studio 2013\Projects\ChessProg\ChessProg\SDL-devel-1.2.15-VC\SDL-1.2.15\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\liadwg\Documents\Visual Studio 2013\Projects\ChessProg\packages\libxml2.redist.2.7.8.7\build\native\bin\v110\Win32\Release\dynamic\cdecl;C:\Users\liadwg\Documents\Visual Studio 2013\Projects\ChessProg\ChessProg\SDL-devel-1.2.15-VC\SDL-1.2.15\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -95,7 +95,11 @@
     <ClInclude Include="chess_utils.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <Xml Include="packages.config">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </Xml>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

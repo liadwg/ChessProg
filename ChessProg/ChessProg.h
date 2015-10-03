@@ -7,6 +7,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <libxml/parser.h>
+#include <libxml/tree.h>
+#include <libxml/xmlwriter.h>
 
 
 typedef enum { WHITE = 0, BLACK = 1 } COLOR;
@@ -36,8 +39,7 @@ typedef struct move{
 #include "chess_ui.h"
 #endif CHESS_UI_
 
-//#include <libxml/parser.h>
-//#include <libxml/tree.h>
+
 
 
 

@@ -43,24 +43,29 @@ void init_board(char board[BOARD_SIZE][BOARD_SIZE]){
 	int i, j;
 	for (i = 0; i < BOARD_SIZE; i++){
 		board[i][1] = BLACK_P;
-		board[i][BOARD_SIZE - 1] = WHITE_P;
+		board[i][BOARD_SIZE - 2] = WHITE_P;
 		for (j = 2; j < (BOARD_SIZE - 2); j++) board[i][j] = EMPTY;
 		switch (i){
 		case 0: case (BOARD_SIZE - 1) :
 			board[i][0] = BLACK_R;
 			board[i][BOARD_SIZE - 1] = WHITE_R;
+			break;
 		case 1: case (BOARD_SIZE - 2) :
 			board[i][0] = BLACK_N;
 			board[i][BOARD_SIZE - 1] = WHITE_N;
+			break;
 		case 2: case (BOARD_SIZE - 3) :
 			board[i][0] = BLACK_B;
 			board[i][BOARD_SIZE - 1] = WHITE_B;
+			break;
 		case 3:
 			board[i][0] = BLACK_Q;
 			board[i][BOARD_SIZE - 1] = WHITE_Q;
+			break;
 		case 4:
 			board[i][0] = BLACK_K;
 			board[i][BOARD_SIZE - 1] = WHITE_K;
+			break;
 		}
 	}
 }
@@ -77,7 +82,8 @@ int load_game(char * path, char board[BOARD_SIZE][BOARD_SIZE]){
 	xmlDoc *doc = NULL;
 	xmlNode *root_element = NULL;
 	int line_num = 0;
-	if ((doc = xmlReadFile(path, NULL, 0)) == NULL) return 0;
+	doc = xmlReadFile(path, NULL, 0);
+	if (doc == NULL) return 0;
 	root_element = xmlDocGetRootElement(doc);
 	xmlNode *cur_node = NULL;
 	for (cur_node = root_element; cur_node; cur_node = cur_node->next) {
@@ -184,14 +190,14 @@ void exc(char* str, char board[BOARD_SIZE][BOARD_SIZE]){
 		if (x < 1 || x > 2) printf(WRONG_GAME_MODE);
 		else{
 			game_mode = x;
-			printf("Running game in %s mode\n", game_mode == 1 ? "2 players" : "player vs.AI");
+			printf("Running game in %s mode\n", game_mode == 1 ? "2 players" : "player vs. AI");
 		}
 	}
 	else if (strcmp(word1, "difficulty") == 0){ 
 		char * word2 = strtok(NULL, " ");
 		if (game_mode == 1) printf(WRONG_GAME_MODE); // didnt mentioned what message should be print
 		else{ 
-			if (strcmp(word1, "best") == 0){
+			if (strcmp(word2, "best") == 0){
 				minimax_depth = 4;
 				best_depth = 1;
 			}
@@ -204,7 +210,7 @@ void exc(char* str, char board[BOARD_SIZE][BOARD_SIZE]){
 	}
 	else if (strcmp(word1, "user_color") == 0){
 		char * color = strtok(NULL, " ");
-		if (game_mode == 1) printf(WRONG_GAME_MODE); // didnt mentioned what message should be print
+		if (game_mode == 1) printf(ILLEGAL_COMMAND); // didnt mentioned what message should be print
 		else if (strcmp(color, "black") == 0) user_color = BLACK;
 	}
 	else if (strcmp(word1, "load") == 0){
@@ -372,11 +378,10 @@ int user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 int main(void)
 {
 	char board[BOARD_SIZE][BOARD_SIZE];
-	char *command = input2str(stdin);
-	int end_pos = 0;
-
 	init_board(board);
 	printf(ENTER_SETTINGS);
+	char *command = input2str(stdin);
+	int end_pos = 0;
 
 	while (strcmp(command, "quit") != 0){
 		if (strcmp(command, "start") == 0){

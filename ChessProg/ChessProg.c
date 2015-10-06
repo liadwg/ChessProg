@@ -289,6 +289,7 @@ void exc(char* str, char board[BOARD_SIZE][BOARD_SIZE]){
 
 // manages the computer's turn
 int computer_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
+	curr_player = color;
 	int ret_val = GAME_ON;
 	get_all_moves(board, color);
 	if (is_check(board, color) == 1 && moves_head == NULL) ret_val = WIN_POS;
@@ -308,6 +309,7 @@ int computer_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 
 // manages the users turn, game state user input loop
 int user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
+	curr_player = color;
 	int ret_val = GAME_ON;
 	char *word1;
 	char *command = NULL;

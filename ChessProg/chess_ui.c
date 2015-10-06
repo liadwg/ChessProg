@@ -9,11 +9,12 @@
       for(item = (array) + count; keep; keep = !keep)
 
 int glob_quit = 0;
+int start_game = 0;
 int board_ready = 0;
 char piece_picked = NULL;
 TreeNode *mainMenu = NULL;
 TreeNode *loadSave = NULL;
-TreeNode *settingsMenu = NULL;
+TreeNode *AIsettingsMenu = NULL;
 TreeNode *playerSelection = NULL;
 TreeNode *boardSetting = NULL;
 TreeNode *gameWindow = NULL;
@@ -28,7 +29,8 @@ Move *move_to_do = NULL;
 void quit_all(){
 	glob_quit = 1;
 	if (mainMenu != NULL) free_tree(mainMenu);
-	if (settingsMenu != NULL) free_tree(settingsMenu);
+	if (loadSave != NULL) free_tree(loadSave);
+	if (AIsettingsMenu != NULL) free_tree(AIsettingsMenu);
 	if (playerSelection != NULL) free_tree(playerSelection);
 	if (boardSetting != NULL) free_tree(boardSetting);
 	if (gameWindow != NULL) free_tree(gameWindow);
@@ -139,18 +141,10 @@ void tile_clicked(int tile){
 	}
 }
 
-
-void set_player(int i){
-	game_mode = i;
-}
-
-void set_next(COLOR i){
-	//start_color = i;
-}
-
 void screen_dismissed(TreeNode *screen){
 	if (screen == mainMenu) mainMenu = NULL;
-	else if (screen == settingsMenu) settingsMenu = NULL;
+	else if (screen == loadSave) loadSave = NULL;
+	else if (screen == AIsettingsMenu) AIsettingsMenu = NULL;
 	else if (screen == playerSelection) playerSelection = NULL;
 	else if (screen == boardSetting) boardSetting = NULL;
 	else if (screen == gameWindow) gameWindow = NULL;
@@ -163,6 +157,39 @@ void cancel_clicked(){
 	screen_dismissed(currScreen);
 	draw_tree(prevScreen);
 	currScreen = prevScreen;
+}
+
+void set_depth(int i){
+	minimax_depth = i;
+	cancel_clicked();
+}
+
+void init_AI_setting(){
+	AIsettingsMenu = new_window("Set Difficulty", WIN_W / 2, WIN_H, 1);
+
+	TreeNode *panel = new_panel(AIsettingsMenu, "AI_panel", 0, 0, WIN_W / 2, WIN_H, 5, NULL);
+	Panel *p = (Panel*)panel->control;
+
+	TreeNode *d1 = new_button(panel, "depth1", p->width / 2 - BUTTON_W / 2, 20 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/depth1.bmp", set_depth, 1);
+	TreeNode *d2 = new_button(panel, "depth2", p->width / 2 - BUTTON_W / 2, 30 + 2 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/depth2.bmp", set_depth, 2);
+	TreeNode *d3 = new_button(panel, "depth3", p->width / 2 - BUTTON_W / 2, 40 + 3 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/depth3.bmp", set_depth, 3);
+	TreeNode *d4 = new_button(panel, "depth4", p->width / 2 - BUTTON_W / 2, 50 + 4 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/depth4.bmp", set_depth, 4);
+	TreeNode *d_best = new_button(panel, "best_depth", p->width / 2 - BUTTON_W / 2, 60 + 5 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/best_depth.bmp", set_depth, -1);
+
+	draw_tree(AIsettingsMenu);
+}
+
+void set_player(int i){
+	game_mode = i;
+	if (i == 2){
+		prevScreen = currScreen;
+		init_AI_setting();
+		currScreen = AIsettingsMenu;
+	}
+}
+
+void set_next(COLOR i){
+	//start_color = i;
 }
 
 void board_set_ok(){
@@ -181,16 +208,25 @@ void init_game_window(){
 	Panel *p_menu = (Panel*)menu_panel->control;
 
 	TreeNode *save = new_button(menu_panel, "save", p_menu->width / 2 - BUTTON_W / 2, 10, BUTTON_W, BUTTON_H, 0, "pics/save_game.bmp", NULL, NULL);
-	TreeNode *menu = new_button(menu_panel, "menu", p_menu->width / 2 - BUTTON_W / 2, 20 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/cancel.bmp", NULL, NULL);
-	TreeNode *best_panel = new_panel(menu_panel, "best_panel", 600, 40 + 2 * BUTTON_H, 200, (WIN_H - 100 + 2 * BUTTON_H), 6, NULL);
-	Panel *p_best = (Panel*)best_panel->control;
+	TreeNode *menu = new_button(menu_panel, "menu", p_menu->width / 2 - BUTTON_W / 2, 20 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/main_menu.bmp", NULL, NULL);
+	if (game_mode == 1){ // PvsP mode
+		TreeNode *best_panel = new_panel(menu_panel, "best_panel", 600, 40 + 2 * BUTTON_H, 200, (WIN_H - 100 + 2 * BUTTON_H), 6, NULL);
+		Panel *p_best = (Panel*)best_panel->control;
 
-	TreeNode *best_logo = new_label(best_panel, "best_logo", p_best->width / 2 - BUTTON_W / 2, 10, BUTTON_W, BUTTON_H, 0, "pics/logo.bmp");
-	TreeNode *d1 = new_button(best_panel, "depth1", p_best->width / 2 - BUTTON_W / 2, 20 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/cancel.bmp", NULL, 1);
-	TreeNode *d2 = new_button(best_panel, "depth2", p_best->width / 2 - BUTTON_W / 2, 30 + 2 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/cancel.bmp", NULL, 2);
-	TreeNode *d3 = new_button(best_panel, "depth3", p_best->width / 2 - BUTTON_W / 2, 40 + 3 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/cancel.bmp", NULL, 3);
-	TreeNode *d4 = new_button(best_panel, "depth4", p_best->width / 2 - BUTTON_W / 2, 50 + 4 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/cancel.bmp", NULL, 4);
-	TreeNode *d_best = new_button(best_panel, "best_depth", p_best->width / 2 - BUTTON_W / 2, 60 + 5 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/cancel.bmp", NULL, -1);
+		TreeNode *best_logo = new_label(best_panel, "best_logo", p_best->width / 2 - BUTTON_W / 2, 10, BUTTON_W, BUTTON_H, 0, "pics/best_logo.bmp");
+		TreeNode *d1 = new_button(best_panel, "depth1", p_best->width / 2 - BUTTON_W / 2, 20 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/depth1.bmp", NULL, 1);
+		TreeNode *d2 = new_button(best_panel, "depth2", p_best->width / 2 - BUTTON_W / 2, 30 + 2 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/depth2.bmp", NULL, 2);
+		TreeNode *d3 = new_button(best_panel, "depth3", p_best->width / 2 - BUTTON_W / 2, 40 + 3 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/depth3.bmp", NULL, 3);
+		TreeNode *d4 = new_button(best_panel, "depth4", p_best->width / 2 - BUTTON_W / 2, 50 + 4 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/depth4.bmp", NULL, 4);
+		TreeNode *d_best = new_button(best_panel, "best_depth", p_best->width / 2 - BUTTON_W / 2, 60 + 5 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/best_depth.bmp", NULL, -1);
+	}
+	else{ // PvsAI mode
+		TreeNode *best_panel = new_panel(menu_panel, "best_panel", 600, 40 + 2 * BUTTON_H, 200, (WIN_H - 100 + 2 * BUTTON_H), 2, NULL);
+		Panel *p_best = (Panel*)best_panel->control;
+
+		TreeNode *best_logo = new_label(best_panel, "best_logo", p_best->width / 2 - BUTTON_W / 2, 10, BUTTON_W, BUTTON_H, 0, "pics/best_logo.bmp");
+		TreeNode *d = new_button(best_panel, "best_move", p_best->width / 2 - BUTTON_W / 2, 20 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/best_move.bmp", NULL, 1);
+	}
 
 	for (int i = 0; i < BOARD_SIZE; i++)
 		for (int j = 0; j < BOARD_SIZE; j++){
@@ -198,7 +234,6 @@ void init_game_window(){
 		}
 
 	update_board_gui(board_panel, curr_board);
-	duplicate_board(curr_board, tmp_board);
 
 	draw_tree(gameWindow);
 }
@@ -250,7 +285,16 @@ void open_board_setting(){
 }
 
 void start_game_clicked(){
-	// start global = 1
+	start_game = 1;
+	//if (mainMenu != NULL) free_tree(mainMenu);
+	if (loadSave != NULL) free_tree(loadSave);
+	if (AIsettingsMenu != NULL) free_tree(AIsettingsMenu);
+	if (playerSelection != NULL) free_tree(playerSelection);
+	if (boardSetting != NULL) free_tree(boardSetting);
+	loadSave = NULL;
+	AIsettingsMenu = NULL;
+	playerSelection = NULL;
+	boardSetting = NULL;
 }
 
 void init_player_selection(){
@@ -261,8 +305,8 @@ void init_player_selection(){
 	TreeNode *logo = new_label(panel, "logo", p->width / 2 - BUTTON_W / 2, 10, BUTTON_W, BUTTON_H, 0, "pics/logo.bmp");
 
 	TreeNode *player = new_label(panel, "player_logo", (p->width / 4) - 10 - BUTTON_W / 2, 70, BUTTON_W, BUTTON_H, 0, "pics/logo.bmp");
-	TreeNode *p_ai = new_button(panel, "PvsAI", p->width / 2 - BUTTON_W / 2, 70, BUTTON_W, BUTTON_H, 0, "pics/PvsAI.bmp", set_player, 1);
-	TreeNode *p_p = new_button(panel, "PvsP", (p->width / 4) * 3 + 10 - BUTTON_W / 2, 70, BUTTON_W, BUTTON_H, 0, "pics/PvsP.bmp", set_player, 2);
+	TreeNode *p_ai = new_button(panel, "PvsAI", p->width / 2 - BUTTON_W / 2, 70, BUTTON_W, BUTTON_H, 0, "pics/PvsAI.bmp", set_player, 2);
+	TreeNode *p_p = new_button(panel, "PvsP", (p->width / 4) * 3 + 10 - BUTTON_W / 2, 70, BUTTON_W, BUTTON_H, 0, "pics/PvsP.bmp", set_player, 1);
 
 	TreeNode *next = new_label(panel, "next_logo", (p->width / 4) - 10 - BUTTON_W / 2, 90 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/logo.bmp");
 	TreeNode *next_white = new_button(panel, "next_white", p->width / 2 - BUTTON_W / 2, 90 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/next_white.bmp", set_next, WHITE);
@@ -346,7 +390,11 @@ void init_main_menu(){
 Move* gui_game_mode(int chk, char board[BOARD_SIZE][BOARD_SIZE]){
 	// handel chk (mate/tie -> game_on = 0)
 	duplicate_board(board, curr_board);
-	init_game_window();
+	if (gameWindow != NULL){
+		update_board_gui(gameWindow->children[0], curr_board); // first child is the board panel
+		draw_tree(gameWindow);
+	}
+	else init_game_window();
 	currScreen = gameWindow;
 	while (!glob_quit)
 		if (move_to_do != NULL) return move_to_do;
@@ -358,8 +406,10 @@ int gui_setting_mode(){
 
 	init_main_menu();
 	currScreen = mainMenu;
-	while (!glob_quit)
+	while (!glob_quit){
+		if (start_game) return 1;
 		run_events_loop(currScreen);
+	}
 
 	return 0;
 }

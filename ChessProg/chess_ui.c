@@ -103,6 +103,7 @@ Move* generate_move(int col, int row){
 	res->dest.col = col;
 	res->dest.row = row;
 	res->next = NULL;
+	res->promote = 0;
 	return res;
 }
 
@@ -287,14 +288,14 @@ void open_board_setting(){
 void start_game_clicked(){
 	start_game = 1;
 	//if (mainMenu != NULL) free_tree(mainMenu);
-	if (loadSave != NULL) free_tree(loadSave);
-	if (AIsettingsMenu != NULL) free_tree(AIsettingsMenu);
-	if (playerSelection != NULL) free_tree(playerSelection);
-	if (boardSetting != NULL) free_tree(boardSetting);
-	loadSave = NULL;
-	AIsettingsMenu = NULL;
-	playerSelection = NULL;
-	boardSetting = NULL;
+	//if (loadSave != NULL) free_tree(loadSave);
+	//if (AIsettingsMenu != NULL) free_tree(AIsettingsMenu);
+	//if (playerSelection != NULL) free_tree(playerSelection);
+	//if (boardSetting != NULL) free_tree(boardSetting);
+	//loadSave = NULL;
+	//AIsettingsMenu = NULL;
+	//playerSelection = NULL;
+	//boardSetting = NULL;
 }
 
 void init_player_selection(){
@@ -390,15 +391,17 @@ void init_main_menu(){
 Move* gui_game_mode(int chk, char board[BOARD_SIZE][BOARD_SIZE]){
 	// handel chk (mate/tie -> game_on = 0)
 	duplicate_board(board, curr_board);
+	move_to_do = NULL;
 	if (gameWindow != NULL){
 		update_board_gui(gameWindow->children[0], curr_board); // first child is the board panel
 		draw_tree(gameWindow);
 	}
 	else init_game_window();
 	currScreen = gameWindow;
-	while (!glob_quit)
+	while (!glob_quit){
 		if (move_to_do != NULL) return move_to_do;
 		run_events_loop(currScreen);
+	}
 }
 
 

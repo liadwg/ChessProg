@@ -206,8 +206,8 @@ int is_valid_piece(char board[BOARD_SIZE][BOARD_SIZE], Move * move, COLOR color)
 
 // Helper func - checks if a piece reached the end of the board according to its color
 int is_EOB(Pos piece, COLOR player){
-	if (player == BLACK) return piece.row == BOARD_SIZE - 1;
-	else return piece.row == 0;
+	if (player == BLACK) return piece.row == 0;
+	else return piece.row == BOARD_SIZE - 1;
 }
 
 // Helper func
@@ -227,7 +227,7 @@ int is_pos_threatened(Pos pos, char board[BOARD_SIZE][BOARD_SIZE], COLOR player)
 	pieces = (player == WHITE) ? bpieces : wpieces;
 
 	// check pawns
-	int dir = player == WHITE ? -1 : 1;
+	int dir = player == WHITE ? 1 : -1;
 	curr.row = pos.row + dir;
 	curr.col = pos.col - 1;
 	if (is_valid_pos(curr)){
@@ -540,8 +540,8 @@ void get_bishop_moves(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, Pos piec
 }
 
 void get_pawn_moves(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, Pos piece){
-	int direction = board[piece.col][piece.row] == BLACK_P ? 1 : -1;
-	int pawn_row = board[piece.col][piece.row] == BLACK_P ? 6 : 1;
+	int direction = board[piece.col][piece.row] == BLACK_P ? -1 : 1;
+	int pawn_row = board[piece.col][piece.row] == BLACK_P ? 1 : 6;
 
 	Pos dest;
 	dest.col = piece.col;

@@ -100,6 +100,7 @@ void add_label_to_button(TreeNode *button, char* pic){
 	Button *btn = button->control;
 	button->child_num = 1;
 	button->children = malloc(sizeof(TreeNode*));
+	button->children[0] = NULL;
 	new_label(button, pic, btn->x, btn->y, btn->width, btn->height, 0, pic);
 }
 
@@ -111,6 +112,7 @@ void remove_label_from_button(TreeNode *button){
 	free(lbl);
 	free(button->children[0]);
 	free(button->children);
+	button->children = NULL;
 	button->child_num = 0;
 }
 
@@ -139,7 +141,9 @@ int draw_tree_rec(Window* root, TreeNode* node){
 		break;
 	case LABEL:
 		label = (Label*)node->control;
-		parent = (Panel*)node->parent->control;
+		TreeNode *parent_n = node->parent;
+		while (parent_n->type != PANEL) parent_n = parent_n->parent;
+		parent = (Panel*)parent_n->control;
 		x = parent->x + label->x;
 		y = parent->y + label->y;
 		width = label->width;
@@ -205,7 +209,6 @@ void free_tree(TreeNode *node){
 	if (node->children != NULL) free(node->children);
 	free(node);
 	node = NULL;
-	int i = 123;
 }
 
 void get_screen_buttons(TreeNode *node){
@@ -240,7 +243,8 @@ void run_events_loop(TreeNode* screen){
 				for (int i = 0; i < buttons_count; i++)
 					if (is_click_on_button(x, y, buttons[i])){
 					buttons[i]->handler(buttons[i]->args);
-					stop = 1;
+					stop = 1; // to global, stop from handlers
+					break;
 					}
 			}
 			//else if (e.type == SDL_KEYDOWN)

@@ -105,6 +105,7 @@ char curr_piece;
 COLOR curr_player;
 Move* best_move;
 COLOR user_color = WHITE; 
+COLOR start_color = WHITE;
 int minimax_depth = 1;
 int game_mode = 1; // 2 player mode
 int best_depth = 0;
@@ -133,6 +134,14 @@ char* get_piece_name_by_type(int type){
 	case 4: return "knight";
 	case 5: return "pawn";
 	}
+}
+
+int get_type_by_name(char * piece){
+	if (piece == NULL) return 0;
+	if (strcmp(piece, "queen") == 0) return 1;
+	if (strcmp(piece, "bishop") == 0) return 2;
+	if (strcmp(piece, "rook") == 0) return 3;
+	if (strcmp(piece, "knight") == 0) return 4;
 }
 
 char get_piece_by_name(char * name, COLOR color){
@@ -196,7 +205,7 @@ int is_valid_piece(char board[BOARD_SIZE][BOARD_SIZE], Move * move, COLOR color)
 
 // Helper func - checks if a piece reached the end of the board according to its color
 int is_EOB(Pos piece, COLOR player){
-	if (player == WHITE) return piece.row == BOARD_SIZE - 1;
+	if (player == BLACK) return piece.row == BOARD_SIZE - 1;
 	else return piece.row == 0;
 }
 
@@ -207,84 +216,115 @@ void duplicate_board(char board1[BOARD_SIZE][BOARD_SIZE], char board2[BOARD_SIZE
 	}
 
 int is_pos_threatened(Pos pos, char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
-	int dir = player == WHITE ? -1 : 1;
-	Pos curr = { pos.col, pos.row };
+	Pos curr; 
+	//curr.col = pos.col; 
+	//curr.row = pos.row;
 	int blocked[4] = { 0 };
 	char* pieces;
 	char bpieces[6] = { BLACK_P, BLACK_B, BLACK_N, BLACK_R, BLACK_Q, BLACK_K };
 	char wpieces[6] = { WHITE_P, WHITE_B, WHITE_N, WHITE_R, WHITE_Q, WHITE_K };
-	if (player == WHITE) pieces = bpieces;
-	else pieces = wpieces;
+	pieces = (player == WHITE) ? bpieces : wpieces;
 
 	// check pawns
-	if (board[pos.col - 1][pos.row + dir] == pieces[0] || board[pos.col + 1][pos.row + dir] == pieces[0]) return 1;
+	int dir = player == WHITE ? -1 : 1;
+	curr.row = pos.row + dir;
+	curr.col = pos.col - 1;
+	if (is_valid_pos(curr)){
+		if (board[curr.col][curr.row] == pieces[0]) return 1;
+	}
+	curr.col = pos.col + 1;
+	if (is_valid_pos(curr)){
+		if (board[curr.col][curr.row] == pieces[0]) return 1;
+	}
 
 	// check bishops + queen
-	int i = 1;
-	while (i < BOARD_SIZE){
-		if (is_valid_pos((Pos) { pos.col - i, pos.row - i }) && !blocked[0])
-			if (board[pos.col - i][pos.row - i] == pieces[1] || board[pos.col - i][pos.row - i] == pieces[4]) return 1;
-			else{ if (board[pos.col - i][pos.row - i] != EMPTY) blocked[0] = 1; }
-		if (is_valid_pos((Pos) { pos.col + i, pos.row - i }) && !blocked[1])
-			if (board[pos.col + i][pos.row - i] == pieces[1] || board[pos.col + i][pos.row - i] == pieces[4]) return 1;
-			else{ if (board[pos.col + i][pos.row - i] != EMPTY) blocked[1] = 1; }
-		if (is_valid_pos((Pos) { pos.col - i, pos.row + i }) && !blocked[2])
-			if (board[pos.col - i][pos.row + i] == pieces[1] || board[pos.col - i][pos.row + i] == pieces[4]) return 1;
-			else{ if (board[pos.col - i][pos.row + i] != EMPTY) blocked[2] = 1; }
-		if (is_valid_pos((Pos) { pos.col + i, pos.row + i }) && !blocked[3])
-			if (board[pos.col + i][pos.row + i] == pieces[1] || board[pos.col + i][pos.row + i] == pieces[4]) return 1;
-			else{ if (board[pos.col + i][pos.row + i] != EMPTY) blocked[3] = 1; }
-		i++;
-}
+	for (int i = 1; i < BOARD_SIZE; i++){
+		curr.col = pos.col - i, curr.row = pos.row - i;
+		if (is_valid_pos(curr) && !blocked[0]){
+			blocked[0] = (board[curr.col][curr.row] != EMPTY) ? 1 : 0;
+			if (board[curr.col][curr.row] == pieces[1] || board[curr.col][curr.row] == pieces[4]) return 1;
+		}
+		curr.col = pos.col + i;
+		if (is_valid_pos(curr) && !blocked[1]){
+			blocked[1] = (board[curr.col][curr.row] != EMPTY) ? 1 : 0;
+			if (board[curr.col][curr.row] == pieces[1] || board[curr.col][curr.row] == pieces[4]) return 1;
+		}
+		curr.row = pos.row + i;
+		if (is_valid_pos(curr) && !blocked[2]){
+			blocked[2] = (board[curr.col][curr.row] != EMPTY) ? 1 : 0;
+			if (board[curr.col][curr.row] == pieces[1] || board[curr.col][curr.row] == pieces[4]) return 1;
+		}
+		curr.col = pos.col - i;
+		if (is_valid_pos(curr) && !blocked[3]){
+			blocked[3] = (board[curr.col][curr.row] != EMPTY) ? 1 : 0;
+			if (board[curr.col][curr.row] == pieces[1] || board[curr.col][curr.row] == pieces[4]) return 1;
+		}
+	}
+
 
 	// check knights
 	Pos dests[8] = {{ pos.col - 2, pos.row - 1 }, { pos.col - 2, pos.row + 1 },
 					{ pos.col + 2, pos.row - 1 }, { pos.col + 2, pos.row + 1 },
 					{ pos.col - 1, pos.row - 2 }, { pos.col + 1, pos.row - 2 },
 					{ pos.col - 1, pos.row + 2 }, { pos.col + 1, pos.row + 2 }};
-					foreach(Pos *p, dests){
-						if (is_valid_pos(*p))
-							if (board[p->col][p->row] == pieces[2]) return 1;
-					}
+	for (int i = 0; i < 8; i++){
+		if (is_valid_pos(dests[i])){
+			if (board[dests[i].col][dests[i].row] == pieces[2]) return 1;
+		}
+	}
 
-					// check rooks + queen
-					i = 1;
-					for (int j = 0; j < 4; j++) blocked[j] = 0;
-					while (i < BOARD_SIZE){
-						if (is_valid_pos((Pos) { pos.col - i, pos.row }) && !blocked[0])
-							if (board[pos.col - i][pos.row] == pieces[3] || board[pos.col - i][pos.row] == pieces[4]) return 1;
-							else{ if (board[pos.col - i][pos.row] != EMPTY) blocked[0] = 1; }
-							if (is_valid_pos((Pos) { pos.col + i, pos.row }) && !blocked[1])
-								if (board[pos.col + i][pos.row] == pieces[3] || board[pos.col + i][pos.row] == pieces[4]) return 1;
-								else{ if (board[pos.col + i][pos.row] != EMPTY) blocked[1] = 1; }
-								if (is_valid_pos((Pos) { pos.col, pos.row - i }) && !blocked[2])
-									if (board[pos.col][pos.row - i] == pieces[3] || board[pos.col][pos.row - i] == pieces[4]) return 1;
-									else{ if (board[pos.col][pos.row - i] != EMPTY) blocked[2] = 1; }
-									if (is_valid_pos((Pos) { pos.col, pos.row + i }) && !blocked[3])
-										if (board[pos.col][pos.row + i] == pieces[3] || board[pos.col][pos.row + i] == pieces[4]) return 1;
-										else{ if (board[pos.col][pos.row + i] != EMPTY) blocked[3] = 1; }
-										i++;
-					}
 
-					// check king
-					Pos kdests[8] = { { pos.col - 1, pos.row - 1 }, { pos.col - 1, pos.row }, { pos.col - 1, pos.row + 1 },
-					{ pos.col + 1, pos.row - 1 }, { pos.col + 1, pos.row }, { pos.col + 1, pos.row + 1 },
-					{ pos.col, pos.row - 1 }, { pos.col, pos.row + 1 } };
-					foreach(Pos *p, kdests){
-						if (is_valid_pos(*p))
-							if (board[p->col][p->row] == pieces[5]) return 1;
-					}
+	// check rooks + queen
+	for (int j = 0; j < 4; j++) blocked[j] = 0;
+	for (int i = 1; i < BOARD_SIZE; i++){
+		curr.col = pos.col - i; curr.row = pos.row;
+		if (is_valid_pos(curr) && !blocked[0]){
+			blocked[0] = (board[curr.col][curr.row] != EMPTY) ? 1 : 0;
+			if (board[curr.col][curr.row] == pieces[3] || board[curr.col][curr.row] == pieces[4]) return 1;
+		}
+		curr.col = pos.col + i;
+		if (is_valid_pos(curr) && !blocked[1]){
+			blocked[1] = (board[curr.col][curr.row] != EMPTY) ? 1 : 0;
+			if (board[curr.col][curr.row] == pieces[3] || board[curr.col][curr.row] == pieces[4]) return 1;
+		}
+		curr.col = pos.col, curr.row = pos.row - i;
+		if (is_valid_pos(curr) && !blocked[2]){
+			blocked[2] = (board[curr.col][curr.row] != EMPTY) ? 1 : 0;
+			if (board[curr.col][curr.row] == pieces[3] || board[curr.col][curr.row] == pieces[4]) return 1;
+		}
+		curr.row = pos.row + i;
+		if (is_valid_pos(curr) && !blocked[3]){
+			blocked[3] = (board[curr.col][curr.row] != EMPTY) ? 1 : 0;
+			if (board[curr.col][curr.row] == pieces[3] || board[curr.col][curr.row] == pieces[4]) return 1;
+		}
+	}
 
-					// no threat
-					return 0;
+	// check king
+	Pos kdests[8] = { { pos.col - 1, pos.row - 1 }, { pos.col - 1, pos.row }, { pos.col - 1, pos.row + 1 },
+	{ pos.col + 1, pos.row - 1 }, { pos.col + 1, pos.row }, { pos.col + 1, pos.row + 1 },
+	{ pos.col, pos.row - 1 }, { pos.col, pos.row + 1 } };
+	for (int i = 0; i < 8; i++){
+		if (is_valid_pos(kdests[i])){
+			if (board[kdests[i].col][kdests[i].row] == pieces[5]) return 1;
+		}
+	}
+
+	// no threat
+	return 0;
 }
 
+//if the king in the color of the player is threatened
 int is_check(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
 	char king = player == WHITE ? WHITE_K : BLACK_K;
-	for (int i = 0; i < BOARD_SIZE; i++)
-		for (int j = 0; j < BOARD_SIZE; j++)
+	for (int i = 0; i < BOARD_SIZE; i++){
+		for (int j = 0; j < BOARD_SIZE; j++){
 			if (board[i][j] == king){
-		return !is_pos_threatened((Pos) { i, j }, board, !player);
+				Pos king_pos;
+				king_pos.col = i, king_pos.row = j;
+				return is_pos_threatened(king_pos, board, player);
+			}
+		}
+	}
 		//if (!is_pos_threatened((Pos) { i, j }, board, !player)) return 0;
 
 		//Pos kdests[8] = {{ i - 1, j - 1 }, { i - 1, j }, { i - 1, j + 1 },
@@ -294,8 +334,7 @@ int is_check(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
 		//	if (!is_pos_threatened(*p, board, !player)) return 1;
 		//} 
 		//// king is threatned and has nowhere to go, return mate
-		//return 2;
-			}
+		//return 2;	
 }
 
 //char get_piece_by_type(int type, COLOR player){
@@ -332,6 +371,16 @@ int is_check(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
 //	}
 //}
 
+//int get_type_by_piece(char piece){
+//	switch (piece){
+//	case WHITE_K: case BLACK_K: return 0;
+//	case WHITE_Q: case BLACK_Q: return 1;
+//	case WHITE_B: case BLACK_B: return 2;
+//	case WHITE_R: case BLACK_R: return 3;
+//	case WHITE_N: case BLACK_N: return 4;
+//	case WHITE_P: case BLACK_P: return 5;
+//	}
+//}
 
 int piece_counter(char board[BOARD_SIZE][BOARD_SIZE], int * whites, int * blacks){
 	int white_b = -1, black_b = -1, bishop_fault = 0;
@@ -360,13 +409,11 @@ int piece_counter(char board[BOARD_SIZE][BOARD_SIZE], int * whites, int * blacks
 
 
 // executes a specific move on the given board
-void exc_move(char board[BOARD_SIZE][BOARD_SIZE], Move * move){
+void exc_move(char board[BOARD_SIZE][BOARD_SIZE], Move * move, COLOR color){
 	board[move->dest.col][move->dest.row] = board[move->piece.col][move->piece.row];
 	board[move->piece.col][move->piece.row] = EMPTY;
-	if (board[move->dest.col][move->dest.row] == BLACK_P && move->dest.row == 0)
-		board[move->dest.col][move->dest.row] = get_piece_by_type(move->promote, BLACK);
-	if (board[move->dest.col][move->dest.row] == WHITE_P && move->dest.row == BOARD_SIZE - 1)
-		board[move->dest.col][move->dest.row] = get_piece_by_type(move->promote, WHITE);
+	char this_piece = board[move->dest.col][move->dest.row];
+	if (is_EOB(move->dest, color) && (this_piece == WHITE_P || this_piece == BLACK_P)) board[move->dest.col][move->dest.row] = move->promote;
 }
 
 int clear_illegal_moves(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
@@ -374,19 +421,24 @@ int clear_illegal_moves(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
 	char tmp_board[BOARD_SIZE][BOARD_SIZE];
 	while (curr_move != NULL){
 		duplicate_board(board, tmp_board);
-		exc_move(tmp_board, curr_move);
+		exc_move(tmp_board, curr_move, player);
 		if (is_check(tmp_board, player) != 0){
 			if (curr_move == moves_head){
 				moves_head = curr_move->next;
-				prev_move = moves_head;
+				free(curr_move);
+				curr_move = moves_head, prev_move = moves_head;
 			}
-			else prev_move->next = curr_move->next;
-			free(curr_move);
+			else{
+				prev_move->next = curr_move->next;
+				free(curr_move);
+				curr_move = prev_move->next;
+			}
 		}
-		else prev_move = curr_move;
-		if (prev_move != NULL) curr_move = prev_move->next;
+		else { 
+			prev_move = curr_move;
+			curr_move = curr_move->next;
+		}
 	}
-	
 }
 
 // frees moves linked list
@@ -418,102 +470,108 @@ void add_move(Pos piece, Pos dest, char promote){
 	moves->next = NULL;
 }
 
+int is_valid_dest(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, Pos dest){
+	if (board[dest.col][dest.row] == EMPTY) return 1;
+	if (is_opposite(player, board[dest.col][dest.row])) return 2;
+	return 0;
+}
+
 void get_rook_moves(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, Pos piece){
-	Pos curr = { piece.col, piece.row };
-	while (is_valid_pos((Pos) { curr.col + 1, curr.row }) &&
-		(board[curr.col + 1][curr.row] == EMPTY || is_opposite(player, board[curr.col + 1][curr.row]))){
-		curr.col++; 
-		add_move(piece, curr, 0);
-	}
-	curr.col = piece.col;
-	//curr.row = piece.row;
-	while (is_valid_pos((Pos) { curr.col - 1, curr.row }) &&
-		(board[curr.col - 1][curr.row] == EMPTY || is_opposite(player, board[curr.col - 1][curr.row]))){
-		curr.col--;
-		add_move(piece, curr, 0);
-	}
-	curr.col = piece.col;
-	//curr.row = piece.row;
-	while (is_valid_pos((Pos) { curr.col, curr.row + 1 }) &&
-		(board[curr.col][curr.row + 1] == EMPTY || is_opposite(player, board[curr.col][curr.row + 1]))){
-		curr.row++;
-		add_move(piece, curr, 0);
-	}
-	//curr.col = piece.col;
+	Pos curr;
 	curr.row = piece.row;
-	while (is_valid_pos((Pos) { curr.col, curr.row - 1 }) &&
-		(board[curr.col][curr.row - 1] == EMPTY || is_opposite(player, board[curr.col][curr.row - 1]))){
+	curr.col = piece.col + 1;
+	while (is_valid_pos(curr)){
+		if (is_valid_dest(board, player, curr) == 1 || is_valid_dest(board, player, curr) == 2) add_move(piece, curr, 0);
+		if (is_valid_dest(board, player, curr) == 0 || is_valid_dest(board, player, curr) == 2) break;
+		curr.col++;
+	}
+	curr.col = piece.col - 1;
+	while (is_valid_pos(curr)){
+		if (is_valid_dest(board, player, curr) == 1 || is_valid_dest(board, player, curr) == 2) add_move(piece, curr, 0);
+		if (is_valid_dest(board, player, curr) == 0 || is_valid_dest(board, player, curr) == 2) break;
+		curr.col--;
+	}
+	curr.col = piece.col;
+	curr.row = piece.row + 1;
+	while (is_valid_pos(curr)){
+		if (is_valid_dest(board, player, curr) == 1 || is_valid_dest(board, player, curr) == 2) add_move(piece, curr, 0);
+		if (is_valid_dest(board, player, curr) == 0 || is_valid_dest(board, player, curr) == 2) break;
+		curr.row++;
+	}
+	curr.row = piece.row - 1;
+	while (is_valid_pos(curr)){
+		if (is_valid_dest(board, player, curr) == 1 || is_valid_dest(board, player, curr) == 2) add_move(piece, curr, 0);
+		if (is_valid_dest(board, player, curr) == 0 || is_valid_dest(board, player, curr) == 2) break;
 		curr.row--;
-		add_move(piece, curr, 0);
 	}
 }
 
 void get_bishop_moves(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, Pos piece){
-	Pos curr = { piece.col, piece.row };
-	while (is_valid_pos((Pos) { curr.col + 1, curr.row + 1 }) &&
-		(board[curr.col + 1][curr.row + 1] == EMPTY || is_opposite(player, board[curr.col + 1][curr.row + 1]))){
-		curr.col++;
-		curr.row++;
-		add_move(piece, curr, 0);
+	Pos curr;
+	curr.col = piece.col + 1;
+	curr.row = piece.row + 1;
+	while (is_valid_pos(curr)){
+		if (is_valid_dest(board, player, curr) == 1 || is_valid_dest(board, player, curr) == 2) add_move(piece, curr, 0);
+		if (is_valid_dest(board, player, curr) == 0 || is_valid_dest(board, player, curr) == 2) break;
+		curr.col++, curr.row++;
 	}
-	curr.col = piece.col;
-	curr.row = piece.row;
-	while (is_valid_pos((Pos) { curr.col - 1, curr.row - 1 }) &&
-		(board[curr.col - 1][curr.row - 1] == EMPTY || is_opposite(player, board[curr.col - 1][curr.row - 1]))){
-		curr.col--;
-		curr.row--;
-		add_move(piece, curr, 0);
+	curr.col = piece.col - 1;
+	curr.row = piece.row - 1;
+	while (is_valid_pos(curr)){
+		if (is_valid_dest(board, player, curr) == 1 || is_valid_dest(board, player, curr) == 2) add_move(piece, curr, 0);
+		if (is_valid_dest(board, player, curr) == 0 || is_valid_dest(board, player, curr) == 2) break;
+		curr.col--, curr.row--;
 	}
-	curr.col = piece.col;
-	curr.row = piece.row;
-	while (is_valid_pos((Pos) { curr.col - 1, curr.row + 1 }) &&
-		(board[curr.col - 1][curr.row + 1] == EMPTY || is_opposite(player, board[curr.col - 1][curr.row + 1]))){
-		curr.col--;
-		curr.row++;
-		add_move(piece, curr, 0);
+	curr.col = piece.col - 1;
+	curr.row = piece.row + 1;
+	while (is_valid_pos(curr)){
+		if (is_valid_dest(board, player, curr) == 1 || is_valid_dest(board, player, curr) == 2) add_move(piece, curr, 0);
+		if (is_valid_dest(board, player, curr) == 0 || is_valid_dest(board, player, curr) == 2) break;
+		curr.col--, curr.row++;
 	}
-	curr.col = piece.col;
-	curr.row = piece.row;
-	while (is_valid_pos((Pos) { curr.col + 1, curr.row - 1 }) &&
-		(board[curr.col + 1][curr.row - 1] == EMPTY || is_opposite(player, board[curr.col + 1][curr.row - 1]))){
-		curr.col++;
-		curr.row--;
-		add_move(piece, curr, 0);
+	curr.col = piece.col + 1;
+	curr.row = piece.row - 1;
+	while (is_valid_pos(curr)){
+		if (is_valid_dest(board, player, curr) == 1 || is_valid_dest(board, player, curr) == 2) add_move(piece, curr, 0);
+		if (is_valid_dest(board, player, curr) == 0 || is_valid_dest(board, player, curr) == 2) break;
+		curr.col++, curr.row--;
 	}
 }
 
 void get_pawn_moves(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, Pos piece){
 	int direction = board[piece.col][piece.row] == BLACK_P ? 1 : -1;
 	int pawn_row = board[piece.col][piece.row] == BLACK_P ? 6 : 1;
-	char *promotables = player == WHITE ? white_promotables : black_promotables;
 
 	Pos dest;
+	dest.col = piece.col;
+	dest.row = piece.row + direction;
 
-	if (board[piece.col][piece.row + direction] == EMPTY){
-		dest.col = piece.col;
-		dest.row = piece.row + direction;
-		add_move(piece, dest, 0);
-		if (is_EOB(dest, player))
-			foreach(char *c, promotables) add_move(piece, dest, c);
+	if (is_valid_pos(dest)){
+		if (board[dest.col][dest.row] == EMPTY){
+			add_move(piece, dest, 0);
+			if (is_EOB(dest, player)) for (int i = 1; i < 5; i++) add_move(piece, dest, get_piece_by_type(i, player));
+		}
 	}
-	if (piece.row == pawn_row && board[piece.col][piece.row + (2 * direction)] == EMPTY){
-		dest.col = piece.col;
+	if (piece.row == pawn_row){
 		dest.row = piece.row + (2 * direction);
-		add_move(piece, dest, 0);
+		if (is_valid_pos(dest)){
+			if (board[dest.col][dest.row] == EMPTY) add_move(piece, dest, 0);
+		}
 	}
-	if (is_valid_pos((Pos) { piece.col + 1, piece.row + direction }) && is_opposite(player, board[piece.col + 1][piece.row + direction])){
-		dest.col = piece.col + 1;
-		dest.row = piece.row + direction;
-		add_move(piece, dest, 0);
-		if (is_EOB(dest, player))
-			foreach(char *c, promotables) add_move(piece, dest, c);
+	dest.col = piece.col + 1;
+	dest.row = piece.row + direction;
+	if (is_valid_pos(dest)){
+		if (is_opposite(player, board[dest.col][dest.row])){
+			add_move(piece, dest, 0);
+			if (is_EOB(dest, player)) for (int i = 1; i < 5; i++) add_move(piece, dest, get_piece_by_type(i, player));
+		}
 	}
-	if (is_valid_pos((Pos) { piece.col - 1, piece.row + direction }) && is_opposite(player, board[piece.col + 1][piece.row + direction])){
-		dest.col = piece.col - 1;
-		dest.row = piece.row + direction;
-		add_move(piece, dest, 0);
-		if (is_EOB(dest, player))
-			foreach(char *c, promotables) add_move(piece, dest, c);
+	dest.col = piece.col - 1;
+	if (is_valid_pos(dest)){
+		if (is_opposite(player, board[dest.col][dest.row])){
+			add_move(piece, dest, 0);
+			if (is_EOB(dest, player)) for (int i = 1; i < 5; i++) add_move(piece, dest, get_piece_by_type(i, player));
+		}
 	}
 }
 
@@ -521,48 +579,44 @@ void get_moves_by_piece(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, Pos pi
 	Pos* tmp_dests;
 	int dests_num = 0;
 	switch (board[piece.col][piece.row]){
-	case WHITE_B:
-	case BLACK_B:
+	case WHITE_B: case BLACK_B:
 		get_bishop_moves(board, player, piece);
 		return;
-	case WHITE_R:
-	case BLACK_R:
+	case WHITE_R: case BLACK_R:
 		get_rook_moves(board, player, piece);
 		return;
-	case WHITE_Q:
-	case BLACK_Q:
+	case WHITE_Q: case BLACK_Q:
 		get_bishop_moves(board, player, piece);
 		get_rook_moves(board, player, piece);
 		return;
-	case BLACK_P:
-	case WHITE_P:
+	case BLACK_P: case WHITE_P:
 		get_pawn_moves(board, player, piece);
 		return;
-	case WHITE_K:
-	case BLACK_K:
-		tmp_dests = malloc(sizeof(Pos) * 8);
+	case WHITE_K: case BLACK_K:
+		//tmp_dests = malloc(sizeof(Pos) * 8);
 		tmp_dests = (Pos[8]) { { piece.col - 1, piece.row - 1 }, { piece.col - 1, piece.row }, { piece.col - 1, piece.row + 1 },
-							   { piece.col + 1, piece.row - 1 }, { piece.col + 1, piece.row }, { piece.col + 1, piece.row + 1 },
-							   { piece.col, piece.row - 1 }, { piece.col, piece.row + 1 } };
+		{ piece.col + 1, piece.row - 1 }, { piece.col + 1, piece.row }, { piece.col + 1, piece.row + 1 },
+		{ piece.col, piece.row - 1 }, { piece.col, piece.row + 1 }
+		};
 		break;
-	case WHITE_N:
-	case BLACK_N:
-		tmp_dests = malloc(sizeof(Pos) * 8);
+	case WHITE_N: case BLACK_N:
+		//tmp_dests = malloc(sizeof(Pos) * 8);
 		tmp_dests = (Pos[8]) { { piece.col - 2, piece.row - 1 }, { piece.col - 2, piece.row + 1 },
-							   { piece.col + 2, piece.row - 1 }, { piece.col + 2, piece.row + 1 },
-							   { piece.col - 1, piece.row - 2 }, { piece.col + 1, piece.row - 2 },
-							   { piece.col - 1, piece.row + 2 }, { piece.col + 1, piece.row + 2 } };
+		{ piece.col + 2, piece.row - 1 }, { piece.col + 2, piece.row + 1 },
+		{ piece.col - 1, piece.row - 2 }, { piece.col + 1, piece.row - 2 },
+		{ piece.col - 1, piece.row + 2 }, { piece.col + 1, piece.row + 2 }};
 		break;
-	default:
-		return;
-	
-	for (int i = 0; i < 8; i++)
-		if (is_valid_pos(tmp_dests[i]) && (board[tmp_dests[i].col][tmp_dests[i].row] == EMPTY || is_opposite(player, board[tmp_dests[i].col][tmp_dests[i].row]))) 
-			add_move(piece, tmp_dests[i], 0);
-	
-	free(tmp_dests);
-	return;
+	default: return;
 	}
+	for (int i = 0; i < 8; i++){
+		if (is_valid_pos(tmp_dests[i])){
+			if (board[tmp_dests[i].col][tmp_dests[i].row] == EMPTY || is_opposite(player, board[tmp_dests[i].col][tmp_dests[i].row])){
+				add_move(piece, tmp_dests[i], 0);
+			}
+		}
+	}
+	//free(tmp_dests); 
+	return;
 }
 
 Move * get_all_moves(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
@@ -681,16 +735,23 @@ int calc_score(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
 }
 
 
+
 // minimax recursive func, using alpha-beta pruning
 int alpha_beta_minimax(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, int depth, int alpha, int beta){
 	Move* move_list = get_all_moves(board, player);
 	Move* curr_move = move_list;
 	if (depth == 0 && curr_move == NULL){
 		best_move = NULL;
-		return -100;
+		return -500;
 	}
-	if (curr_move == NULL && player != curr_player) return 100;
-	if (curr_move == NULL && player == curr_player) return -100;
+	if (curr_move == NULL && player != curr_player){
+		if (!is_check(board, !curr_player)) return -450;
+		else return 500;
+	}
+	if (curr_move == NULL && player == curr_player){
+		if (!is_check(board, curr_player)) return 450;
+		else return -500;
+	}
 	if (depth == minimax_depth || curr_move == NULL || (best_depth && board_count == BOARD_LIMIT)){
 		clear_old_moves(move_list);
 		return calc_score(board, curr_player);
@@ -698,8 +759,10 @@ int alpha_beta_minimax(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, int dep
 
 	if (depth == 0){
 		best_move = curr_move;
-		best_move->score = 100;
-		if (curr_move->next == NULL) return 100;
+		if (curr_move->next == NULL){
+			best_move->score = 500;
+			return 500;
+		}
 	}
 
 	char init_board[BOARD_SIZE][BOARD_SIZE];
@@ -707,7 +770,7 @@ int alpha_beta_minimax(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, int dep
 	// MAX
 	if (depth % 2 == 0){
 		while (curr_move != NULL){
-			exc_move(board, curr_move);
+			exc_move(board, curr_move, player);
 			curr_move->score = alpha_beta_minimax(board, (player == 0), depth + 1, alpha, beta);
 			if (curr_move->score > alpha){
 				alpha = curr_move->score;
@@ -729,7 +792,7 @@ int alpha_beta_minimax(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, int dep
 	// MIN
 	else{
 		while (curr_move != NULL){
-			exc_move(board, curr_move);
+			exc_move(board, curr_move, player);
 			curr_move->score = alpha_beta_minimax(board, (player == 0), depth + 1, alpha, beta);
 			if (curr_move->score < beta){
 				beta = curr_move->score;
@@ -761,16 +824,22 @@ int is_valid_board(char board[BOARD_SIZE][BOARD_SIZE]){
 		blacks[get_type_by_piece(BLACK_P)] > 8 || blacks[get_type_by_piece(BLACK_K)] != 1 || blacks[get_type_by_piece(BLACK_Q)] > 1 || 
 		bishop_fault) return 0;
 	for (int i = 2; i < 5; i++) if (whites[i] > 2 || blacks[i] > 2) return 0;
+	for (int j = 0; j < BOARD_SIZE - 1; j++){
+		if (get_type_by_piece(board[j][0]) == 5 || get_type_by_piece(board[j][BOARD_SIZE - 1]) == 5) return 0;
+	}
 	return 1;
 }
+
 
 // checks if a move is in the valid moves list
 Move * is_valid_move(Move * moves, Move * new_move){
 	Move * current_move = moves;
 	while (current_move != NULL){
-		if (current_move->piece.col == new_move->piece.col &&
-			current_move->piece.row == new_move->piece.row &&
-			current_move->promote == new_move->promote)
+		if ((current_move->piece.col == new_move->piece.col) &&
+			(current_move->piece.row == new_move->piece.row) &&
+			(current_move->dest.col == new_move->dest.col) &&
+			(current_move->dest.row == new_move->dest.row) &&
+			(current_move->promote == new_move->promote))
 			return current_move;
 		
 		current_move = current_move->next;

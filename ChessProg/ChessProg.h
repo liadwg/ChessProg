@@ -72,8 +72,8 @@ typedef char** board_t;
 #define WRONG_MINIMAX_DEPTH "Wrong value for minimax depth. The value should be between 1 to 4\n"
 #define WRONG_FILE_NAME "Wrong file name\n"
 #define WRONG_POSITION "Invalid position on the board\n"
-#define NO_PIECE "Setting this piece creates an invalid board\n"  
-#define NO_DISC "The specified position does not contain your piece\n"
+#define WRONG_PIECE "Setting this piece creates an invalid board\n"  
+#define NO_PIECE "The specified position does not contain your piece\n"
 #define WROND_BOARD_INITIALIZATION "Wrong board initialization\n"
 
 

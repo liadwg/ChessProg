@@ -18,9 +18,9 @@ extern char curr_piece;
 extern COLOR curr_player;
 extern Move* best_move;
 extern COLOR user_color;
-extern COLOR next_player; // recently added 
+extern COLOR start_color; 
 extern int minimax_depth;
-extern int game_mode; // 2 player mode
+extern int game_mode;
 extern int best_depth;
 extern int board_count;
 extern char black_promotables[4];

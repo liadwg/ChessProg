@@ -70,51 +70,66 @@ void init_board(char board[BOARD_SIZE][BOARD_SIZE]){
 	}
 }
 
-int piece2type(char * piece){
-	if (piece == NULL) return 0;
-	if (strcmp(piece, "queen") == 0) return 1;
-	if (strcmp(piece, "bishop") == 0) return 2;
-	if (strcmp(piece, "rook") == 0) return 3;
-	if (strcmp(piece, "knight") == 0) return 4;
+int get_line_by_node_name(char * name){
+	if (strcmp(name, "next_turn") == 0) return 0;
+	if (strcmp(name, "game_mode") == 0) return 1;
+	if (strcmp(name, "difficulty") == 0) return 2;
+	if (strcmp(name, "user_color") == 0) return 3;
+	if (strcmp(name, "board") == 0) return 4;
+	return -1;
 }
 
 int load_game(char * path, char board[BOARD_SIZE][BOARD_SIZE]){
 	xmlDoc *doc = NULL;
 	xmlNode *root_element = NULL;
-	int line_num = 0;
 	doc = xmlReadFile(path, NULL, 0);
 	if (doc == NULL) return 0;
 	root_element = xmlDocGetRootElement(doc);
-	xmlNode *cur_node = NULL;
-	for (cur_node = root_element; cur_node; cur_node = cur_node->next) {
-		if (/*cur_node->type == XML_ELEMENT_NODE &&*/ strcmp(cur_node->name, "game") == 0) {
+	//xmlNode *cur_node = NULL;
+	for (xmlNode * cur_node = root_element; cur_node ; cur_node = cur_node->next) {
+		if (cur_node->type == XML_ELEMENT_NODE && strcmp(cur_node->name, "game") == 0) {
 			cur_node = cur_node->children;
-			for (cur_node = root_element; cur_node; cur_node = cur_node->next, line_num++){
-				if (cur_node->content == NULL) continue;
-				switch (line_num){
-				case 0: if (strcmp(cur_node->content, "White") == 0){} // change ? // next_turn
-				case 1: game_mode = atoi(cur_node->content); // game_mode
-				case 2: // difficulty
-					if (strcmp(cur_node->content, "best" == 0)){
-						minimax_depth = 4;
-						best_depth = 1;
-					}
-					else minimax_depth = atoi(cur_node->content);
-				case 3: user_color = strcmp(cur_node->content, "White") == 0 ? WHITE : BLACK; // user_color
-				case 4: //board
-					cur_node = cur_node->children;
-					int j = 0;
-					clear_board(board);
-					for (cur_node = root_element; cur_node; cur_node = cur_node->next, j++){
-						char * row = cur_node->content;
-						for (int i = 0; i < BOARD_SIZE; i++){
-							if (row[i] == '_') board[i][j] = EMPTY;
-							else board[i][j] = row[i];
+			for (cur_node; cur_node; cur_node = cur_node->next){
+				if (cur_node->type == XML_ELEMENT_NODE && cur_node->children != NULL){
+					switch (get_line_by_node_name(cur_node->name)){
+					case 0:
+						if (strcmp(cur_node->children->content, "Black") == 0 ||
+							strcmp(cur_node->children->content, "black") == 0) start_color = BLACK;
+						else start_color = WHITE;
+						break;
+					case 1: 
+						game_mode = atoi(cur_node->children->content);
+						break;
+					case 2:
+						if (strcmp(cur_node->children->content, "best" == 0)){
+							minimax_depth = 4;
+							best_depth = 1;
+						}
+						else  minimax_depth = atoi(cur_node->children->content);
+						break;
+					case 3: 
+						if (strcmp(cur_node->children->content, "Black") == 0 ||
+							strcmp(cur_node->children->content, "black") == 0) user_color = BLACK;
+						else user_color = WHITE;
+						break;
+					case 4:
+						clear_board(board);
+						cur_node = cur_node->children;
+						for (cur_node; cur_node; cur_node = cur_node->next){
+							if (cur_node->type == XML_ELEMENT_NODE && cur_node->children != NULL){
+								int j = (cur_node->name)[4] - '1';
+								for (int i = 0; i < BOARD_SIZE; i++){
+									board[i][j] = (cur_node->children->content[i] == '_') ? 
+									EMPTY : cur_node->children->content[i];
+								}
+							}
 						}
 					}
 				}
+				if (cur_node == NULL) break; // try to do it in better way?
 			}
 		}
+		if (cur_node == NULL) break;
 	}
 	xmlFreeDoc(doc);
 	xmlCleanupParser();
@@ -122,36 +137,50 @@ int load_game(char * path, char board[BOARD_SIZE][BOARD_SIZE]){
 }
 
 int save_game(char board[BOARD_SIZE][BOARD_SIZE], COLOR color, char * file_name){
-	xmlDocPtr doc = NULL;       /* document pointer */
-	xmlNodePtr root_node = NULL, board_node = NULL;/* node pointers */
-
-	LIBXML_TEST_VERSION;
-
-	doc = xmlNewDoc(BAD_CAST "1.0");
-	root_node = xmlNewNode(NULL, BAD_CAST "game");
-	xmlDocSetRootElement(doc, root_node);
-
-	xmlNewChild(root_node, NULL, BAD_CAST "next_turn", BAD_CAST color);
-	xmlNewChild(root_node, NULL, BAD_CAST "game_mode", BAD_CAST game_mode);
-
-	if (game_mode == 2){
-		xmlNewChild(root_node, NULL, BAD_CAST "difficulty", BAD_CAST minimax_depth);
-		xmlNewChild(root_node, NULL, BAD_CAST "user_color", BAD_CAST user_color);
-	}
-	board_node = xmlNewChild(root_node, NULL, BAD_CAST "board", NULL);
-	for (int i = 0; i < BOARD_SIZE; i++){
-		char * line = malloc(8);
-		for (int j = 0; j < BOARD_SIZE; j++){
-			if (board[i][j] == EMPTY) line[j] = '_';
-			else line[j] = board[i][j];
+	int saved = 1;
+	xmlTextWriterPtr writer;
+	// Create a new XmlWriter
+	writer = xmlNewTextWriterFilename(file_name, 0);
+	if (writer == NULL) return 0;
+	// Start the document
+	if (xmlTextWriterStartDocument(writer, NULL, "UTF-8", NULL) < 0) saved = 0;
+	if (xmlTextWriterStartElement(writer, BAD_CAST "game") < 0) saved = 0;
+	if (xmlTextWriterWriteElement(writer, BAD_CAST "next_turn", start_color == BLACK ? BAD_CAST "Black" : BAD_CAST "White") < 0) saved = 0;
+	if (xmlTextWriterWriteElement(writer, BAD_CAST "game_mode", game_mode == 1 ? BAD_CAST "1" : BAD_CAST "2") < 0) saved = 0;
+	if (game_mode == 2) {
+		if (best_depth == 1) {
+			if (xmlTextWriterWriteElement(writer, BAD_CAST "difficulty", BAD_CAST "best") < 0) saved = 0;
+			else {
+				char depth[2];
+				sprintf(depth, "%d", minimax_depth);
+				if (xmlTextWriterWriteElement(writer, BAD_CAST "difficulty", BAD_CAST depth) < 0) saved = 0;
+			}
+			if (xmlTextWriterWriteElement(writer, BAD_CAST "user_color", user_color ? BAD_CAST "Black" : BAD_CAST "White") < 0) saved = 0;
 		}
-		xmlNewChild(board_node, NULL, BAD_CAST("row_%d", i), BAD_CAST line);
+
 	}
-	if (xmlSaveFormatFileEnc(file_name, doc, "UTF-8", 1) == -1) return 0;
-	xmlFreeDoc(doc);
+	else {
+		if (xmlTextWriterWriteElement(writer, BAD_CAST "difficulty", BAD_CAST "") < 0) saved = 0;
+		if (xmlTextWriterWriteElement(writer, BAD_CAST "user_color", BAD_CAST "") < 0) saved = 0;
+	}
+	if (xmlTextWriterStartElement(writer, BAD_CAST "board") < 0) return 0;
+	for (int j = BOARD_SIZE ; j > 0 ; j--) {
+		char row[9];
+		char row_name[6];
+		for (int i = 0 ; i < BOARD_SIZE ; i++){
+			row[i] = board[i][j - 1] == EMPTY ? '_' : board[i][j - 1];
+			sprintf(row_name, "row_%d", j);
+		}
+		row[8] = '\0';
+		if (xmlTextWriterWriteElement(writer, BAD_CAST row_name, BAD_CAST row) < 0) saved = 0;
+	}
+	if (xmlTextWriterEndDocument(writer) < 0) saved = 0;
+	xmlFreeTextWriter(writer);
+	xmlCleanupCharEncodingHandlers();
 	xmlCleanupParser();
-	return 1;
+	return saved;
 }
+
 
 // handles user input (unknown length), returns a string without redundant white spaces after each new line
 char* input2str(FILE* pFile){
@@ -198,7 +227,7 @@ void exc(char* str, char board[BOARD_SIZE][BOARD_SIZE]){
 	}
 	else if (strcmp(word1, "difficulty") == 0){ 
 		char * word2 = strtok(NULL, " ");
-		if (game_mode == 1) printf(WRONG_GAME_MODE); // didnt mentioned what message should be print
+		if (game_mode == 1) printf(ILLEGAL_COMMAND);
 		else{ 
 			if (strcmp(word2, "best") == 0){
 				minimax_depth = 4;
@@ -213,7 +242,7 @@ void exc(char* str, char board[BOARD_SIZE][BOARD_SIZE]){
 	}
 	else if (strcmp(word1, "user_color") == 0){
 		char * color = strtok(NULL, " ");
-		if (game_mode == 1) printf(ILLEGAL_COMMAND); // didnt mentioned what message should be print
+		if (game_mode == 1) printf(ILLEGAL_COMMAND);
 		else if (strcmp(color, "black") == 0) user_color = BLACK;
 	}
 	else if (strcmp(word1, "load") == 0){
@@ -224,7 +253,7 @@ void exc(char* str, char board[BOARD_SIZE][BOARD_SIZE]){
 	else if (strcmp(word1, "clear") == 0) clear_board(board);
 	else if (strcmp(word1, "next_player") == 0){
 		char * color = strtok(NULL, " ");
-		if (strcmp(color, "black") == 0) user_color = BLACK;
+		if (strcmp(color, "black") == 0) start_color = BLACK;
 	}
 	else if ((strcmp(word1, "rm") == 0) || (strcmp(word1, "set") == 0)) {
 		char * coor1 = strtok(NULL, " <,>");
@@ -240,13 +269,15 @@ void exc(char* str, char board[BOARD_SIZE][BOARD_SIZE]){
 			int whites[6] = { 0 }, blacks[6] = { 0 };
 			piece_counter(board, &whites, &blacks);
 			if (get_color_by_piece(piece2set) == WHITE){
-				if ((get_type_by_piece(piece2set) == 0) && whites[0] == 1) printf(NO_PIECE);
-				else if (whites[get_type_by_piece(piece2set)] == 2) printf(NO_PIECE);
+				if ((get_type_by_piece(piece2set) == 0) && whites[0] == 1) printf(WRONG_PIECE);
+				else if ((get_type_by_piece(piece2set) == 1) && whites[1] == 1) printf(WRONG_PIECE);
+				else if (whites[get_type_by_piece(piece2set)] == 2) printf(WRONG_PIECE);
 				else board[coor1[0] - 'a'][atoi(coor2) - 1] = piece2set;
 			}
 			if (get_color_by_piece(piece2set) == BLACK){
-				if ((get_type_by_piece(piece2set) == 0) && blacks[0] == 1) printf(NO_PIECE);
-				else if (blacks[get_type_by_piece(piece2set)] == 2) printf(NO_PIECE);
+				if ((get_type_by_piece(piece2set) == 0) && blacks[0] == 1) printf(WRONG_PIECE);
+				if ((get_type_by_piece(piece2set) == 1) && blacks[1] == 1) printf(WRONG_PIECE);
+				else if (blacks[get_type_by_piece(piece2set)] == 2) printf(WRONG_PIECE);
 				else board[coor1[0] - 'a'][atoi(coor2) - 1] = piece2set;
 			}
 		}
@@ -258,21 +289,18 @@ void exc(char* str, char board[BOARD_SIZE][BOARD_SIZE]){
 
 // manages the computer's turn
 int computer_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
-	int ret_val;
-	curr_player = color;
-	alpha_beta_minimax(board, color, 0, -100, 100);
-	Move * move2do = best_move;
-	if (is_check(board, color) == 1){
-		printf(CHECK);
-		if (move2do == NULL) ret_val = WIN_POS;
-	}
-	else if (move2do == NULL) ret_val = TIE_POS;
-	else{
-		exc_move(board, move2do);
+	int ret_val = GAME_ON;
+	get_all_moves(board, color);
+	if (is_check(board, color) == 1 && moves_head == NULL) ret_val = WIN_POS;
+	if (is_check(board, color) != 1 && moves_head == NULL) ret_val = TIE_POS;
+	if (is_check(board, color) == 1 && moves_head != NULL) printf(CHECK);
+	if (moves_head != NULL){
+		alpha_beta_minimax(board, color, 0, -500, 500);
+		Move * move2do = best_move;
+		exc_move(board, move2do, color);
 		printf("Computer: move ");
 		print_move(move2do);
 		print_board(board);
-		ret_val = GAME_ON;
 	}
 	clear_old_moves(moves_head);
 	return ret_val;
@@ -280,105 +308,131 @@ int computer_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 
 // manages the users turn, game state user input loop
 int user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
-	Move* move_list = get_all_moves(board, color);
-	if (is_check(board, color) == 1){
-		printf(CHECK);
-		if (move_list == NULL) return WIN_POS;
-	}
-	if (move_list == NULL) return TIE_POS;
+	int ret_val = GAME_ON;
 	char *word1;
 	char *command = NULL;
 	Move* new_move = NULL;
-	int ret_val;
-	while (1){
-		printf(ENTER_YOUR_MOVE, color == WHITE ? "white" : "black");
-		if (new_move != NULL) clear_old_moves(new_move);
-		new_move = malloc(sizeof(Move));
-		new_move->next = NULL;
-		if (command != NULL) free(command);
-		command = input2str(stdin);
-		word1 = strtok(command, " ");
-		if (strcmp(word1, "quit") == 0){
-			ret_val = QUIT;
-			break;
-		}
-		else if (strcmp(word1, "get_moves") == 0){
-			Pos pos;
-			pos.col = strtok(NULL, " <,>") - 'a';
-			pos.row = strtok(NULL, " <,>") - 1;
-			if (!is_valid_pos(pos)) printf(WRONG_POSITION);
-			else if (is_opposite(color, board[pos.col][pos.row]) || board[pos.col][pos.row] == EMPTY) printf(NO_DISC);
-			else print_piece_moves(moves_head, pos);
-			continue;
-		}
-		else if (strcmp(word1, "get_best_moves") == 0){
-			char * depth = strtok(command, " ");
-			int prev_best_depth = best_depth;
-			int prev_depth = depth;
-			if (strcmp(depth, "best") == 0){
-				minimax_depth = 4;
-				best_depth = 1;
-			}
-			else{
-				minimax_depth = atoi(depth);
-				best_depth = 0;
-			}
-			alpha_beta_minimax(board, color, 0, -100, 100);
-			print_best_moves(moves_head, best_move->score);
-			minimax_depth = prev_depth;
-			best_depth = prev_best_depth;
-		}
-		else if (strcmp(word1, "save") == 0){
-			char * file_name = strtok(NULL, " <,>");
-			FILE * file = fopen(file_name, "r");
-			if (file != NULL){
-				fclose;
-				printf(WRONG_FILE_NAME);
-			}
-			else{
-				save_game(board, color, file_name);
-			}
-		}
-		else if (strcmp(word1, "move") == 0 || strcmp(word1, "get_score") == 0){
-			char * piece_coor1 = strtok(NULL, " <,>");
-			char * piece_coor2 = strtok(NULL, " <,>");
-			new_move->piece.col = piece_coor1[0] - 'a';
-			new_move->piece.row = atoi(piece_coor2) - 1;
-			if (!is_valid_pos(new_move->piece)){
-				printf(WRONG_POSITION);
-				continue;
-			}
-			char * dest_coor1 = strtok(NULL, " <,>to");
-			char * dest_coor2 = strtok(NULL, " <,>to");
-			new_move->dest.col = dest_coor1[0] - 'a';
-			new_move->dest.row = atoi(dest_coor2) - 1;
-			char * piece_promote = strtok(NULL, " <,>");
-			if (piece_promote == NULL){
-				if ((color == BLACK && new_move->dest.row == 0) || (color == WHITE && new_move->dest.row == BOARD_SIZE - 1))
-					piece_promote = "queen";
-			}
-			new_move->promote = piece2type(piece_promote);
-			if (!is_valid_pos(new_move->dest)) printf(WRONG_POSITION);
-			if (!is_valid_piece(board, new_move, color)){
-				printf(NO_DISC);
-				continue;
-			}
-			Move * move2do = is_valid_move(moves_head, new_move);
-			if (move2do == NULL){
-				printf(ILLEGAL_MOVE);
-				continue;
-			}
-			else if (strcmp(word1, "move") == 0){
-				exc_move(board, move2do);
-				print_board(board);
-				ret_val = GAME_ON;
+	get_all_moves(board, color);
+	if (is_check(board, color) == 1 && moves_head == NULL) ret_val = WIN_POS;
+	if (is_check(board, color) != 1 && moves_head == NULL) ret_val = TIE_POS;
+	if (is_check(board, color) == 1 && moves_head != NULL) printf(CHECK);
+	if (moves_head != NULL){
+		while (1){
+			printf(ENTER_YOUR_MOVE, color == WHITE ? "white" : "black");
+			if (command != NULL) free(command);
+			command = input2str(stdin);
+			word1 = strtok(command, " ");
+
+			if (strcmp(word1, "quit") == 0){
+				ret_val = QUIT;
 				break;
 			}
-			else if (strcmp(word1, "get_score") == 0){
-				printf(move2do->score);
+
+			else if (strcmp(word1, "get_moves") == 0){
+				Pos pos;
+				pos.col = strtok(NULL, " <,>")[0] - 'a';
+				pos.row = atoi(strtok(NULL, " <,>")) - 1;
+				if (!is_valid_pos(pos)) printf(WRONG_POSITION);
+				else if (is_opposite(color, board[pos.col][pos.row]) || board[pos.col][pos.row] == EMPTY) printf(NO_PIECE);
+				else print_piece_moves(moves_head, pos);
+				continue;
 			}
+
+			else if (strcmp(word1, "get_best_moves") == 0){
+				char * depth = strtok(NULL, " ");
+				int prev_best_depth = best_depth;
+				int prev_depth = minimax_depth;
+				if (strcmp(depth, "best") == 0){
+					minimax_depth = 4;
+					best_depth = 1;
+				}
+				else{
+					minimax_depth = atoi(depth);
+					best_depth = 0;
+				}
+				alpha_beta_minimax(board, color, 0, -500, 500);
+				int best_score = best_move->score;
+				print_best_moves(moves_head, best_score);
+				minimax_depth = prev_depth;
+				best_depth = prev_best_depth;
+				continue;
+			}
+
+			else if (strcmp(word1, "save") == 0){
+				char * file_name = strtok(NULL, " <,>");
+				if (save_game(board, color, file_name) != 1){
+					gets(file_name);
+					remove(file_name);
+					printf(WRONG_FILE_NAME);
+					continue;
+				}
+			}
+
+			else if (strcmp(word1, "move") == 0 || strcmp(word1, "get_score") == 0){
+				int prev_best_depth;
+				int prev_depth;
+				if (strcmp(word1, "get_score") == 0){
+					char * depth = strtok(NULL, " ");
+					prev_best_depth = best_depth;
+					prev_depth = minimax_depth;
+					if (strcmp(depth, "best") == 0){
+						minimax_depth = 4;
+						best_depth = 1;
+					}
+					else{
+						minimax_depth = atoi(depth);
+						best_depth = 0;
+					}
+				}
+				if (new_move != NULL) clear_old_moves(new_move);
+				new_move = malloc(sizeof(Move));
+				new_move->next = NULL;
+				new_move->piece.col = strtok(NULL, " <,>")[0] - 'a';
+				new_move->piece.row = atoi(strtok(NULL, " <,>")) - 1;
+				if (!is_valid_pos(new_move->piece)){
+					printf(WRONG_POSITION);
+					continue;
+				}
+				if (!is_valid_piece(board, new_move, color)){
+					printf(NO_PIECE);
+					continue;
+				}
+				new_move->dest.col = strtok(NULL, " <,>to")[0] - 'a';
+				new_move->dest.row = atoi(strtok(NULL, " <,>to")) - 1;
+				if (!is_valid_pos(new_move->dest)){
+					printf(WRONG_POSITION);
+					continue;
+				}
+				new_move->promote = 0;
+				if (is_EOB(new_move->dest, color)){
+					char * piece_promote = strtok(NULL, " <,>");
+					char this_piece = board[new_move->piece.col][new_move->piece.row];
+					if (this_piece == BLACK_P || this_piece == WHITE_P){
+						if (piece_promote == NULL) piece_promote = "queen";
+						new_move->promote = get_piece_by_name(piece_promote, color);
+					}
+				}
+				Move * move2do = is_valid_move(moves_head, new_move);
+				if (move2do == NULL){
+					printf(ILLEGAL_MOVE);
+					continue;
+				}
+				if (strcmp(word1, "get_score") == 0){
+					alpha_beta_minimax(board, color, 0, -500, 500);
+					move2do = is_valid_move(moves_head, move2do);
+					printf("%d\n", move2do->score);
+					minimax_depth = prev_depth;
+					best_depth = prev_best_depth;
+					continue;
+				}
+				if (strcmp(word1, "move") == 0){
+					exc_move(board, move2do, color);
+					print_board(board);
+					break;
+				}
+			}
+			else printf(ILLEGAL_COMMAND);
 		}
-		else printf(ILLEGAL_COMMAND);
 	}
 	free(command);
 	clear_old_moves(new_move);
@@ -406,6 +460,7 @@ int main(void)
 		}
 		exc(command, board);
 		free(command);
+		printf(ENTER_SETTINGS);
 		command = input2str(stdin);
 	}
 
@@ -415,35 +470,35 @@ int main(void)
 		print_board(board); // remove at the end
 		while (1){
 			if (game_mode == 2){
-				if (user_color == WHITE){
-					int user_ret_val = user_turn(board, WHITE);
-					if (user_ret_val == QUIT) break;
-					if (user_ret_val == WIN_POS || user_ret_val == TIE_POS){
-						if (user_ret_val == WIN_POS) printf(BLACK_WIN);
+				if (user_color == start_color){
+					int u_turn = user_turn(board, user_color);
+					if (u_turn == QUIT) break;
+					if (u_turn == WIN_POS || u_turn == TIE_POS){
+						if (u_turn == WIN_POS) printf(user_color == WHITE ? BLACK_WIN : WHITE_WIN);
 						else printf(TIE);
 						end_pos = 1;
 						break;
 					}
-					int comp_ret_val = computer_turn(board, BLACK);
-					if (comp_ret_val == WIN_POS || comp_ret_val == TIE_POS){
-						if (comp_ret_val == WIN_POS) printf(WHITE_WIN);
+					int c_turn = computer_turn(board, !user_color);
+					if (c_turn == WIN_POS || c_turn == TIE_POS){
+						if (c_turn == WIN_POS)  printf(user_color == WHITE ? WHITE_WIN : BLACK_WIN);
 						else printf(TIE);
 						end_pos = 1;
 						break;
 					}
 				}
 				else{
-					int comp_ret_val = computer_turn(board, WHITE);
-					if (comp_ret_val == WIN_POS || comp_ret_val == TIE_POS){
-						if (comp_ret_val == WIN_POS) printf(BLACK_WIN);
+					int c_turn = computer_turn(board, !user_color);
+					if (c_turn == WIN_POS || c_turn == TIE_POS){
+						if (c_turn == WIN_POS) printf(user_color == BLACK ? BLACK_WIN : WHITE_WIN);
 						else printf(TIE);
 						end_pos = 1;
 						break;
 					}
-					int user_ret_val = user_turn(board, BLACK);
-					if (user_ret_val == QUIT) break;
-					if (user_ret_val == WIN_POS || user_ret_val == TIE_POS){
-						if (comp_ret_val == WIN_POS) printf(WHITE_WIN);
+					int u_turn = user_turn(board, user_color);
+					if (u_turn == QUIT) break;
+					if (u_turn == WIN_POS || u_turn == TIE_POS){
+						if (u_turn == WIN_POS) printf(user_color == BLACK ? WHITE_WIN : BLACK_WIN);
 						else printf(TIE);
 						end_pos = 1;
 						break;
@@ -451,18 +506,18 @@ int main(void)
 				}
 			}
 			if (game_mode == 1){
-				int w_ret_val = user_turn(board, WHITE);
-				if (w_ret_val == QUIT) break;
-				if (w_ret_val == WIN_POS || w_ret_val == TIE_POS){
-					if (w_ret_val == WIN_POS) printf(BLACK_WIN);
+				int turn1 = user_turn(board, start_color);
+				if (turn1 == QUIT) break;
+				if (turn1 == WIN_POS || turn1 == TIE_POS){
+					if (turn1 == WIN_POS) printf(start_color == WHITE ? BLACK_WIN : WHITE_WIN);
 					else printf(TIE);
 					end_pos = 1;
 					break;
 				}
-				int b_ret_val = user_turn(board, BLACK);
-				if (b_ret_val == QUIT) break;
-				if (b_ret_val == WIN_POS || b_ret_val == TIE_POS){
-					if (b_ret_val == WIN_POS) printf(WHITE_WIN); 
+				int turn2 = user_turn(board, !start_color);
+				if (turn2 == QUIT) break;
+				if (turn2 == WIN_POS || turn2 == TIE_POS){
+					if (turn2 == WIN_POS) printf(start_color == WHITE ? WHITE_WIN : BLACK_WIN);
 					else printf(TIE);
 					end_pos = 1;
 					break;

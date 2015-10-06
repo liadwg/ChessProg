@@ -543,7 +543,7 @@ void get_bishop_moves(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, Pos piec
 
 void get_pawn_moves(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, Pos piece){
 	int direction = board[piece.col][piece.row] == BLACK_P ? -1 : 1;
-	int pawn_row = board[piece.col][piece.row] == BLACK_P ? 1 : 6;
+	int pawn_row = board[piece.col][piece.row] == BLACK_P ? 6 : 1;
 
 	Pos dest;
 	dest.col = piece.col;

@@ -232,17 +232,22 @@ void exc(char* str, char board[BOARD_SIZE][BOARD_SIZE]){
 		if (coor1[0] < 'a' || coor1[0] > 'h' || atoi(coor2) < 1 || atoi(coor2) > 8) printf(WRONG_POSITION);
 		if (strcmp(word1, "rm") == 0) board[coor1[0] - 'a'][atoi(coor2) - 1] = EMPTY;
 		else{
-			char * a = strtok(NULL, " ");
-			if (a == NULL) return;
-			char * b = strtok(NULL, " ");
-			char piece;
-			char prev_piece;
-			piece = name2piece(b, a);
-			prev_piece = board[coor1[0] - 'a'][atoi(coor2) - 1];
-			board[coor1[0] - 'a'][atoi(coor2) - 1] = piece;
-			if (!is_valid_board(board)){
-				board[coor1[0] - 'a'][atoi(coor2) - 1] = prev_piece;
-				printf(NO_PIECE);
+			char * set_color = strtok(NULL, " ");
+			if (set_color == NULL) return;
+			char * set_name = strtok(NULL, " ");
+			char piece2set = (strcmp(set_color,"white") == 0) ? get_piece_by_name(set_name, WHITE) : get_piece_by_name(set_name, BLACK);
+			if (board[coor1[0] - 'a'][atoi(coor2) - 1] == piece2set) return; // is ok?
+			int whites[6] = { 0 }, blacks[6] = { 0 };
+			piece_counter(board, &whites, &blacks);
+			if (get_color_by_piece(piece2set) == WHITE){
+				if ((get_type_by_piece(piece2set) == 0) && whites[0] == 1) printf(NO_PIECE);
+				else if (whites[get_type_by_piece(piece2set)] == 2) printf(NO_PIECE);
+				else board[coor1[0] - 'a'][atoi(coor2) - 1] = piece2set;
+			}
+			if (get_color_by_piece(piece2set) == BLACK){
+				if ((get_type_by_piece(piece2set) == 0) && blacks[0] == 1) printf(NO_PIECE);
+				else if (blacks[get_type_by_piece(piece2set)] == 2) printf(NO_PIECE);
+				else board[coor1[0] - 'a'][atoi(coor2) - 1] = piece2set;
 			}
 		}
 	}
@@ -275,18 +280,18 @@ int computer_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 
 // manages the users turn, game state user input loop
 int user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
-	get_all_moves(board, color);
+	Move* move_list = get_all_moves(board, color);
 	if (is_check(board, color) == 1){
 		printf(CHECK);
-		if (moves_head == NULL) return WIN_POS;
+		if (move_list == NULL) return WIN_POS;
 	}
-	if (moves_head == NULL) return TIE_POS;
+	if (move_list == NULL) return TIE_POS;
 	char *word1;
 	char *command = NULL;
 	Move* new_move = NULL;
 	int ret_val;
 	while (1){
-		printf(ENTER_YOUR_MOVE, color);
+		printf(ENTER_YOUR_MOVE, color == WHITE ? "white" : "black");
 		if (new_move != NULL) clear_old_moves(new_move);
 		new_move = malloc(sizeof(Move));
 		new_move->next = NULL;
@@ -298,9 +303,12 @@ int user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 			break;
 		}
 		else if (strcmp(word1, "get_moves") == 0){
-			char * piece_coor1 = strtok(NULL, " <,>");
-			char * piece_coor2 = strtok(NULL, " <,>");
-			print_piece_moves(moves_head, piece_coor1[0] - 'a', atoi(piece_coor2) - 1);
+			Pos pos;
+			pos.col = strtok(NULL, " <,>") - 'a';
+			pos.row = strtok(NULL, " <,>") - 1;
+			if (!is_valid_pos(pos)) printf(WRONG_POSITION);
+			else if (is_opposite(color, board[pos.col][pos.row]) || board[pos.col][pos.row] == EMPTY) printf(NO_DISC);
+			else print_piece_moves(moves_head, pos);
 			continue;
 		}
 		else if (strcmp(word1, "get_best_moves") == 0){
@@ -404,6 +412,7 @@ int main(void)
 	if (strcmp(command, "start") == 0){
 		// initially we printed the board at the start of the game, commented out in order to match the running examples.
 		//if (user_color == WHITE) print_board(board);
+		print_board(board); // remove at the end
 		while (1){
 			if (game_mode == 2){
 				if (user_color == WHITE){

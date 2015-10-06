@@ -287,7 +287,7 @@ void exc(char* str, char board[BOARD_SIZE][BOARD_SIZE]){
 	return;
 }
 
-int pre_turn_verifi(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
+int pre_turn_verify(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 	get_all_moves(board, color);
 	if (is_check(board, color) == 1 && moves_head == NULL) return LOSE_POS;
 	if (is_check(board, color) != 1 && moves_head == NULL) return TIE_POS;
@@ -454,10 +454,12 @@ int main(int argc, char * argv[]){
 	if (argc == 2) gui_mode = strcmp(argv[1], "gui") == 0 ? 1 : 0;
 	char board[BOARD_SIZE][BOARD_SIZE];
 	init_board(board);
-	int end_pos = 0;
+	//int end_pos = 0;
 	int start = 0;
 	//setting state
-	if (gui_mode){ ; } //setting gui
+	if (gui_mode){
+		start = gui_setting_mode();
+	} //setting gui
 	else{ //setting console
 		printf(ENTER_SETTINGS);
 		char *command = input2str(stdin);
@@ -488,8 +490,9 @@ int main(int argc, char * argv[]){
 				int c_turn;
 				if (user_color == start_color){
 					//user starts
-					u_turn = pre_turn_verifi(board, user_color);
+					u_turn = pre_turn_verify(board, user_color);
 					if (gui_mode){ ; }
+						//gui_game_mode(u_turn,) }
 					else{
 						if (u_turn == LOSE_POS || u_turn == TIE_POS){
 							if (u_turn == LOSE_POS) printf(user_color == WHITE ? BLACK_WIN : WHITE_WIN);
@@ -500,10 +503,10 @@ int main(int argc, char * argv[]){
 							if (u_turn == CHECK_POS) printf(CHECK);
 							user_turn(board, user_color);
 						}
-						if (!game_on) break;
+						if (!game_on) break; //change to two of modes
 					}
 
-					c_turn = pre_turn_verifi(board, !user_color);
+					c_turn = pre_turn_verify(board, !user_color);
 					if (gui_mode){ ; }
 					else{
 						if (c_turn == LOSE_POS || c_turn == TIE_POS){
@@ -520,7 +523,7 @@ int main(int argc, char * argv[]){
 				}
 				//comp starts
 				else{
-					c_turn = pre_turn_verifi(board, !user_color);
+					c_turn = pre_turn_verify(board, !user_color);
 					if (gui_mode){ ; }
 					else{
 						if (c_turn == LOSE_POS || c_turn == TIE_POS){
@@ -534,7 +537,7 @@ int main(int argc, char * argv[]){
 						}
 						if (!game_on) break;
 					}
-					u_turn = pre_turn_verifi(board, user_color);
+					u_turn = pre_turn_verify(board, user_color);
 					if (gui_mode){ ; }
 					else{
 						if (u_turn == LOSE_POS || u_turn == TIE_POS){
@@ -554,7 +557,7 @@ int main(int argc, char * argv[]){
 			if (game_mode == 1){
 				int turn1;
 				int turn2;
-				turn1 = pre_turn_verifi(board, start_color);
+				turn1 = pre_turn_verify(board, start_color);
 				if (gui_mode){ ; }
 				else{
 					if (turn1 == LOSE_POS || turn1 == TIE_POS){
@@ -568,7 +571,7 @@ int main(int argc, char * argv[]){
 					}
 					if (!game_on) break;
 				}
-				turn2 = pre_turn_verifi(board, !start_color);
+				turn2 = pre_turn_verify(board, !start_color);
 				if (gui_mode){ ; }
 				else{
 					if (turn2 == LOSE_POS || turn2 == TIE_POS){

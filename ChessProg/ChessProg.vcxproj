@@ -88,6 +88,7 @@
     <ClCompile Include="chess_logics.c" />
     <ClCompile Include="chess_ui.c" />
     <ClCompile Include="chess_utils.c" />
+    <ClCompile Include="gui_framework.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChessProg.h" />

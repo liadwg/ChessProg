@@ -85,6 +85,7 @@ int safe_fgetc(FILE *stream){
 void safe_free(void * mem){
 	if (fail_safe) remove_from_list(mem);
 	free(mem);
+	//mem = NULL;
 }
 #define free(x) safe_free(x)
 

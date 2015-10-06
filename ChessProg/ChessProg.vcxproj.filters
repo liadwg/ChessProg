@@ -27,6 +27,9 @@
     <ClCompile Include="chess_utils.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="gui_framework.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChessProg.h">

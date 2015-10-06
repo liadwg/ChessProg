@@ -21,6 +21,8 @@ TreeNode *prevScreen = NULL;
 TreeNode *currScreen = NULL;
 char curr_board[BOARD_SIZE][BOARD_SIZE];
 char tmp_board[BOARD_SIZE][BOARD_SIZE];
+Pos *src_pos = NULL;
+Move *move_to_do = NULL;
 
 
 void quit_all(){
@@ -92,6 +94,16 @@ void set_piece_picked(char piece){
 	piece_picked = piece;
 }
 
+Move* generate_move(int col, int row){
+	Move *res = malloc(sizeof(Move));
+	res->piece.col = src_pos->col;
+	res->piece.row = src_pos->row;
+	res->dest.col = col;
+	res->dest.row = row;
+	res->next = NULL;
+	return res;
+}
+
 void tile_clicked(int tile){
 	TreeNode *tile_node = get_button_node(currScreen, tile);
 	Button *button = (Button*)tile_node->control;
@@ -99,7 +111,6 @@ void tile_clicked(int tile){
 		if (piece_picked == NULL && tile_node->child_num == 0) return;
 		else if (piece_picked != NULL){
 			tmp_board[button->args / 10][button->args % 10] = piece_picked;
-			//add_label_to_button(tile_node, get_piece_pic(piece_picked));
 			piece_picked = NULL;
 		}
 		else{ // if (piece_picked == NULL && tile_node->child_num != 0)
@@ -109,13 +120,25 @@ void tile_clicked(int tile){
 		}
 		update_board_gui(tile_node->parent, tmp_board);
 		draw_tree(currScreen);
-	} 
+	}
+	else{ // gameWindow
+		if (src_pos == NULL && tile_node->child_num == 0) return;
+		else if (src_pos != NULL){
+			move_to_do = generate_move(button->args / 10, button->args % 10);
+			// implement promotions!!
+			free(src_pos);
+			src_pos = NULL;
+		}
+		else{ // if (src_pos == NULL && tile_node->child_num != 0)
+			Label *lbl = (Label*)tile_node->children[0]->control;
+			if (is_opposite(curr_player, get_piece_by_pic(lbl->name))) return;
+			src_pos = malloc(sizeof(Pos));
+			src_pos->col = button->args / 10;
+			src_pos->row = button->args % 10;
+		}
+	}
 }
 
-void board_set_ok(){
-	duplicate_board(tmp_board, curr_board);
-	//start_game();
-}
 
 void set_player(int i){
 	game_mode = i;
@@ -135,11 +158,51 @@ void screen_dismissed(TreeNode *screen){
 
 void cancel_clicked(){
 	if (currScreen == prevScreen) prevScreen = mainMenu; // make sure its ok in all flows
+	piece_picked = NULL;
 	free_tree(currScreen);
 	screen_dismissed(currScreen);
 	draw_tree(prevScreen);
 	currScreen = prevScreen;
 }
+
+void board_set_ok(){
+	if (!is_valid_board(tmp_board)) return;
+	duplicate_board(tmp_board, curr_board);
+	cancel_clicked();
+}
+
+void init_game_window(){
+	char *title = "CHESS GAME";
+	gameWindow = new_window(title, WIN_W, WIN_H, 2);
+
+	TreeNode *board_panel = new_panel(gameWindow, "board_panel", 0, 0, 600, WIN_H, BOARD_SIZE * BOARD_SIZE, "pics/board.bmp");
+	Panel *p_board = (Panel*)board_panel->control;
+	TreeNode *menu_panel = new_panel(gameWindow, "menu_panel", 600, 0, 200, WIN_H, 3, NULL);
+	Panel *p_menu = (Panel*)menu_panel->control;
+
+	TreeNode *save = new_button(menu_panel, "save", p_menu->width / 2 - BUTTON_W / 2, 10, BUTTON_W, BUTTON_H, 0, "pics/save_game.bmp", NULL, NULL);
+	TreeNode *menu = new_button(menu_panel, "menu", p_menu->width / 2 - BUTTON_W / 2, 20 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/cancel.bmp", NULL, NULL);
+	TreeNode *best_panel = new_panel(menu_panel, "best_panel", 600, 40 + 2 * BUTTON_H, 200, (WIN_H - 100 + 2 * BUTTON_H), 6, NULL);
+	Panel *p_best = (Panel*)best_panel->control;
+
+	TreeNode *best_logo = new_label(best_panel, "best_logo", p_best->width / 2 - BUTTON_W / 2, 10, BUTTON_W, BUTTON_H, 0, "pics/logo.bmp");
+	TreeNode *d1 = new_button(best_panel, "depth1", p_best->width / 2 - BUTTON_W / 2, 20 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/cancel.bmp", NULL, 1);
+	TreeNode *d2 = new_button(best_panel, "depth2", p_best->width / 2 - BUTTON_W / 2, 30 + 2 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/cancel.bmp", NULL, 2);
+	TreeNode *d3 = new_button(best_panel, "depth3", p_best->width / 2 - BUTTON_W / 2, 40 + 3 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/cancel.bmp", NULL, 3);
+	TreeNode *d4 = new_button(best_panel, "depth4", p_best->width / 2 - BUTTON_W / 2, 50 + 4 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/cancel.bmp", NULL, 4);
+	TreeNode *d_best = new_button(best_panel, "best_depth", p_best->width / 2 - BUTTON_W / 2, 60 + 5 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/cancel.bmp", NULL, -1);
+
+	for (int i = 0; i < BOARD_SIZE; i++)
+		for (int j = 0; j < BOARD_SIZE; j++){
+		new_button(board_panel, "tile_btn", 40 + TILE * i, 40 + TILE * (BOARD_SIZE - 1 - j), TILE, TILE, 0, NULL, tile_clicked, i * 10 + j);
+		}
+
+	update_board_gui(board_panel, curr_board);
+	duplicate_board(curr_board, tmp_board);
+
+	draw_tree(gameWindow);
+}
+
 
 void init_board_setting(){
 	char *title = "Board Setting";
@@ -149,7 +212,6 @@ void init_board_setting(){
 	Panel *p_board = (Panel*)board_panel->control;
 	TreeNode *menu_panel = new_panel(boardSetting, "menu_panel", 600, 0, 200, WIN_H, 4, NULL);
 	Panel *p_menu = (Panel*)menu_panel->control;
-	//TreeNode *piece23 = new_button(board_panel, "piece_to_pick", 40, 40, TILE, TILE, 0, "pics/king_b.bmp", NULL, NULL);
 
 	TreeNode *logo = new_label(menu_panel, "logo", p_menu->width / 2 - BUTTON_W / 2, 10, BUTTON_W, BUTTON_H, 0, "pics/logo.bmp");
 	TreeNode *ok = new_button(menu_panel, "OK", p_menu->width / 2 - BUTTON_W / 2, 20 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/OK.bmp", board_set_ok, NULL);
@@ -174,15 +236,6 @@ void init_board_setting(){
 		for (int j = 0; j < BOARD_SIZE; j++){
 		new_button(board_panel, "tile_btn", 40 + TILE * i, 40 + TILE * (BOARD_SIZE - 1 - j), TILE, TILE, 0, NULL, tile_clicked, i * 10 + j);
 		}
-	//char *btn_pic = malloc(sizeof(char) * 15);
-	////int *arg;
-	//for (int i = 0; i < SAVE_SLOTS; i++){
-	//	sprintf_s(btn_pic, 15, "pics/slot%d.bmp", i);
-	//	//arg = malloc(sizeof(int)); // for compatibility - button args must be dynamicly allocated
-	//	//*arg = i;
-	//	new_button(panel, "slot_btn", p->width / 2 - BUTTON_W / 2, 70 + (BUTTON_H + 10) * i, BUTTON_W, BUTTON_H, 0, btn_pic, func, i);
-	//}
-	//free(btn_pic);
 
 	update_board_gui(board_panel, curr_board);
 	duplicate_board(curr_board, tmp_board);
@@ -194,6 +247,10 @@ void open_board_setting(){
 	prevScreen = currScreen;
 	init_board_setting();
 	currScreen = boardSetting;
+}
+
+void start_game_clicked(){
+	// start global = 1
 }
 
 void init_player_selection(){
@@ -213,7 +270,7 @@ void init_player_selection(){
 
 	TreeNode *set_board = new_button(panel, "set_board", p->width / 2 - BUTTON_W / 2, 110 + BUTTON_H * 2, BUTTON_W, BUTTON_H, 0, "pics/set_board.bmp", open_board_setting, NULL);
 
-	TreeNode *start = new_button(panel, "start", p->width - 20 - BUTTON_W, p->height - 20 - BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/start.bmp", cancel_clicked, NULL);
+	TreeNode *start = new_button(panel, "start", p->width - 20 - BUTTON_W, p->height - 20 - BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/start.bmp", start_game_clicked, NULL);
 	TreeNode *cancel = new_button(panel, "cancel", 20, p->height - 20 - BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/cancel.bmp", cancel_clicked, NULL);
 	
 	if (!board_ready) init_board(curr_board);
@@ -256,11 +313,8 @@ void init_load_save(int load_save){
 
 	TreeNode *logo = new_label(panel, "logo", p->width / 2 - BUTTON_W / 2, 10, BUTTON_W, BUTTON_H, 0, file);
 	char *btn_pic = malloc(sizeof(char) * 15);
-	//int *arg;
 	for (int i = 0; i < SAVE_SLOTS; i++){
 		sprintf_s(btn_pic, 15, "pics/slot%d.bmp", i);
-		//arg = malloc(sizeof(int)); // for compatibility - button args must be dynamicly allocated
-		//*arg = i;
 		new_button(panel, "slot_btn", p->width / 2 - BUTTON_W / 2, 70 + (BUTTON_H + 10) * i, BUTTON_W, BUTTON_H, 0, btn_pic, func, i);
 	}
 	free(btn_pic);
@@ -289,11 +343,19 @@ void init_main_menu(){
 	draw_tree(mainMenu);
 }
 
+Move* gui_game_mode(int chk, char board[BOARD_SIZE][BOARD_SIZE]){
+	// handel chk (mate/tie -> game_on = 0)
+	duplicate_board(board, curr_board);
+	init_game_window();
+	currScreen = gameWindow;
+	while (!glob_quit)
+		if (move_to_do != NULL) return move_to_do;
+		run_events_loop(currScreen);
+}
 
-int main_sdl(void) {
 
-	//init_board_setting();
-	//currScreen = boardSetting;
+int gui_setting_mode(){
+
 	init_main_menu();
 	currScreen = mainMenu;
 	while (!glob_quit)
@@ -301,177 +363,3 @@ int main_sdl(void) {
 
 	return 0;
 }
-
-
-
-
-
-
-
-
-
-//int main_sdl(void) {
-//
-//	init_main_menu();
-//	currScreen = mainMenu;
-//	while (!glob_quit)
-//		run_events_loop(currScreen);
-//	//SDL_Surface *w = SDL_SetVideoMode(WIN_W, WIN_H, 0, SDL_HWSURFACE | SDL_DOUBLEBUF);
-//	//test_animate(w);
-//	//main_menu(w);
-//	//atexit(SDL_Quit);
-//	return 0;
-//}
-//
-//int game_screen(){}
-//
-//int settings_screen(){}
-//
-//int main_menu(SDL_Surface *w){
-//	SDL_Event e;
-//	SDL_Rect buttons[3] = { { WIN_W / 2 - BUTTON_W / 2, 110, BUTTON_W, BUTTON_H },
-//	{ WIN_W / 2 - BUTTON_W / 2, 120 + BUTTON_H, BUTTON_W, BUTTON_H },
-//	{ WIN_W / 2 - BUTTON_W / 2, 130 + BUTTON_H * 2, BUTTON_W, BUTTON_H } };
-//
-//	if (SDL_FillRect(w, 0, 0) != 0) {
-//		printf("ERROR: failed to draw rect: %s\n", SDL_GetError());
-//		return 1;
-//	}
-//
-//	foreach(SDL_Rect *button, buttons){
-//		if (SDL_FillRect(w, button, SDL_MapRGB(w->format, 255, 255, 255)) != 0) {
-//			printf("ERROR: failed to draw rect: %s\n", SDL_GetError());
-//			return 1;
-//		}
-//	}
-//
-//	SDL_Surface *dummy = SDL_LoadBMP("/Users/liadwg/Documents/visual studio 2013/Projects/ChessProg/pics/button1.bmp");
-//	SDL_BlitSurface(dummy, NULL, w, &buttons[0]);
-//	if (SDL_SetColorKey(w, SDL_SRCCOLORKEY, SDL_MapRGB(dummy->format, 0, 255, 0)) != 0) {
-//		printf("ERROR: failed to set color key: %s\n", SDL_GetError());
-//		SDL_FreeSurface(dummy);
-//		return 1;
-//	}
-//
-//
-//	/* We finished drawing*/
-//	if (SDL_Flip(w) != 0) {
-//		printf("ERROR: failed to flip buffer: %s\n", SDL_GetError());
-//		return 1;
-//	}
-//
-//	/* Poll for keyboard & mouse events*/
-//	while (!glob_quit) {
-//		while (SDL_PollEvent(&e) != 0) {
-//			switch (e.type) {
-//			case (SDL_QUIT) :
-//				glob_quit = 1;
-//				break;
-//			case (SDL_KEYUP) :
-//				if (e.key.keysym.sym == SDLK_ESCAPE) glob_quit = 1;
-//				break;
-//			case (SDL_MOUSEBUTTONUP) :
-//				if ((e.button.x > buttons[2].x) && (e.button.x < buttons[2].x + buttons[2].w) && (e.button.y > buttons[2].y) && (e.button.y < buttons[2].y + buttons[2].h))
-//					glob_quit = 1;
-//				break;
-//			default:
-//				break;
-//			}
-//		}
-//	}
-//	return 0;
-//}
-//
-//int test_animate(SDL_Surface *w){
-//	SDL_Event e;
-//	SDL_Rect rect = { 10, 10, 50, 50 };
-//	SDL_Rect imgrect = { 0, 0, IMG_W, IMG_H };
-//	SDL_Surface *img = SDL_LoadBMP("/Users/liadwg/Documents/visual studio 2013/Projects/ChessProg/test2.bmp");
-//	int quit = 0;
-//
-//	/* Initialize SDL and make sure it quits*/
-//	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-//		printf("ERROR: unable to init SDL: %s\n", SDL_GetError());
-//		return 1;
-//	}
-//	//atexit(SDL_Quit);
-//
-//	/* Define the rects we need*/
-//
-//
-//	/* Load test spritesheet image*/
-//
-//	if (img == NULL) {
-//		printf("ERROR: failed to load image: %s\n", SDL_GetError());
-//		return 1;
-//	}
-//
-//	/* Set colorkey to BLUE*/
-//	if (SDL_SetColorKey(img, SDL_SRCCOLORKEY, SDL_MapRGB(img->format, 0, 0, 255)) != 0) {
-//		printf("ERROR: failed to set color key: %s\n", SDL_GetError());
-//		SDL_FreeSurface(img);
-//		return 1;
-//	}
-//
-//
-//	while (!quit) {
-//		/* Clear window to BLACK*/
-//		if (SDL_FillRect(w, 0, 0) != 0) {
-//			printf("ERROR: failed to draw rect: %s\n", SDL_GetError());
-//			break;
-//		}
-//
-//		/* Green rectangle button*/
-//		if (SDL_FillRect(w, &rect, SDL_MapRGB(w->format, 0, 255, 0)) != 0) {
-//			printf("ERROR: failed to draw rect: %s\n", SDL_GetError());
-//			break;
-//		}
-//
-//		/* Draw image sprite*/
-//		if (SDL_BlitSurface(img, &imgrect, w, 0) != 0) {
-//			SDL_FreeSurface(img);
-//			printf("ERROR: failed to blit image: %s\n", SDL_GetError());
-//			break;
-//		}
-//
-//		/* Advance to next sprite*/
-//		imgrect.x += imgrect.w;
-//		if (imgrect.x >= img->w) {
-//			imgrect.x = 0;
-//			imgrect.y += imgrect.h;
-//			if (imgrect.y >= img->h) imgrect.y = 0;
-//		}
-//
-//		/* We finished drawing*/
-//		if (SDL_Flip(w) != 0) {
-//			printf("ERROR: failed to flip buffer: %s\n", SDL_GetError());
-//			break;
-//		}
-//
-//		/* Poll for keyboard & mouse events*/
-//
-//		while (SDL_PollEvent(&e) != 0) {
-//			switch (e.type) {
-//			case (SDL_QUIT) :
-//				quit = 1;
-//				break;
-//			case (SDL_KEYUP) :
-//				if (e.key.keysym.sym == SDLK_ESCAPE) quit = 1;
-//				break;
-//			case (SDL_MOUSEBUTTONUP) :
-//				if ((e.button.x > rect.x) && (e.button.x < rect.x + rect.w) && (e.button.y > rect.y) && (e.button.y < rect.y + rect.h))
-//					quit = 1;
-//				break;
-//			default:
-//				break;
-//			}
-//		}
-//
-//		/* Wait a little before redrawing*/
-//		SDL_Delay(10);
-//	}
-//
-//	SDL_FreeSurface(img);
-//	atexit(SDL_Quit);
-//	return 0;
-//}

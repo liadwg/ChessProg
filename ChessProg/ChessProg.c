@@ -532,7 +532,7 @@ int main(void)
 	//	command = input2str(stdin);
 	//}
 	//free(command);
-	main_sdl();
+	gui_setting_mode();
 	return 0;
 }
 

@@ -110,7 +110,7 @@ typedef char** board_t;
 //// Draughts code
 //int is_valid_pos(Pos pos);
 //int is_king(char piece);
-//int is_opposite(COLOR player, char piece);
+int is_opposite(COLOR player, char piece);
 //int is_EOB(Pos piece, COLOR player);
 //
 //void clear_old_moves(Move* head);
@@ -141,6 +141,7 @@ void init_board(char board[BOARD_SIZE][BOARD_SIZE]);
 //Move * is_valid_move(Move * moves, Move * new_move);
 //void exc_move(char board[BOARD_SIZE][BOARD_SIZE], Move * move);
 
+int is_valid_board(char board[BOARD_SIZE][BOARD_SIZE]);
 int load_game(char * path, char board[BOARD_SIZE][BOARD_SIZE]);
 
 // Globals

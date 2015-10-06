@@ -222,7 +222,7 @@ int is_click_on_button(int x, int y, Button *button){
 }
 
 void run_events_loop(TreeNode* screen){
-	buttons = malloc(sizeof(Button*) * 100);
+	buttons = malloc(sizeof(Button*) * 100); // max num of buttons per panel
 	get_screen_buttons(screen);
 	realloc(buttons, sizeof(Button*) * buttons_count);
 	SDL_Event e;

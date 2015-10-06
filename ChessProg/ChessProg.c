@@ -450,6 +450,7 @@ void user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 }
 
 int main(int argc, char * argv[]){
+	//return gui_setting_mode();
 	int gui_mode = 0;
 	if (argc == 2) gui_mode = strcmp(argv[1], "gui") == 0 ? 1 : 0;
 	char board[BOARD_SIZE][BOARD_SIZE];
@@ -593,9 +594,6 @@ int main(int argc, char * argv[]){
 	//	command = input2str(stdin);
 	//}
 	//free(command);
-
-	//main_sdl();
-	//return 0;
 }
 
 

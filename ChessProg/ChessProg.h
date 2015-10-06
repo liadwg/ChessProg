@@ -153,6 +153,7 @@ extern COLOR user_color;
 //extern char curr_piece;
 extern COLOR curr_player;
 //extern Move* best_move;
+extern char gui_board[BOARD_SIZE][BOARD_SIZE];
 
 #endif CHESS_
 

@@ -455,7 +455,7 @@ int main(int argc, char * argv[]){
 	//setting state
 	if (gui_mode){
 		start = gui_setting_mode();
-		board = gui_board;
+		duplicate_board(gui_board, board);
 	} //setting gui
 	else{ //setting console
 		init_board(board);

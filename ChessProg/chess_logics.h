@@ -28,5 +28,6 @@ extern char white_promotables[4];
 //extern int gui_mode;
 extern int game_on;
 
+//void duplicate_board(char board1[BOARD_SIZE][BOARD_SIZE], char board2[BOARD_SIZE][BOARD_SIZE]);
 
 #endif CHESS_LOGICS_

@@ -42,29 +42,29 @@ void clear_board(char board[BOARD_SIZE][BOARD_SIZE]){
 void init_board(char board[BOARD_SIZE][BOARD_SIZE]){
 	int i, j;
 	for (i = 0; i < BOARD_SIZE; i++){
-		board[i][1] = BLACK_P;
-		board[i][BOARD_SIZE - 2] = WHITE_P;
+		board[i][1] = WHITE_P;
+		board[i][BOARD_SIZE - 2] = BLACK_P;
 		for (j = 2; j < (BOARD_SIZE - 2); j++) board[i][j] = EMPTY;
 		switch (i){
 		case 0: case (BOARD_SIZE - 1) :
-			board[i][0] = BLACK_R;
-			board[i][BOARD_SIZE - 1] = WHITE_R;
+			board[i][0] = WHITE_R;
+			board[i][BOARD_SIZE - 1] = BLACK_R;
 			break;
 		case 1: case (BOARD_SIZE - 2) :
-			board[i][0] = BLACK_N;
-			board[i][BOARD_SIZE - 1] = WHITE_N;
+			board[i][0] = WHITE_N;
+			board[i][BOARD_SIZE - 1] = BLACK_N;
 			break;
 		case 2: case (BOARD_SIZE - 3) :
-			board[i][0] = BLACK_B;
-			board[i][BOARD_SIZE - 1] = WHITE_B;
+			board[i][0] = WHITE_B;
+			board[i][BOARD_SIZE - 1] = BLACK_B;
 			break;
 		case 3:
-			board[i][0] = BLACK_Q;
-			board[i][BOARD_SIZE - 1] = WHITE_Q;
+			board[i][0] = WHITE_Q;
+			board[i][BOARD_SIZE - 1] = BLACK_Q;
 			break;
 		case 4:
-			board[i][0] = BLACK_K;
-			board[i][BOARD_SIZE - 1] = WHITE_K;
+			board[i][0] = WHITE_K;
+			board[i][BOARD_SIZE - 1] = BLACK_K;
 			break;
 		}
 	}
@@ -287,20 +287,20 @@ void exc(char* str, char board[BOARD_SIZE][BOARD_SIZE]){
 	return;
 }
 
-int pre_turn_check(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
+int pre_turn_verifi(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 	get_all_moves(board, color);
-	if (is_check(board, color) == 1 && moves_head == NULL) return WIN_POS;
+	if (is_check(board, color) == 1 && moves_head == NULL) return LOSE_POS;
 	if (is_check(board, color) != 1 && moves_head == NULL) return TIE_POS;
 	if (is_check(board, color) == 1 && moves_head != NULL) return CHECK_POS;
 	return GAME_ON;
 }
 
 // manages the computer's turn
-int computer_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
+void computer_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 	curr_player = color;
-	int ret_val = GAME_ON;
+	//int ret_val = GAME_ON;
 	//get_all_moves(board, color);
-	//if (is_check(board, color) == 1 && moves_head == NULL) ret_val = WIN_POS;
+	//if (is_check(board, color) == 1 && moves_head == NULL) ret_val = LOSE_POS;
 	//if (is_check(board, color) != 1 && moves_head == NULL) ret_val = TIE_POS;
 	//if (is_check(board, color) == 1 && moves_head != NULL) printf(CHECK);
 	if (moves_head != NULL){
@@ -312,7 +312,7 @@ int computer_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 		print_board(board);
 	}
 	clear_old_moves(moves_head);
-	return ret_val;
+	//return ret_val;
 }
 
 // manages the users turn, game state user input loop
@@ -323,7 +323,7 @@ void user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 	char *command = NULL;
 	Move* new_move = NULL;
 	//get_all_moves(board, color);
-	//if (is_check(board, color) == 1 && moves_head == NULL) ret_val = WIN_POS;
+	//if (is_check(board, color) == 1 && moves_head == NULL) ret_val = LOSE_POS;
 	//if (is_check(board, color) != 1 && moves_head == NULL) ret_val = TIE_POS;
 	//if (is_check(board, color) == 1 && moves_head != NULL) printf(CHECK);
 	if (moves_head != NULL){
@@ -451,7 +451,7 @@ void user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 
 int main(int argc, char * argv[]){
 	int gui_mode = 0;
-	if (argc == 1) gui_mode = strcmp(argv[1], "gui") == 0 ? 1 : 0;
+	if (argc == 2) gui_mode = strcmp(argv[1], "gui") == 0 ? 1 : 0;
 	char board[BOARD_SIZE][BOARD_SIZE];
 	init_board(board);
 	int end_pos = 0;
@@ -482,83 +482,115 @@ int main(int argc, char * argv[]){
 		//if (user_color == WHITE) print_board(board);
 		//print_board(board); 
 		while (1){
+			// user vs computer
 			if (game_mode == 2){
 				int u_turn;
 				int c_turn;
 				if (user_color == start_color){
-					//user turn
-					u_turn = pre_turn_check(board, user_color);
+					//user starts
+					u_turn = pre_turn_verifi(board, user_color);
 					if (gui_mode){ ; }
 					else{
-						if (u_turn == WIN_POS || u_turn == TIE_POS){
-							if (u_turn == WIN_POS) printf(user_color == WHITE ? BLACK_WIN : WHITE_WIN);
+						if (u_turn == LOSE_POS || u_turn == TIE_POS){
+							if (u_turn == LOSE_POS) printf(user_color == WHITE ? BLACK_WIN : WHITE_WIN);
 							else printf(TIE);
-							//end_pos = 1;
 							game_on = 0;
-							//break;
 						}
 						else{
 							if (u_turn == CHECK_POS) printf(CHECK);
 							user_turn(board, user_color);
-							//if (u_turn == QUIT) break;
 						}
 						if (!game_on) break;
 					}
-					c_turn = pre_turn_check(board, !user_color);
-					//int c_turn = computer_turn(board, !user_color);
+
+					c_turn = pre_turn_verifi(board, !user_color);
 					if (gui_mode){ ; }
 					else{
-						if (c_turn == WIN_POS || c_turn == TIE_POS){
-							if (c_turn == WIN_POS)  printf(user_color == WHITE ? WHITE_WIN : BLACK_WIN);
+						if (c_turn == LOSE_POS || c_turn == TIE_POS){
+							if (c_turn == LOSE_POS) printf(user_color == WHITE ? WHITE_WIN : BLACK_WIN);
 							else printf(TIE);
-							end_pos = 1;
-							break;
+							game_on = 0;
 						}
+						else{
+							if (c_turn == CHECK_POS) printf(CHECK);
+							computer_turn(board, !user_color);
+						}
+						if (!game_on) break;
 					}
 				}
+				//comp starts
 				else{
-					int c_turn = computer_turn(board, !user_color);
-					if (c_turn == WIN_POS || c_turn == TIE_POS){
-						if (c_turn == WIN_POS) printf(user_color == BLACK ? BLACK_WIN : WHITE_WIN);
-						else printf(TIE);
-						end_pos = 1;
-						break;
+					c_turn = pre_turn_verifi(board, !user_color);
+					if (gui_mode){ ; }
+					else{
+						if (c_turn == LOSE_POS || c_turn == TIE_POS){
+							if (c_turn == LOSE_POS) printf(user_color == WHITE ? BLACK_WIN : WHITE_WIN);
+							else printf(TIE);
+							game_on = 0;
+						}
+						else{
+							if (c_turn == CHECK_POS) printf(CHECK);
+							computer_turn(board, !user_color);
+						}
+						if (!game_on) break;
 					}
-					int u_turn = user_turn(board, user_color);
-					if (u_turn == QUIT) break;
-					if (u_turn == WIN_POS || u_turn == TIE_POS){
-						if (u_turn == WIN_POS) printf(user_color == BLACK ? WHITE_WIN : BLACK_WIN);
-						else printf(TIE);
-						end_pos = 1;
-						break;
+					u_turn = pre_turn_verifi(board, user_color);
+					if (gui_mode){ ; }
+					else{
+						if (u_turn == LOSE_POS || u_turn == TIE_POS){
+							if (u_turn == LOSE_POS) printf(user_color == WHITE ? WHITE_WIN : BLACK_WIN);
+							else printf(TIE);
+							game_on = 0;
+						}
+						else{
+							if (u_turn == CHECK_POS) printf(CHECK);
+							user_turn(board, user_color);
+						}
+						if (!game_on) break;
 					}
 				}
 			}
+			// 2 players
 			if (game_mode == 1){
-				int turn1 = user_turn(board, start_color);
-				if (turn1 == QUIT) break;
-				if (turn1 == WIN_POS || turn1 == TIE_POS){
-					if (turn1 == WIN_POS) printf(start_color == WHITE ? BLACK_WIN : WHITE_WIN);
-					else printf(TIE);
-					end_pos = 1;
-					break;
+				int turn1;
+				int turn2;
+				turn1 = pre_turn_verifi(board, start_color);
+				if (gui_mode){ ; }
+				else{
+					if (turn1 == LOSE_POS || turn1 == TIE_POS){
+						if (turn1 == LOSE_POS) printf(start_color == WHITE ? BLACK_WIN : WHITE_WIN);
+						else printf(TIE);
+						game_on = 0;
+					}
+					else{
+						if (turn1 == CHECK_POS) printf(CHECK);
+						user_turn(board, start_color);
+					}
+					if (!game_on) break;
 				}
-				int turn2 = user_turn(board, !start_color);
-				if (turn2 == QUIT) break;
-				if (turn2 == WIN_POS || turn2 == TIE_POS){
-					if (turn2 == WIN_POS) printf(start_color == WHITE ? WHITE_WIN : BLACK_WIN);
-					else printf(TIE);
-					end_pos = 1;
-					break;
+				turn2 = pre_turn_verifi(board, !start_color);
+				if (gui_mode){ ; }
+				else{
+					if (turn2 == LOSE_POS || turn2 == TIE_POS){
+						if (turn2 == LOSE_POS) printf(start_color == WHITE ? WHITE_WIN : BLACK_WIN);
+						else printf(TIE);
+						game_on = 0;
+					}
+					else{
+						if (turn2 == CHECK_POS) printf(CHECK);
+						user_turn(board, !start_color);
+					}
+					if (!game_on) break;
 				}
 			}
 		}
 	}
-	if (end_pos == 1){
-		free(command);
-		command = input2str(stdin);
-	}
-	free(command);
+	//if (end_pos == 1){
+	//	free(command);
+	//	command = input2str(stdin);
+	//}
+	//free(command);
+
 	//main_sdl();
 	//return 0;
 }

@@ -95,7 +95,7 @@ typedef char** board_t;
 
 #define QUIT 0
 #define GAME_ON 1
-#define WIN_POS 2
+#define LOSE_POS 2
 #define TIE_POS 3
 #define CHECK_POS 4
 
@@ -127,12 +127,12 @@ typedef char** board_t;
 //void print_moves(Move* head);
 //int get_piece_score(char piece, COLOR player);
 //int calc_score(char board[BOARD_SIZE][BOARD_SIZE], COLOR player);
-//void duplicate_board(char board1[BOARD_SIZE][BOARD_SIZE], char board2[BOARD_SIZE][BOARD_SIZE]);
+void duplicate_board(char board1[BOARD_SIZE][BOARD_SIZE], char board2[BOARD_SIZE][BOARD_SIZE]);
 //int alpha_beta_minimax(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, int depth, int alpha, int beta);
 //
 //int is_valid_board(char board[BOARD_SIZE][BOARD_SIZE]);
 //void print_board(char board[BOARD_SIZE][BOARD_SIZE]);
-//void init_board(char board[BOARD_SIZE][BOARD_SIZE]);
+void init_board(char board[BOARD_SIZE][BOARD_SIZE]);
 //void clear_board(char board[BOARD_SIZE][BOARD_SIZE]);
 //char* input2str(FILE* pFile);
 //void exc(char* str, char board[BOARD_SIZE][BOARD_SIZE]);
@@ -141,6 +141,8 @@ typedef char** board_t;
 //int is_valid_piece(char board[BOARD_SIZE][BOARD_SIZE], Move * move, COLOR color);
 //Move * is_valid_move(Move * moves, Move * new_move);
 //void exc_move(char board[BOARD_SIZE][BOARD_SIZE], Move * move);
+
+int load_game(char * path, char board[BOARD_SIZE][BOARD_SIZE]);
 
 // Globals
 extern COLOR user_color;

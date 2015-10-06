@@ -447,7 +447,8 @@ void user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 }
 
 int main(int argc, char * argv[]){
-	if (argc == 2) gui_mode = strcmp(argv[1], "gui") == 0 ? 1 : 0;
+	//if (argc == 2) gui_mode = strcmp(argv[1], "gui") == 0 ? 1 : 0;
+	gui_mode = 1;
 	char board[BOARD_SIZE][BOARD_SIZE];
 	init_board(board);
 	//int end_pos = 0;

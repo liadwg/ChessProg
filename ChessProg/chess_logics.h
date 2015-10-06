@@ -25,6 +25,8 @@ extern int best_depth;
 extern int board_count;
 extern char black_promotables[4];
 extern char white_promotables[4];
+//extern int gui_mode;
+extern int game_on;
 
 
 #endif CHESS_LOGICS_

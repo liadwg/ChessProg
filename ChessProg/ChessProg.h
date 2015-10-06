@@ -97,6 +97,7 @@ typedef char** board_t;
 #define GAME_ON 1
 #define WIN_POS 2
 #define TIE_POS 3
+#define CHECK_POS 4
 
 
 //// Memory allocation and standard functions monitoring

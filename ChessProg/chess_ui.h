@@ -83,6 +83,7 @@ extern TreeNode *boardSetting;
 extern TreeNode *gameWindow;
 extern Button **buttons;
 extern int buttons_count;
+extern char gui_board[BOARD_SIZE][BOARD_SIZE];
 
 // GUI Framework funcs
 TreeNode* new_node(void* control, CONTROL type, int child_num, TreeNode* parent);

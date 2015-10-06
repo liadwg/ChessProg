@@ -20,7 +20,7 @@ TreeNode *boardSetting = NULL;
 TreeNode *gameWindow = NULL;
 TreeNode *prevScreen = NULL;
 TreeNode *currScreen = NULL;
-char curr_board[BOARD_SIZE][BOARD_SIZE];
+char gui_board[BOARD_SIZE][BOARD_SIZE];
 char tmp_board[BOARD_SIZE][BOARD_SIZE];
 Pos *src_pos = NULL;
 Move *move_to_do = NULL;
@@ -195,7 +195,7 @@ void set_next(COLOR i){
 
 void board_set_ok(){
 	if (!is_valid_board(tmp_board)) return;
-	duplicate_board(tmp_board, curr_board);
+	duplicate_board(tmp_board, gui_board);
 	cancel_clicked();
 }
 
@@ -234,7 +234,7 @@ void init_game_window(){
 		new_button(board_panel, "tile_btn", 40 + TILE * i, 40 + TILE * (BOARD_SIZE - 1 - j), TILE, TILE, 0, NULL, tile_clicked, i * 10 + j);
 		}
 
-	update_board_gui(board_panel, curr_board);
+	update_board_gui(board_panel, gui_board);
 
 	draw_tree(gameWindow);
 }
@@ -273,8 +273,8 @@ void init_board_setting(){
 		new_button(board_panel, "tile_btn", 40 + TILE * i, 40 + TILE * (BOARD_SIZE - 1 - j), TILE, TILE, 0, NULL, tile_clicked, i * 10 + j);
 		}
 
-	update_board_gui(board_panel, curr_board);
-	duplicate_board(curr_board, tmp_board);
+	update_board_gui(board_panel, gui_board);
+	duplicate_board(gui_board, tmp_board);
 
 	draw_tree(boardSetting);
 }
@@ -318,7 +318,7 @@ void init_player_selection(){
 	TreeNode *start = new_button(panel, "start", p->width - 20 - BUTTON_W, p->height - 20 - BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/start.bmp", start_game_clicked, NULL);
 	TreeNode *cancel = new_button(panel, "cancel", 20, p->height - 20 - BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/cancel.bmp", cancel_clicked, NULL);
 	
-	if (!board_ready) init_board(curr_board);
+	if (!board_ready) init_board(gui_board);
 	draw_tree(playerSelection);
 }
 
@@ -332,7 +332,7 @@ void open_player_selection(){
 void load_slot(int slot){
 	char file[16] = "slots/game0.xml";
 	file[10] = slot + '0';
-	load_game(&file, curr_board);
+	load_game(&file, gui_board);
 	board_ready = 1;
 	open_player_selection();
 }
@@ -390,10 +390,10 @@ void init_main_menu(){
 
 Move* gui_game_mode(int chk, char board[BOARD_SIZE][BOARD_SIZE]){
 	// handel chk (mate/tie -> game_on = 0)
-	duplicate_board(board, curr_board);
+	duplicate_board(board, gui_board);
 	move_to_do = NULL;
 	if (gameWindow != NULL){
-		update_board_gui(gameWindow->children[0], curr_board); // first child is the board panel
+		update_board_gui(gameWindow->children[0], gui_board); // first child is the board panel
 		draw_tree(gameWindow);
 	}
 	else init_game_window();

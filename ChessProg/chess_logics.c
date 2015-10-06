@@ -111,6 +111,8 @@ int minimax_depth = 1;
 int game_mode = 1; // 2 player mode
 int best_depth = 0;
 int board_count = 0;
+//int gui_mode = 0;
+int game_on = 1;
 char black_promotables[4] = { BLACK_B, BLACK_N, BLACK_Q, BLACK_R };
 char white_promotables[4] = { WHITE_B, WHITE_N, WHITE_Q, WHITE_R };
 

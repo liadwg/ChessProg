@@ -450,14 +450,15 @@ int main(int argc, char * argv[]){
 	//if (argc == 2) gui_mode = strcmp(argv[1], "gui") == 0 ? 1 : 0;
 	gui_mode = 1;
 	char board[BOARD_SIZE][BOARD_SIZE];
-	init_board(board);
 	//int end_pos = 0;
 	int start = 0;
 	//setting state
 	if (gui_mode){
 		start = gui_setting_mode();
+		board = gui_board;
 	} //setting gui
 	else{ //setting console
+		init_board(board);
 		printf(ENTER_SETTINGS);
 		char *command = input2str(stdin);
 		while (strcmp(command, "quit") != 0){

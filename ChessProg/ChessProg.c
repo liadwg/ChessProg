@@ -109,7 +109,7 @@ int load_game(char * path, char board[BOARD_SIZE][BOARD_SIZE]){
 							minimax_depth = 4;
 							best_depth = 1;
 						}
-						else  minimax_depth = atoi(cur_node->children->content);
+						else  minimax_depth = atoi((char*)cur_node->children->content);
 					}
 					if (strcmp((char*)cur_node->name, "user_color") == 0){
 						if (strcmp((char*)cur_node->children->content, "Black") == 0 ||

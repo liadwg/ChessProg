@@ -771,18 +771,28 @@ int calc_score(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
 }
 
 int improved_calc_score(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
-	// ***************************change it!
-	int whites[6] = { 0 }, blacks[6] = { 0 };
+	//// ***************************change it!
+	//int whites[6] = { 0 }, blacks[6] = { 0 };
 
-	piece_counter(board, &whites, &blacks);
+	//piece_counter(board, &whites, &blacks);
 
-	int white_score = whites[get_type_by_piece(WHITE_P)] + 3 * whites[get_type_by_piece(WHITE_B)] + 3 * whites[get_type_by_piece(WHITE_N)]
-		+ 5 * whites[get_type_by_piece(WHITE_R)] + 9 * whites[get_type_by_piece(WHITE_Q)] + 400 * whites[get_type_by_piece(WHITE_K)];
-	int black_score = blacks[get_type_by_piece(BLACK_P)] + 3 * blacks[get_type_by_piece(BLACK_B)] + 3 * blacks[get_type_by_piece(BLACK_N)] +
-		5 * blacks[get_type_by_piece(BLACK_R)] + 9 * blacks[get_type_by_piece(BLACK_Q)] + 400 * blacks[get_type_by_piece(BLACK_K)];
-	//if (best_depth) board_count++;
-	if (player == WHITE) return white_score - black_score;
-	else return black_score - white_score;
+	//int white_score = 100 * whites[get_type_by_piece(WHITE_P)] + 325 * whites[get_type_by_piece(WHITE_B)] + 320 * whites[get_type_by_piece(WHITE_N)]
+	//	+ 500 * whites[get_type_by_piece(WHITE_R)] + 975 * whites[get_type_by_piece(WHITE_Q)] + 32767 * whites[get_type_by_piece(WHITE_K)];
+	//int black_score = 100 * blacks[get_type_by_piece(BLACK_P)] + 325 * blacks[get_type_by_piece(BLACK_B)] + 320 * blacks[get_type_by_piece(BLACK_N)] +
+	//	500 * blacks[get_type_by_piece(BLACK_R)] + 975 * blacks[get_type_by_piece(BLACK_Q)] + 32767 * blacks[get_type_by_piece(BLACK_K)];
+	//
+	//if (remainingPieces < 10)
+	//{
+	//	board.EndGamePhase = true;
+
+	////if (best_depth) board_count++;
+	//for (int i = 0; i < BOARD_SIZE; i++){
+	//	for (int j = 0; j < BOARD_SIZE; j++){
+
+	//	}
+	//}
+	//if (player == WHITE) return white_score - black_score;
+	//else return black_score - white_score;
 }
 
 

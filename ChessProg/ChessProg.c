@@ -272,6 +272,7 @@ void conosle_settings_mode(char* str, char board[BOARD_SIZE][BOARD_SIZE]){
 			if (board[coor1[0] - 'a'][atoi(coor2) - 1] == piece2set) return; 
 			
 			//check if the added piece exceeds the amount of allowed pieces on the board
+			//int whites[6] = { 0 }, blacks[6] = { 0 }; 
 			int * whites = malloc(sizeof(int) * 6);
 			int * blacks = malloc(sizeof(int) * 6);
 			for (int i = 0; i < 6; i++){
@@ -429,7 +430,7 @@ void user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 					continue;
 				}
 				new_move->promote = 0;
-				if (is_EOB(new_move->dest, color)){ //promoting
+				if (is_EOB(new_move->dest, color)){ // gets piece to be promote from the user
 					char * piece_promote = strtok(NULL, " <,>");
 					char this_piece = board[new_move->piece.col][new_move->piece.row];
 					if (this_piece == BLACK_P || this_piece == WHITE_P){
@@ -437,7 +438,7 @@ void user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 						new_move->promote = get_piece_by_name(piece_promote, color);
 					}
 				}
-				Move * move2do = is_valid_move(moves_head, new_move);
+				Move * move2do = is_valid_move(moves_head, new_move); // the move is valid if the source, dest and score are equals
 				if (move2do == NULL){
 					printf(ILLEGAL_MOVE);
 					continue;
@@ -464,6 +465,7 @@ void user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 	clear_old_moves(moves_head);
 }
 
+//checks if there is a cheak,mate or tie and prints alerts to the console if needed
 void console_alert(int alert){
 	if (alert == LOSE_POS || alert == TIE_POS){
 		if (alert == LOSE_POS) printf(curr_player == WHITE ? BLACK_WIN : WHITE_WIN);
@@ -473,17 +475,20 @@ void console_alert(int alert){
 	else if (alert == CHECK_POS) printf(CHECK);
 }
 
+//checks if there is a cheak,mate or tie to be shown on the game screen (check/mate/tie)
 void gui_alert(int alert){
 	if (alert != GAME_ON){
 		COLOR alert_color = curr_player == WHITE ? BLACK : WHITE;
 		if (alert != CHECK_POS) game_on = 0;
-		alert_state(alert, alert_color);
+		alert_state(alert, alert_color); // this func alert special states in chess ui 
 	}
 }
 
 int main(int argc, char * argv[]){
 	if (argc == 2) gui_mode = strcmp(argv[1], "gui") == 0 ? 1 : 0;
+	//gui_mode = 1;
 	char board[BOARD_SIZE][BOARD_SIZE];
+	//int end_pos = 0;
 	int start = 0;
 	//setting state
 	if (gui_mode){

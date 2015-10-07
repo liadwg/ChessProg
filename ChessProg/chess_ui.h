@@ -3,7 +3,15 @@
 
 #include <SDL.h>
 #include <SDL_video.h>
-#include "ChessProg.h"
+//#include "ChessProg.h"
+
+#ifndef CHESS_UTILS_
+#include "chess_utils.h"
+#endif CHESS_UTILS_
+
+#ifndef CHESS_LOGICS_
+#include "chess_logics.h"
+#endif CHESS_LOGICS_
 
 #define WIN_W 800
 #define WIN_H 600
@@ -17,6 +25,23 @@
 #define WIN_HEIGHT 600
 #define WIN_WIDTH 800
 #define BOARD_SIZE 8
+
+#define malloc(x) safe_malloc(x)
+#define realloc(x, y) safe_realloc((x), (y))
+#define fgetc(x) safe_fgetc(x)
+#define free(x) safe_free(x)
+
+//#define printf(...) \
+//	if (printf(__VA_ARGS__) < 0){ \
+//		perror_message("printf"); \
+//		if (fail_safe) for (int i = 0; i < mem_count; i++) free(mem_list[i]); \
+//		abort();} \
+//				else (void)0
+#define printf(...) \
+	if (printf(__VA_ARGS__) < 0){ \
+		if (fail_safe) for (int i = 0; i < mem_count; i++) free(mem_list[i]); \
+		abort();} \
+								else (void)0
 
 //structures
 typedef struct button

@@ -1,35 +1,36 @@
-#ifndef CHESS_
+//#ifndef CHESS_
 #define CHESS_
 
 #define _CRT_SECURE_NO_WARNINGS
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdarg.h>
-#include <libxml/parser.h>
-#include <libxml/tree.h>
-#include <libxml/xmlwriter.h>
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <string.h>
+//#include <stdarg.h>
+//#include <libxml/parser.h>
+//#include <libxml/tree.h>
+//#include <libxml/xmlwriter.h>
 
 
-typedef enum { WHITE = 0, BLACK = 1 } COLOR;
+//typedef enum { WHITE = 0, BLACK = 1 } COLOR;
+//
+//typedef struct pos{
+//	int col;
+//	int row;
+//} Pos;
+//
+//typedef struct move{
+//	Pos piece;
+//	Pos dest;
+//	char promote; // value 0 means no promotion
+//	int score;
+//	struct move* next;
+//} Move;
 
-typedef struct pos{
-	int col;
-	int row;
-} Pos;
 
-typedef struct move{
-	Pos piece;
-	Pos dest;
-	char promote; // value 0 means no promotion
-	int score;
-	struct move* next;
-} Move;
-
-//#ifndef CHESS_UTILS_
-//#include "chess_utils.h"
-//#endif CHESS_UTILS_
+#ifndef CHESS_UTILS_
+#include "chess_utils.h"
+#endif CHESS_UTILS_
 
 #ifndef CHESS_LOGICS_
 #include "chess_logics.h"
@@ -38,10 +39,6 @@ typedef struct move{
 #ifndef CHESS_UI_
 #include "chess_ui.h"
 #endif CHESS_UI_
-
-
-
-
 
 #define WHITE_P 'm'
 #define WHITE_B 'b'
@@ -62,9 +59,6 @@ typedef struct move{
 #define BOARD_SIZE 8
 #define BOARD_LIMIT 1000000
 
-typedef char** board_t;
-
-// board initialization
 #define ENTER_SETTINGS "Enter game settings:\n" 
 #define WRONG_GAME_MODE "Wrong game mode\n"
 #define TWO_PLAYERS_GAME_MODE "Running game in 2 players mode\n"
@@ -76,13 +70,11 @@ typedef char** board_t;
 #define NO_PIECE "The specified position does not contain your piece\n"
 #define WROND_BOARD_INITIALIZATION "Wrong board initialization\n"
 
-
 #define ILLEGAL_COMMAND "Illegal command, please try again\n"
 #define ILLEGAL_MOVE "Illegal move\n"
 
 #define WRONG_ROOK_POSITION "Wrong position for a rook\n" 
 #define ILLEGAL_CALTLING_MOVE "Illegal castling move\n"  
-
 
 #define perror_message(func_name) (perror("Error: standard function %s has failed", func_name));
 #define print_message(message) (printf("%s", message));
@@ -99,6 +91,40 @@ typedef char** board_t;
 #define TIE_POS 3
 #define CHECK_POS 4
 
+#define malloc(x) safe_malloc(x)
+#define realloc(x, y) safe_realloc((x), (y))
+#define fgetc(x) safe_fgetc(x)
+#define free(x) safe_free(x)
+
+//#define printf(...) \
+//	if (printf(__VA_ARGS__) < 0){ \
+//		perror_message("printf"); \
+//		if (fail_safe) for (int i = 0; i < mem_count; i++) free(mem_list[i]); \
+//		abort();} \
+//				else (void)0
+
+#define printf(...) \
+	if (printf(__VA_ARGS__) < 0){ \
+		if (fail_safe) for (int i = 0; i < mem_count; i++) free(mem_list[i]); \
+		abort();} \
+				else (void)0
+
+void print_line();
+void print_board(char board[BOARD_SIZE][BOARD_SIZE]);
+void clear_board(char board[BOARD_SIZE][BOARD_SIZE]);
+void init_board(char board[BOARD_SIZE][BOARD_SIZE]);
+int get_line_by_node_name(char * name);
+int load_game(char * path, char board[BOARD_SIZE][BOARD_SIZE]);
+int save_game(char board[BOARD_SIZE][BOARD_SIZE], COLOR color, char * file_name);
+char* input2str(FILE* pFile);
+void conosle_settings_mode(char* str, char board[BOARD_SIZE][BOARD_SIZE]);
+int pre_turn_verify(char board[BOARD_SIZE][BOARD_SIZE], COLOR color);
+void computer_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color);
+void get_best_moves(char board[BOARD_SIZE][BOARD_SIZE], int depth);
+void user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color);
+void console_alert(int alert);
+void gui_alert(int alert);
+int main(int argc, char * argv[]);
 
 //// Memory allocation and standard functions monitoring
 //void add_to_list(void* mem);
@@ -108,57 +134,56 @@ typedef char** board_t;
 //int safe_fgetc(FILE *stream);
 //void safe_free(void * mem);
 //
-//// Draughts code
-//int is_valid_pos(Pos pos);
-//int is_king(char piece);
-int is_opposite(COLOR player, char piece);
-//int is_EOB(Pos piece, COLOR player);
-//
-//void clear_old_moves(Move* head);
-//void add_move(Pos piece, Pos* dests, int move_captures);
-//Pos get_next_diag(Pos from, Pos to);
-//Pos get_prev_diag(Pos from, Pos to);
-//int get_capture_moves(Pos start, Pos piece, char board[BOARD_SIZE][BOARD_SIZE], COLOR player, int count, Pos* dests);
-//void get_man_moves(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, Pos piece);
-//void get_king_moves(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, Pos piece);
-//Move * get_all_moves(char board[BOARD_SIZE][BOARD_SIZE], COLOR player);
-//
-//void print_move(Move* head);
-//void print_moves(Move* head);
-//int get_piece_score(char piece, COLOR player);
-//int calc_score(char board[BOARD_SIZE][BOARD_SIZE], COLOR player);
-void duplicate_board(char board1[BOARD_SIZE][BOARD_SIZE], char board2[BOARD_SIZE][BOARD_SIZE]);
-//int alpha_beta_minimax(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, int depth, int alpha, int beta);
+////// Draughts code
+////int is_valid_pos(Pos pos);
+////int is_king(char piece);
+//int is_opposite(COLOR player, char piece);
+////int is_EOB(Pos piece, COLOR player);
+////
+////void clear_old_moves(Move* head);
+////void add_move(Pos piece, Pos* dests, int move_captures);
+////Pos get_next_diag(Pos from, Pos to);
+////Pos get_prev_diag(Pos from, Pos to);
+////int get_capture_moves(Pos start, Pos piece, char board[BOARD_SIZE][BOARD_SIZE], COLOR player, int count, Pos* dests);
+////void get_man_moves(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, Pos piece);
+////void get_king_moves(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, Pos piece);
+////Move * get_all_moves(char board[BOARD_SIZE][BOARD_SIZE], COLOR player);
+////
+////void print_move(Move* head);
+////void print_moves(Move* head);
+////int get_piece_score(char piece, COLOR player);
+////int calc_score(char board[BOARD_SIZE][BOARD_SIZE], COLOR player);
+//void duplicate_board(char board1[BOARD_SIZE][BOARD_SIZE], char board2[BOARD_SIZE][BOARD_SIZE]);
+////int alpha_beta_minimax(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, int depth, int alpha, int beta);
+////
+////int is_valid_board(char board[BOARD_SIZE][BOARD_SIZE]);
+////void print_board(char board[BOARD_SIZE][BOARD_SIZE]);
+//void init_board(char board[BOARD_SIZE][BOARD_SIZE]);
+////void clear_board(char board[BOARD_SIZE][BOARD_SIZE]);
+////char* input2str(FILE* pFile);
+////void exc(char* str, char board[BOARD_SIZE][BOARD_SIZE]);
+////int computer_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color);
+////int user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color);
+////int is_valid_piece(char board[BOARD_SIZE][BOARD_SIZE], Move * move, COLOR color);
+////Move * is_valid_move(Move * moves, Move * new_move);
+////void exc_move(char board[BOARD_SIZE][BOARD_SIZE], Move * move);
 //
 //int is_valid_board(char board[BOARD_SIZE][BOARD_SIZE]);
-//void print_board(char board[BOARD_SIZE][BOARD_SIZE]);
-void init_board(char board[BOARD_SIZE][BOARD_SIZE]);
-//void clear_board(char board[BOARD_SIZE][BOARD_SIZE]);
-//char* input2str(FILE* pFile);
-//void exc(char* str, char board[BOARD_SIZE][BOARD_SIZE]);
-//int computer_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color);
-//int user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color);
-//int is_valid_piece(char board[BOARD_SIZE][BOARD_SIZE], Move * move, COLOR color);
-//Move * is_valid_move(Move * moves, Move * new_move);
-//void exc_move(char board[BOARD_SIZE][BOARD_SIZE], Move * move);
+//int load_game(char * path, char board[BOARD_SIZE][BOARD_SIZE]);
+//int save_game(char board[BOARD_SIZE][BOARD_SIZE], COLOR color, char * file_name);
+//void get_best_moves(char board[BOARD_SIZE][BOARD_SIZE], int depth);
+//
+//// Globals
+//extern COLOR user_color;
+////extern int minimax_depth;
+////extern Move* moves;
+////extern Move* moves_head;
+////extern char curr_piece;
+//extern COLOR curr_player;
+////extern Move* best_move;
+//extern char gui_board[BOARD_SIZE][BOARD_SIZE];
 
-int is_valid_board(char board[BOARD_SIZE][BOARD_SIZE]);
-int load_game(char * path, char board[BOARD_SIZE][BOARD_SIZE]);
-int save_game(char board[BOARD_SIZE][BOARD_SIZE], COLOR color, char * file_name);
-void get_best_moves(char board[BOARD_SIZE][BOARD_SIZE], int depth);
-
-// Globals
-extern COLOR user_color;
-//extern int minimax_depth;
-//extern Move* moves;
-//extern Move* moves_head;
-//extern char curr_piece;
-extern COLOR curr_player;
-//extern Move* best_move;
-extern char gui_board[BOARD_SIZE][BOARD_SIZE];
-
-
-#endif CHESS_
+//#endif CHESS_
 
 
 

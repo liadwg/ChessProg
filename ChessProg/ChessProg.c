@@ -98,11 +98,10 @@ int load_game(char * path, char board[BOARD_SIZE][BOARD_SIZE]){
 			cur_node = cur_node->children;
 			for (cur_node; cur_node; cur_node = cur_node->next){
 				if (cur_node->type == XML_ELEMENT_NODE && cur_node->children != NULL){
-					if (strcmp(cur_node->name, "next_turn")){
+					if (strcmp(cur_node->name, "next_turn") == 0){
 						if (strcmp(cur_node->children->content, "Black") == 0 ||
 							strcmp(cur_node->children->content, "black") == 0) start_color = BLACK;
 						else start_color = WHITE;
-						break;
 					}
 					if (strcmp(cur_node->name, "game_mode") == 0) game_mode = atoi(cur_node->children->content);
 					if (strcmp(cur_node->name, "difficulty") == 0){
@@ -671,15 +670,4 @@ int main(int argc, char * argv[]){
 		}
 	}
 }
-
-	//if (end_pos == 1){
-	//	free(command);
-	//	command = input2str(stdin);
-	//}
-	//free(command);
-
-	//main_sdl();
-	//return 0;
-
-
 

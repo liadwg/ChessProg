@@ -1,93 +1,93 @@
 #include "chess_logics.h"
 
 
-//**************** Memory allocation and standard functions monitoring ******************//
-
-/* During the program's run time we collect all the allocated pointers in a statically allocated array,
-if one of the standard functions fail, we free all pointers before aborting the program.
-After we ran some tests we came to a conclusion that the maximum number of pointers allocated in a specific moment does not exceed 150-200,
-So we gave a very big buffer and used a fail safe so that if the array would fill up it wouldn't interfere with the program's functionality. */
-
-void* mem_list[5000];
-int mem_count = 0;
-int fail_safe = 1;
-
-// Pointer list management
-void add_to_list(void* mem){
-	mem_list[mem_count] = mem;
-	mem_count++;
-	if (mem_count > 4950) {
-		printf("WARNING - Memory allocation close to bounds, turning off pointer monitoring.");
-		fail_safe = 0;
-	}
-}
-
-void remove_from_list(void* mem){
-	for (int i = 0; i < mem_count; i++)
-		if (mem_list[i] == mem) {
-		mem_count--;
-		mem_list[i] = mem_list[mem_count];
-		break;
-		}
-}
-
-// safe_funcs verifies that that the original functions succeeded
-void * safe_malloc(size_t size){
-	void *res = malloc(size);
-	if (!res && size != 0){
-		perror_message("malloc");
-		if (fail_safe) for (int i = 0; i < mem_count; i++) free(mem_list[i]);
-		abort();
-	}
-	else{
-		if (fail_safe) add_to_list(res);
-		return res;
-	}
-}
-#define malloc(x) safe_malloc(x)
-
-void * safe_realloc(void *old_pointer, size_t size){
-	void *res = realloc(old_pointer, size);
-	if (!old_pointer && size != 0){
-		free(old_pointer);
-		perror_message("realloc");
-		if (fail_safe) for (int i = 0; i < mem_count; i++) free(mem_list[i]);
-		abort();
-	}
-	else{
-		if (fail_safe){
-			remove_from_list(old_pointer);
-			add_to_list(res);
-		}
-		return res;
-	}
-}
-#define realloc(x, y) safe_realloc((x), (y))
-
-int safe_fgetc(FILE *stream){
-	int res = fgetc(stream);
-	if (res == EOF){
-		perror_message("fgetc");
-		if (fail_safe) for (int i = 0; i < mem_count; i++) free(mem_list[i]);
-		abort();
-	}
-	else return res;
-}
-#define fgetc(x) safe_fgetc(x)
-
-#define printf(...) \
-	if (printf(__VA_ARGS__) < 0){ \
-		perror_message("printf"); \
-		if (fail_safe) for (int i = 0; i < mem_count; i++) free(mem_list[i]); \
-		abort();} \
-																else (void)0
-
-void safe_free(void * mem){
-	if (fail_safe) remove_from_list(mem);
-	free(mem);
-	//mem = NULL;
-}
-#define free(x) safe_free(x)
+////**************** Memory allocation and standard functions monitoring ******************//
+//
+///* During the program's run time we collect all the allocated pointers in a statically allocated array,
+//if one of the standard functions fail, we free all pointers before aborting the program.
+//After we ran some tests we came to a conclusion that the maximum number of pointers allocated in a specific moment does not exceed 150-200,
+//So we gave a very big buffer and used a fail safe so that if the array would fill up it wouldn't interfere with the program's functionality. */
+//
+//void* mem_list[5000];
+//int mem_count = 0;
+//int fail_safe = 1;
+//
+//// Pointer list management
+//void add_to_list(void* mem){
+//	mem_list[mem_count] = mem;
+//	mem_count++;
+//	if (mem_count > 4950) {
+//		printf("WARNING - Memory allocation close to bounds, turning off pointer monitoring.");
+//		fail_safe = 0;
+//	}
+//}
+//
+//void remove_from_list(void* mem){
+//	for (int i = 0; i < mem_count; i++)
+//		if (mem_list[i] == mem) {
+//		mem_count--;
+//		mem_list[i] = mem_list[mem_count];
+//		break;
+//		}
+//}
+//
+//// safe_funcs verifies that that the original functions succeeded
+//void * safe_malloc(size_t size){
+//	void *res = malloc(size);
+//	if (!res && size != 0){
+//		perror_message("malloc");
+//		if (fail_safe) for (int i = 0; i < mem_count; i++) free(mem_list[i]);
+//		abort();
+//	}
+//	else{
+//		if (fail_safe) add_to_list(res);
+//		return res;
+//	}
+//}
+////#define malloc(x) safe_malloc(x)
+//
+//void * safe_realloc(void *old_pointer, size_t size){
+//	void *res = realloc(old_pointer, size);
+//	if (!old_pointer && size != 0){
+//		free(old_pointer);
+//		perror_message("realloc");
+//		if (fail_safe) for (int i = 0; i < mem_count; i++) free(mem_list[i]);
+//		abort();
+//	}
+//	else{
+//		if (fail_safe){
+//			remove_from_list(old_pointer);
+//			add_to_list(res);
+//		}
+//		return res;
+//	}
+//}
+////#define realloc(x, y) safe_realloc((x), (y))
+//
+//int safe_fgetc(FILE *stream){
+//	int res = fgetc(stream);
+//	if (res == EOF){
+//		perror_message("fgetc");
+//		if (fail_safe) for (int i = 0; i < mem_count; i++) free(mem_list[i]);
+//		abort();
+//	}
+//	else return res;
+//}
+////#define fgetc(x) safe_fgetc(x)
+////
+////#define printf(...) \
+////	if (printf(__VA_ARGS__) < 0){ \
+////		perror_message("printf"); \
+////		if (fail_safe) for (int i = 0; i < mem_count; i++) free(mem_list[i]); \
+////		abort();} \
+////																else (void)0
+//
+//void safe_free(void * mem){
+//	if (fail_safe) remove_from_list(mem);
+//	free(mem);
+//	//mem = NULL;
+//}
+////#define free(x) safe_free(x)
 
 
 // Globals
@@ -127,6 +127,7 @@ char* get_piece_name_by_type(int type){
 	case 3: return "rook";
 	case 4: return "knight";
 	case 5: return "pawn";
+	default: return;
 	}
 }
 
@@ -136,6 +137,7 @@ int get_type_by_name(char * piece){
 	if (strcmp(piece, "bishop") == 0) return 2;
 	if (strcmp(piece, "rook") == 0) return 3;
 	if (strcmp(piece, "knight") == 0) return 4;
+	return 0;
 }
 
 char get_piece_by_name(char * name, COLOR color){
@@ -171,6 +173,7 @@ char get_piece_by_type(int type, COLOR player){
 	case 5:
 		if (player == WHITE) return WHITE_P;
 		return BLACK_P;
+	default: return;
 	}
 }
 
@@ -182,6 +185,7 @@ int get_type_by_piece(char piece){
 	case WHITE_R: case BLACK_R: return 3;
 	case WHITE_N: case BLACK_N: return 4;
 	case WHITE_P: case BLACK_P: return 5;
+	//default: return 0;
 	}
 }
 
@@ -319,6 +323,7 @@ int is_check(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
 			}
 		}
 	}
+	return 0;
 }
 
 
@@ -354,7 +359,7 @@ void exc_move(char board[BOARD_SIZE][BOARD_SIZE], Move * move, COLOR color){
 	if (is_EOB(move->dest, color) && (this_piece == WHITE_P || this_piece == BLACK_P)) board[move->dest.col][move->dest.row] = move->promote;
 }
 
-int clear_illegal_moves(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
+void clear_illegal_moves(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
 	Move *prev_move = moves_head, *curr_move = moves_head;
 	char tmp_board[BOARD_SIZE][BOARD_SIZE];
 	while (curr_move != NULL){

@@ -465,7 +465,7 @@ void user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 	clear_old_moves(moves_head);
 }
 
-
+//checks if there is a cheak,mate or tie and prints alerts to the console if needed
 void console_alert(int alert){
 	if (alert == LOSE_POS || alert == TIE_POS){
 		if (alert == LOSE_POS) printf(curr_player == WHITE ? BLACK_WIN : WHITE_WIN);
@@ -475,11 +475,12 @@ void console_alert(int alert){
 	else if (alert == CHECK_POS) printf(CHECK);
 }
 
+//checks if there is a cheak,mate or tie to be shown on the game screen (check/mate/tie)
 void gui_alert(int alert){
 	if (alert != GAME_ON){
 		COLOR alert_color = curr_player == WHITE ? BLACK : WHITE;
 		if (alert != CHECK_POS) game_on = 0;
-		alert_state(alert, alert_color);
+		alert_state(alert, alert_color); // this func alert special states in chess ui 
 	}
 }
 

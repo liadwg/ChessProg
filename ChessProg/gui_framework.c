@@ -169,7 +169,6 @@ int draw_tree_rec(Window* root, TreeNode* node){
 	if (node->type != WINDOW && img != NULL){
 		SDL_Rect dest = { x, y, width, height }, src = { 0, 0, width, height };
 		if (SDL_SetColorKey(img, SDL_SRCCOLORKEY, SDL_MapRGB(img->format, 48, 48, 48)) != 0) {
-			//if (SDL_SetColorKey(img, SDL_SRCCOLORKEY, SDL_MapRGB(img->format, 0, 255, 0)) != 0) {
 			printf("ERROR: failed to set color key: %s\n", SDL_GetError());
 			SDL_FreeSurface(img);
 			return 1;
@@ -234,7 +233,6 @@ void run_events_loop(TreeNode* screen){
 				stop = 1;
 				glob_quit = 1;
 				game_on = 0;
-				//exit(0);
 			}
 			else if (e.type == SDL_MOUSEBUTTONUP){
 				int x, y;
@@ -243,7 +241,7 @@ void run_events_loop(TreeNode* screen){
 					if (is_click_on_button(x, y, buttons[i])){
 					if (buttons[i]->handler)
 						buttons[i]->handler(buttons[i]->args);
-					stop = 1; // to global, stop from handlers
+					stop = 1;
 					break;
 					}
 			}

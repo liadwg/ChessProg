@@ -480,7 +480,7 @@ void gui_alert(int alert){
 
 int main(int argc, char * argv[]){
 	if (argc == 2) gui_mode = strcmp(argv[1], "gui") == 0 ? 1 : 0;
-	//gui_mode = 1;
+	gui_mode = 1;
 	char board[BOARD_SIZE][BOARD_SIZE];
 	//int end_pos = 0;
 	int start = 0;

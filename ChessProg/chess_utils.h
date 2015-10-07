@@ -11,7 +11,7 @@
 
 #define perror_message(func_name) (fprintf(stderr, "Error: standard function %s has failed\n", func_name))
 
-typedef enum { WHITE = 0, BLACK = 1 } COLOR;
+typedef enum { WHITE = 0, BLACK = 1, BAD = -100} COLOR;
 
 typedef struct pos{
 	int col;
@@ -27,7 +27,7 @@ typedef struct move{
 } Move;
 
 
-extern void* mem_list[5000];
+extern void* mem_list[1000];
 extern int mem_count;
 extern int fail_safe;
 

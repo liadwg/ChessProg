@@ -101,6 +101,7 @@ int get_type_by_piece(char piece){
 
 COLOR get_color_by_piece(char piece){
 	if (piece == WHITE_K || piece == WHITE_Q || piece == WHITE_B || piece == WHITE_R || piece == WHITE_N || piece == WHITE_P) return WHITE;
+	else if (piece == EMPTY) return BAD;
 	else return BLACK;
 }
 

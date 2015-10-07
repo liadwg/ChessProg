@@ -316,8 +316,20 @@ void computer_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 	clear_old_moves(moves_head);
 }
 
-Move * get_best_moves(){
-
+Move * get_best_moves(char board[BOARD_SIZE][BOARD_SIZE], int depth){
+	int prev_best_depth = best_depth;
+	int prev_depth = minimax_depth;
+	if (depth == -1){
+		minimax_depth = estimate_best_depth(board, curr_player);
+		best_depth = 1;
+	}
+	else{
+		minimax_depth = depth;
+		best_depth = 0;
+	}
+	alpha_beta_minimax(board, curr_player, 0, -500, 500);
+	minimax_depth = prev_depth;
+	best_depth = prev_best_depth;
 }
 
 // manages the users turn, game state user input loop
@@ -355,21 +367,12 @@ void user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 
 			else if (strcmp(word1, "get_best_moves") == 0){
 				char * depth = strtok(NULL, " ");
-				int prev_best_depth = best_depth;
-				int prev_depth = minimax_depth;
-				if (strcmp(depth, "best") == 0){
-					minimax_depth = estimate_best_depth(board,color);
-					best_depth = 1;
-				}
-				else{
-					minimax_depth = atoi(depth);
-					best_depth = 0;
-				}
-				alpha_beta_minimax(board, color, 0, -500, 500);
+				int new_depth;
+				if (strcmp(depth, "best") == 0) new_depth = -1;
+				else new_depth = atoi(depth);
+				get_best_moves(board, new_depth);
 				int best_score = best_move->score;
 				print_best_moves(moves_head, best_score);
-				minimax_depth = prev_depth;
-				best_depth = prev_best_depth;
 				continue;
 			}
 
@@ -454,6 +457,16 @@ void user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 	clear_old_moves(moves_head);
 }
 
+//gui_user_turn(char board[BOARD_SIZE][BOARD_SIZE]){
+//	Move * new_move = NULL;
+//	Move * move2do = NULL;
+//	while (move2do == NULL && game_on){
+//		new_move = gui_game_mode(board);
+//		if (new_move != NULL) move2do = is_valid_move(moves_head, new_move);
+//		else break;
+//	}
+//}
+
 void console_alert(int alert){
 	if (alert == LOSE_POS || alert == TIE_POS){
 		if (alert == LOSE_POS) printf(curr_player == WHITE ? BLACK_WIN : WHITE_WIN);
@@ -473,7 +486,7 @@ void gui_alert(int alert){
 
 int main(int argc, char * argv[]){
 	if (argc == 2) gui_mode = strcmp(argv[1], "gui") == 0 ? 1 : 0;
-	gui_mode = 1;
+	//gui_mode = 1;
 	char board[BOARD_SIZE][BOARD_SIZE];
 	//int end_pos = 0;
 	int start = 0;
@@ -516,12 +529,12 @@ int main(int argc, char * argv[]){
 					turn = pre_turn_verify(board, curr_player);
 					if (gui_mode){ //gui_mode
 						gui_alert(turn);
+						//gui_user_turn(board)
 						Move * new_move = NULL;
 						Move * move2do = NULL;
 						while (move2do == NULL && game_on){
 							new_move = gui_game_mode(board);
 							if (new_move != NULL) move2do = is_valid_move(moves_head, new_move);
-							else break;
 						}
 						if (game_on) exc_move(board, move2do, curr_player);
 						if (!game_on) break;
@@ -581,7 +594,6 @@ int main(int argc, char * argv[]){
 						while (move2do == NULL && game_on){
 							new_move = gui_game_mode(board);
 							if (new_move != NULL) move2do = is_valid_move(moves_head, new_move);
-							else break;
 						}
 						if (game_on) exc_move(board, move2do, curr_player);
 						if (!game_on) break;
@@ -609,7 +621,6 @@ int main(int argc, char * argv[]){
 					while (move2do == NULL && game_on){
 						new_move = gui_game_mode(board);
 						if (new_move != NULL) move2do = is_valid_move(moves_head, new_move);
-						else break;
 					}
 					if (game_on) exc_move(board, move2do, curr_player);
 					if (!game_on) break;
@@ -634,7 +645,6 @@ int main(int argc, char * argv[]){
 					while (move2do == NULL && game_on){
 						new_move = gui_game_mode(board);
 						if (new_move != NULL) move2do = is_valid_move(moves_head, new_move);
-						else break;
 					}
 					if (game_on) exc_move(board, move2do, curr_player);
 					if (!game_on) break;

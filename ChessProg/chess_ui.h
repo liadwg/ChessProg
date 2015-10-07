@@ -132,5 +132,6 @@ void init_main_menu();
 void open_main_menu();
 //Move* gui_game_mode(char board[BOARD_SIZE][BOARD_SIZE]);
 int gui_setting_mode();
+void init_promote_view();
 
 #endif CHESS_UI_

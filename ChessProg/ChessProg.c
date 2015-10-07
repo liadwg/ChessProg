@@ -272,7 +272,6 @@ void conosle_settings_mode(char* str, char board[BOARD_SIZE][BOARD_SIZE]){
 			if (board[coor1[0] - 'a'][atoi(coor2) - 1] == piece2set) return; 
 			
 			//check if the added piece exceeds the amount of allowed pieces on the board
-			//int whites[6] = { 0 }, blacks[6] = { 0 }; 
 			int * whites = malloc(sizeof(int) * 6);
 			int * blacks = malloc(sizeof(int) * 6);
 			for (int i = 0; i < 6; i++){
@@ -486,9 +485,7 @@ void gui_alert(int alert){
 
 int main(int argc, char * argv[]){
 	if (argc == 2) gui_mode = strcmp(argv[1], "gui") == 0 ? 1 : 0;
-	//gui_mode = 1;
 	char board[BOARD_SIZE][BOARD_SIZE];
-	//int end_pos = 0;
 	int start = 0;
 	//setting state
 	if (gui_mode){
@@ -526,7 +523,6 @@ int main(int argc, char * argv[]){
 					turn = pre_turn_verify(board, curr_player);
 					if (gui_mode){ //gui_mode
 						gui_alert(turn);
-						//gui_user_turn(board)
 						Move * new_move = NULL;
 						Move * move2do = NULL;
 						while (move2do == NULL){

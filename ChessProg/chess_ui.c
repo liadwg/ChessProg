@@ -60,8 +60,8 @@ char* get_piece_pic(char piece){
 	case BLACK_Q: return "pics/queen_b.bmp";
 	case WHITE_K: return "pics/king_w.bmp"; 
 	case BLACK_K: return "pics/king_b.bmp";
-	default: '/0';
 	}
+	return;
 }
 
 char get_piece_by_pic(char* pic){

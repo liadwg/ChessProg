@@ -3,11 +3,11 @@
 
 #ifndef CHESS_UTILS_
 #include "chess_utils.h"
-#endif CHESS_UTILS_
+#endif
 
 #ifndef CHESS_
 #include "ChessProg.h"
-#endif CHESS_
+#endif
 
 #define BOARD_SIZE 8
 
@@ -80,4 +80,4 @@ int is_valid_board(char board[BOARD_SIZE][BOARD_SIZE]);
 Move * is_valid_move(Move * moves, Move * new_move);
 
 
-#endif CHESS_LOGICS_
+#endif

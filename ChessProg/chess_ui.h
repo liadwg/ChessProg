@@ -6,11 +6,11 @@
 
 #ifndef CHESS_UTILS_
 #include "chess_utils.h"
-#endif CHESS_UTILS_
+#endif
 
 #ifndef CHESS_LOGICS_
 #include "chess_logics.h"
-#endif CHESS_LOGICS_
+#endif
 
 #define WIN_W 800
 #define WIN_H 600
@@ -173,4 +173,4 @@ void init_main_menu();
 Move* gui_game_mode(char board[BOARD_SIZE][BOARD_SIZE]);
 int gui_setting_mode();
 
-#endif CHESS_UI_
+#endif

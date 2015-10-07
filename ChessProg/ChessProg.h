@@ -1,19 +1,19 @@
-//#ifndef CHESS_
+#ifndef CHESS_
 #define CHESS_
 
 #define _CRT_SECURE_NO_WARNINGS
 
 #ifndef CHESS_UTILS_
 #include "chess_utils.h"
-#endif CHESS_UTILS_
+#endif
 
 #ifndef CHESS_LOGICS_
 #include "chess_logics.h"
-#endif CHESS_LOGICS_
+#endif
 
 #ifndef CHESS_UI_
 #include "chess_ui.h"
-#endif CHESS_UI_
+#endif
 
 #define WHITE_P 'm'
 #define WHITE_B 'b'
@@ -95,7 +95,7 @@ void console_alert(int alert);
 void gui_alert(int alert);
 int main(int argc, char * argv[]);
 
-//#endif CHESS_
+#endif
 
 
 

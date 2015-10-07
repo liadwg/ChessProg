@@ -41,4 +41,4 @@ void * safe_realloc(void *old_pointer, size_t size);
 int safe_fgetc(FILE *stream);
 void safe_free(void * mem);
 
-#endif CHESS_UTILS_
+#endif

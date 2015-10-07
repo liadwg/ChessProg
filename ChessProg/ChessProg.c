@@ -105,7 +105,7 @@ int load_game(char * path, char board[BOARD_SIZE][BOARD_SIZE]){
 					}
 					if (strcmp(cur_node->name, "game_mode") == 0) game_mode = atoi(cur_node->children->content);
 					if (strcmp(cur_node->name, "difficulty") == 0){
-						if (strcmp(cur_node->children->content, "best" == 0)){
+						if (strcmp(cur_node->children->content, "best") == 0){
 							minimax_depth = 4;
 							best_depth = 1;
 						}
@@ -669,5 +669,6 @@ int main(int argc, char * argv[]){
 			free(command);
 		}
 	}
+	return 0;
 }
 

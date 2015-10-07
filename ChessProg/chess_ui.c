@@ -471,8 +471,8 @@ void init_AI_setting(){
 	Panel *p = (Panel*)panel->control;
 	
 	new_label(panel, "next_logo", (p->width / 4) - 10 - BUTTON_W / 2, 50, BUTTON_W, BUTTON_H, 0, "pics/AI_color.bmp");
-	new_button(panel, "next_white", p->width / 2 - BUTTON_W / 2, 50, BUTTON_W, BUTTON_H, 0, "pics/white.bmp", set_player_color, BLACK);
-	new_button(panel, "next_black", (p->width / 4) * 3 + 10 - BUTTON_W / 2, 50, BUTTON_W, BUTTON_H, 0, "pics/black.bmp", set_player_color, WHITE);
+	new_button(panel, "next_white", p->width / 2 - BUTTON_W / 2, 50, BUTTON_W, BUTTON_H, 0, "pics/white.bmp", set_player_color, 1); // BLACK
+	new_button(panel, "next_black", (p->width / 4) * 3 + 10 - BUTTON_W / 2, 50, BUTTON_W, BUTTON_H, 0, "pics/black.bmp", set_player_color, 0); // WHITE
 
 	new_label(panel, "difficulty", (p->width / 4) - 10 - BUTTON_W / 2, 70 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/set_diff.bmp");
 	new_button(panel, "depth1", p->width / 2 - BUTTON_W / 2, 70 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/depth1.bmp", set_depth, 1);
@@ -540,8 +540,8 @@ void init_player_selection(){
 	new_button(panel, "PvsP", (p->width / 4) * 3 + 10 - BUTTON_W / 2, 70, BUTTON_W, BUTTON_H, 0, "pics/PvsP.bmp", set_player, 1);
 
 	new_label(panel, "next_logo", (p->width / 4) - 10 - BUTTON_W / 2, 90 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/next_player.bmp");
-	new_button(panel, "next_white", p->width / 2 - BUTTON_W / 2, 90 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/next_white.bmp", set_next, WHITE);
-	new_button(panel, "next_black", (p->width / 4) * 3 + 10 - BUTTON_W / 2, 90 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/next_black.bmp", set_next, BLACK);
+	new_button(panel, "next_white", p->width / 2 - BUTTON_W / 2, 90 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/next_white.bmp", set_next, 0); // WHITE
+	new_button(panel, "next_black", (p->width / 4) * 3 + 10 - BUTTON_W / 2, 90 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/next_black.bmp", set_next, 1); // BLACK
 
 	new_button(panel, "set_board", p->width / 2 - BUTTON_W / 2, 110 + BUTTON_H * 2, BUTTON_W, BUTTON_H, 0, "pics/set_board.bmp", open_board_setting, 999);
 

@@ -146,7 +146,7 @@ void alert_state(int state, COLOR player);
 TreeNode* get_button_node(TreeNode *node, int arg);
 void update_board_gui(TreeNode *board_node, char board[BOARD_SIZE][BOARD_SIZE]);
 void show_best_move(int depth);
-void set_piece_picked(char piece);
+void set_piece_picked(int i);
 Move* generate_move(int col, int row);
 void tile_clicked(int tile);
 void screen_dismissed(TreeNode *screen);

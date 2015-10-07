@@ -102,7 +102,7 @@ int load_game(char * path, char board[BOARD_SIZE][BOARD_SIZE]){
 						break;
 					case 2:
 						if (strcmp(cur_node->children->content, "best" == 0)){
-							minimax_depth = 4;
+							minimax_depth = 4; // we may want to add estimate_best_depth?
 							best_depth = 1;
 						}
 						else  minimax_depth = atoi(cur_node->children->content);
@@ -230,7 +230,7 @@ void exc(char* str, char board[BOARD_SIZE][BOARD_SIZE]){
 		if (game_mode == 1) printf(ILLEGAL_COMMAND);
 		else{ 
 			if (strcmp(word2, "best") == 0){
-				minimax_depth = 4;
+				minimax_depth = 4; // estimate_best_depth(board,curr_player); // check for probs
 				best_depth = 1;
 			}
 			else{
@@ -295,10 +295,15 @@ int pre_turn_verify(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 	return GAME_ON;
 }
 
+
+
 // manages the computer's turn
 void computer_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 	curr_player = color;
 	if (moves_head != NULL){
+		if (best_depth){
+			minimax_depth = estimate_best_depth(board, color);
+		}
 		alpha_beta_minimax(board, color, 0, -500, 500);
 		Move * move2do = best_move;
 		exc_move(board, move2do, color);
@@ -311,6 +316,9 @@ void computer_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 	clear_old_moves(moves_head);
 }
 
+Move * get_best_moves(){
+
+}
 
 // manages the users turn, game state user input loop
 void user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
@@ -350,7 +358,7 @@ void user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 				int prev_best_depth = best_depth;
 				int prev_depth = minimax_depth;
 				if (strcmp(depth, "best") == 0){
-					minimax_depth = 4;
+					minimax_depth = estimate_best_depth(board,color);
 					best_depth = 1;
 				}
 				else{
@@ -383,7 +391,7 @@ void user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 					prev_best_depth = best_depth;
 					prev_depth = minimax_depth;
 					if (strcmp(depth, "best") == 0){
-						minimax_depth = 4;
+						minimax_depth = estimate_best_depth(board,color);
 						best_depth = 1;
 					}
 					else{

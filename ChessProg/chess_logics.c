@@ -669,6 +669,17 @@ void print_best_moves(Move* head, int score){
 		head = head->next;
 	}
 }
+
+int count_moves_num(Move* head){
+	int cnt = 0;
+	while (head != NULL){
+		cnt++;
+		head = head->next;
+	}
+	if (cnt == 0) cnt++;
+	return cnt;
+}
+
 //int piece_counter(char board[BOARD_SIZE][BOARD_SIZE], int * whites, int * blacks){
 //	int white_b = -1, black_b = -1, bishop_fault = 0;
 //
@@ -723,6 +734,28 @@ void print_best_moves(Move* head, int score){
 //	return bishop_fault;
 //}
 // calculates the score of the board from a player's prospective
+
+int estimate_best_depth(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
+	int p_moves, op_moves, p_exp, op_exp, sum;
+	int ret_depth = 0;
+	clear_old_moves(moves_head);
+	get_all_moves(board, !player);
+	op_moves = count_moves_num(moves_head);
+	clear_old_moves(moves_head);
+	get_all_moves(board, player);
+	p_moves = count_moves_num(moves_head);
+	sum = op_moves + p_moves;
+	p_exp = p_moves;
+	op_exp = op_moves;
+	while (sum < BOARD_LIMIT){
+		ret_depth++;
+		op_exp *= op_moves;
+		p_exp *= p_moves;
+		sum = op_exp + p_exp;
+	}
+	return ret_depth;
+}
+
 int calc_score(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
 	int whites[6] = { 0 }, blacks[6] = { 0 };
 
@@ -732,11 +765,25 @@ int calc_score(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
 		+ 5 * whites[get_type_by_piece(WHITE_R)] + 9 * whites[get_type_by_piece(WHITE_Q)] + 400 * whites[get_type_by_piece(WHITE_K)];
 	int black_score = blacks[get_type_by_piece(BLACK_P)] + 3 * blacks[get_type_by_piece(BLACK_B)] + 3 * blacks[get_type_by_piece(BLACK_N)] + 
 		5 * blacks[get_type_by_piece(BLACK_R)] + 9 * blacks[get_type_by_piece(BLACK_Q)] + 400 * blacks[get_type_by_piece(BLACK_K)];
-	if (best_depth) board_count++;
+	//if (best_depth) board_count++;
 	if (player == WHITE) return white_score - black_score;
 	else return black_score - white_score;
 }
 
+int improved_calc_score(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
+	// ***************************change it!
+	int whites[6] = { 0 }, blacks[6] = { 0 };
+
+	piece_counter(board, &whites, &blacks);
+
+	int white_score = whites[get_type_by_piece(WHITE_P)] + 3 * whites[get_type_by_piece(WHITE_B)] + 3 * whites[get_type_by_piece(WHITE_N)]
+		+ 5 * whites[get_type_by_piece(WHITE_R)] + 9 * whites[get_type_by_piece(WHITE_Q)] + 400 * whites[get_type_by_piece(WHITE_K)];
+	int black_score = blacks[get_type_by_piece(BLACK_P)] + 3 * blacks[get_type_by_piece(BLACK_B)] + 3 * blacks[get_type_by_piece(BLACK_N)] +
+		5 * blacks[get_type_by_piece(BLACK_R)] + 9 * blacks[get_type_by_piece(BLACK_Q)] + 400 * blacks[get_type_by_piece(BLACK_K)];
+	//if (best_depth) board_count++;
+	if (player == WHITE) return white_score - black_score;
+	else return black_score - white_score;
+}
 
 
 // minimax recursive func, using alpha-beta pruning
@@ -755,7 +802,7 @@ int alpha_beta_minimax(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, int dep
 		if (!is_check(board, curr_player)) return 450;
 		else return -500;
 	}
-	if (depth == minimax_depth || curr_move == NULL || (best_depth && board_count == BOARD_LIMIT)){
+	if (depth == minimax_depth || curr_move == NULL){// || (best_depth && board_count == BOARD_LIMIT)){
 		clear_old_moves(move_list);
 		return calc_score(board, curr_player);
 	}

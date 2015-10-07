@@ -30,6 +30,7 @@ TreeNode *tmp_panel = NULL;
 
 void quit_all(){
 	glob_quit = 1;
+	game_on = 0;
 	if (mainMenu != NULL) free_tree(mainMenu);
 	mainMenu = NULL;
 	if (loadSave != NULL) free_tree(loadSave);

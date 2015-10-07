@@ -558,7 +558,7 @@ void get_pawn_moves(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, Pos piece)
 	if (piece.row == pawn_row){
 		dest.row = piece.row + (2 * direction);
 		if (is_valid_pos(dest)){
-			if (board[dest.col][dest.row] == EMPTY) add_move(piece, dest, 0);
+			if (board[dest.col][dest.row] == EMPTY && board[piece.col][piece.row + direction] == EMPTY) add_move(piece, dest, 0);
 		}
 	}
 	dest.col = piece.col + 1;

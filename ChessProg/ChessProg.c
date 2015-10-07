@@ -446,9 +446,18 @@ void user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 	clear_old_moves(moves_head);
 }
 
+void console_alert(int alert){
+	if (alert == LOSE_POS || alert == TIE_POS){
+		if (alert == LOSE_POS) printf(curr_player == WHITE ? BLACK_WIN : WHITE_WIN);
+		else printf(TIE);
+		game_on = 0;
+	}
+	else if (alert == CHECK_POS) printf(CHECK);
+}
+
 int main(int argc, char * argv[]){
-	//if (argc == 2) gui_mode = strcmp(argv[1], "gui") == 0 ? 1 : 0;
-	gui_mode = 1;
+	if (argc == 2) gui_mode = strcmp(argv[1], "gui") == 0 ? 1 : 0;
+	//gui_mode = 1;
 	char board[BOARD_SIZE][BOARD_SIZE];
 	//int end_pos = 0;
 	int start = 0;
@@ -484,148 +493,121 @@ int main(int argc, char * argv[]){
 		while (1){
 			// user vs computer
 			if (game_mode == 2){
-				int u_turn;
-				int c_turn;
+				int turn;
 				if (user_color == start_color){
 					//user starts
 					curr_player = user_color;
-					u_turn = pre_turn_verify(board, curr_player);
+					turn = pre_turn_verify(board, curr_player);
 					if (gui_mode){ //gui_mode
 						Move * new_move = NULL;
 						Move * move2do = NULL;
 						while (move2do == NULL){
-							new_move = gui_game_mode(u_turn, board);
+							new_move = gui_game_mode(turn, board);
 							move2do = is_valid_move(moves_head, new_move);
 						}
 						exc_move(board, move2do, curr_player);
 					}
 					else{ //console mode
-						if (u_turn == LOSE_POS || u_turn == TIE_POS){
-							if (u_turn == LOSE_POS) printf(curr_player == WHITE ? BLACK_WIN : WHITE_WIN);
-							else printf(TIE);
-							game_on = 0;
-						}
-						else{
-							if (u_turn == CHECK_POS) printf(CHECK);
-							user_turn(board, user_color);
-						}
+						console_alert(turn);
+						if (game_on) user_turn(board, curr_player);
 					}
 					if (!game_on) break;
-					c_turn = pre_turn_verify(board, !user_color);
+
+					curr_player = !user_color;
+					turn = pre_turn_verify(board, curr_player);
 					if (gui_mode){
-						// add something if check befor comp game
-						computer_turn(board, !user_color);
+						if (turn != GAME_ON){
+							COLOR alert_color = curr_player == WHITE ? BLACK : WHITE;
+							if (turn != CHECK_POS) game_on = 0;
+							//alert_state(turn, alert_color); *** turn on when we have the func!
+						}
+						if (game_on) computer_turn(board, curr_player);
 					}
 					else{
-						if (c_turn == LOSE_POS || c_turn == TIE_POS){
-							if (c_turn == LOSE_POS) printf(user_color == WHITE ? WHITE_WIN : BLACK_WIN);
-							else printf(TIE);
-							game_on = 0;
-						}
-						else{
-							if (c_turn == CHECK_POS) printf(CHECK);
-							computer_turn(board, !user_color);
-						}
-						if (!game_on) break;
+						console_alert(turn);
+						if (game_on) computer_turn(board, curr_player);
 					}
+					if (!game_on) break;
 				}
 				//comp starts
 				else{
-					c_turn = pre_turn_verify(board, !user_color);
+					curr_player = !user_color;
+					turn = pre_turn_verify(board, curr_player);
 					if (gui_mode){
-						// add something if check befor comp game
-						computer_turn(board, !user_color);
+						if (turn != GAME_ON){
+							COLOR alert_color = curr_player == WHITE ? BLACK : WHITE;
+							if (turn != CHECK_POS) game_on = 0;
+							//alert_state(turn, alert_color); *** turn on when we have the func!
+						}
+						if (game_on) computer_turn(board, curr_player);
 					}
 					else{
-						if (c_turn == LOSE_POS || c_turn == TIE_POS){
-							if (c_turn == LOSE_POS) printf(user_color == WHITE ? BLACK_WIN : WHITE_WIN);
-							else printf(TIE);
-							game_on = 0;
-						}
-						else{
-							if (c_turn == CHECK_POS) printf(CHECK);
-							computer_turn(board, !user_color);
-						}
-						if (!game_on) break;
+						console_alert(turn);
+						if (game_on) computer_turn(board, curr_player);
 					}
-					curr_player = user_color; //change all to current_player
-					u_turn = pre_turn_verify(board, user_color);
+					if (!game_on) break;
+
+					curr_player = user_color; 
+					turn = pre_turn_verify(board, user_color);
 					if (gui_mode){
 						Move * new_move = NULL;
 						Move * move2do = NULL;
 						while (move2do == NULL){
-							new_move = gui_game_mode(u_turn, board);
+							new_move = gui_game_mode(turn, board); // why not to add the alerts here?
 							move2do = is_valid_move(moves_head, new_move);
 						}
 						exc_move(board, move2do, curr_player);
 					}
 					else{
-						if (u_turn == LOSE_POS || u_turn == TIE_POS){
-							if (u_turn == LOSE_POS) printf(user_color == WHITE ? WHITE_WIN : BLACK_WIN);
-							else printf(TIE);
-							game_on = 0;
-						}
-						else{
-							if (u_turn == CHECK_POS) printf(CHECK);
-							user_turn(board, user_color);
-						}
-						if (!game_on) break;
+						console_alert(turn);
+						if (game_on) user_turn(board, curr_player);
 					}
+					if (!game_on) break;
 				}
 			}
 			// 2 players
 			if (game_mode == 1){
-				int turn1;
-				int turn2;
+				int turn;
 				curr_player = start_color;
-				turn1 = pre_turn_verify(board, start_color);
+				turn = pre_turn_verify(board, curr_player);
 				if (gui_mode){
 					Move * new_move = NULL;
 					Move * move2do = NULL;
 					while (move2do == NULL){
-						new_move = gui_game_mode(turn1, board);
+						new_move = gui_game_mode(turn, board);
 						move2do = is_valid_move(moves_head, new_move);
 					}
 					exc_move(board, move2do, curr_player);
 				}
 				else{
-					if (turn1 == LOSE_POS || turn1 == TIE_POS){
-						if (turn1 == LOSE_POS) printf(start_color == WHITE ? BLACK_WIN : WHITE_WIN);
-						else printf(TIE);
-						game_on = 0;
-					}
-					else{
-						if (turn1 == CHECK_POS) printf(CHECK);
-						user_turn(board, start_color);
-					}
-					if (!game_on) break;
+					console_alert(turn);
+					if (game_on) user_turn(board, curr_player);
 				}
+				if (!game_on) break;
+
 				curr_player = !start_color;
-				turn2 = pre_turn_verify(board, !start_color);
+				turn = pre_turn_verify(board, curr_player);
 				if (gui_mode){
 					Move * new_move = NULL;
 					Move * move2do = NULL;
 					while (move2do == NULL){
-						new_move = gui_game_mode(turn2, board);
+						new_move = gui_game_mode(curr_player, board);
 						move2do = is_valid_move(moves_head, new_move);
 					}
 					exc_move(board, move2do, curr_player);
 				}
 				else{
-					if (turn2 == LOSE_POS || turn2 == TIE_POS){
-						if (turn2 == LOSE_POS) printf(start_color == WHITE ? WHITE_WIN : BLACK_WIN);
-						else printf(TIE);
-						game_on = 0;
-					}
-					else{
-						if (turn2 == CHECK_POS) printf(CHECK);
-						user_turn(board, !start_color);
-					}
-					if (!game_on) break;
+					console_alert(turn);
+					if (game_on) user_turn(board, curr_player);
 				}
+				if (!game_on) break;
 			}
 		}
+		char *command = input2str(stdin);
+		free(command);
 	}
+}
+
 	//if (end_pos == 1){
 	//	free(command);
 	//	command = input2str(stdin);
@@ -634,6 +616,6 @@ int main(int argc, char * argv[]){
 
 	//main_sdl();
 	//return 0;
-}
+
 
 

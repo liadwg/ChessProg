@@ -510,9 +510,6 @@ int main(int argc, char * argv[]){
 	}
 
 	if (start){
-		// initially we printed the board at the start of the game, commented out in order to match the running examples.
-		//if (user_color == WHITE) print_board(board);
-		//print_board(board); 
 		while (1){
 			// user vs computer
 			if (game_mode == 2){
@@ -621,7 +618,7 @@ int main(int argc, char * argv[]){
 						if (new_move != NULL) move2do = is_valid_move(moves_head, new_move);
 					}
 					if (game_on) exc_move(board, move2do, curr_player);
-					else break;
+					if (!game_on) break;
 				}
 				else{
 					console_alert(turn);
@@ -634,6 +631,7 @@ int main(int argc, char * argv[]){
 		if (!gui_mode){
 			char *command = input2str(stdin);
 			free(command);
+		}
 	}
 }
 

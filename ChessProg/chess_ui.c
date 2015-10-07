@@ -261,14 +261,20 @@ void init_AI_setting(){
 	if (AIsettingsMenu != NULL) free_tree(AIsettingsMenu);
 	AIsettingsMenu = new_window("Set Difficulty", WIN_W / 2, WIN_H, 1);
 
-	TreeNode *panel = new_panel(AIsettingsMenu, "AI_panel", 0, 0, WIN_W / 2, WIN_H, 5, NULL);
+	TreeNode *panel = new_panel(AIsettingsMenu, "AI_panel", 0, 0, WIN_W / 2, WIN_H, 9, NULL);
 	Panel *p = (Panel*)panel->control;
+	
+	TreeNode *set_color = new_label(panel, "next_logo", (p->width / 4) - 10 - BUTTON_W / 2, 50, BUTTON_W, BUTTON_H, 0, "pics/AI_color.bmp");
+	TreeNode *set_color_white = new_button(panel, "next_white", p->width / 2 - BUTTON_W / 2, 50, BUTTON_W, BUTTON_H, 0, "pics/white.bmp", set_player_color, BLACK);
+	TreeNode *set_color_black = new_button(panel, "next_black", (p->width / 4) * 3 + 10 - BUTTON_W / 2, 50, BUTTON_W, BUTTON_H, 0, "pics/black.bmp", set_player_color, WHITE);
 
-	TreeNode *d1 = new_button(panel, "depth1", p->width / 2 - BUTTON_W / 2, 20 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/depth1.bmp", set_depth, 1);
-	TreeNode *d2 = new_button(panel, "depth2", p->width / 2 - BUTTON_W / 2, 30 + 2 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/depth2.bmp", set_depth, 2);
-	TreeNode *d3 = new_button(panel, "depth3", p->width / 2 - BUTTON_W / 2, 40 + 3 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/depth3.bmp", set_depth, 3);
-	TreeNode *d4 = new_button(panel, "depth4", p->width / 2 - BUTTON_W / 2, 50 + 4 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/depth4.bmp", set_depth, 4);
-	TreeNode *d_best = new_button(panel, "best_depth", p->width / 2 - BUTTON_W / 2, 60 + 5 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/best_depth.bmp", set_depth, -1);
+	TreeNode *diff = new_label(panel, "difficulty", (p->width / 4) - 10 - BUTTON_W / 2, 70 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/set_diff.bmp");
+	TreeNode *d1 = new_button(panel, "depth1", p->width / 2 - BUTTON_W / 2, 70 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/depth1.bmp", set_depth, 1);
+	TreeNode *d2 = new_button(panel, "depth2", (p->width / 4) * 3 + 10 - BUTTON_W / 2, 70 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/depth2.bmp", set_depth, 2);
+	TreeNode *d3 = new_button(panel, "depth3", p->width / 2 - BUTTON_W / 2, 80 + 2 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/depth3.bmp", set_depth, 3);
+	TreeNode *d4 = new_button(panel, "depth4", (p->width / 4) * 3 + 10 - BUTTON_W / 2, 80 + 2 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/depth4.bmp", set_depth, 4);
+	TreeNode *d_best = new_button(panel, "best_depth", p->width / 2 - BUTTON_W / 2, 90 + 3 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/best_depth.bmp", set_depth, -1);
+
 
 	draw_tree(AIsettingsMenu);
 }
@@ -283,7 +289,11 @@ void set_player(int i){
 }
 
 void set_next(COLOR i){
-	start_color = i;
+	start_color = i; // make sure thats what supposed to happen
+}
+
+void set_player_color(COLOR i){
+	user_color = i; // make sure thats what supposed to happen
 }
 
 void board_set_ok(){
@@ -432,11 +442,11 @@ void init_player_selection(){
 
 	TreeNode *logo = new_label(panel, "logo", p->width / 2 - BUTTON_W / 2, 10, BUTTON_W, BUTTON_H, 0, "pics/logo.bmp");
 
-	TreeNode *player = new_label(panel, "player_logo", (p->width / 4) - 10 - BUTTON_W / 2, 70, BUTTON_W, BUTTON_H, 0, "pics/logo.bmp");
+	TreeNode *player = new_label(panel, "player_logo", (p->width / 4) - 10 - BUTTON_W / 2, 70, BUTTON_W, BUTTON_H, 0, "pics/set_players.bmp");
 	TreeNode *p_ai = new_button(panel, "PvsAI", p->width / 2 - BUTTON_W / 2, 70, BUTTON_W, BUTTON_H, 0, "pics/PvsAI.bmp", set_player, 2);
 	TreeNode *p_p = new_button(panel, "PvsP", (p->width / 4) * 3 + 10 - BUTTON_W / 2, 70, BUTTON_W, BUTTON_H, 0, "pics/PvsP.bmp", set_player, 1);
 
-	TreeNode *next = new_label(panel, "next_logo", (p->width / 4) - 10 - BUTTON_W / 2, 90 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/logo.bmp");
+	TreeNode *next = new_label(panel, "next_logo", (p->width / 4) - 10 - BUTTON_W / 2, 90 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/next_player.bmp");
 	TreeNode *next_white = new_button(panel, "next_white", p->width / 2 - BUTTON_W / 2, 90 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/next_white.bmp", set_next, WHITE);
 	TreeNode *next_black = new_button(panel, "next_black", (p->width / 4) * 3 + 10 - BUTTON_W / 2, 90 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/next_black.bmp", set_next, BLACK);
 
@@ -454,6 +464,7 @@ void open_player_selection(){
 		quit_all();
 		game_on = 1;
 		back2settings = 1;
+		board_ready = 0;
 	}
 	prevScreen = currScreen;
 	init_player_selection();
@@ -542,6 +553,15 @@ void init_main_menu(){
 	draw_tree(mainMenu);
 }
 
+void restore_defaults(){
+	back2settings = 0;
+	glob_quit = 0;
+	start_game = 0;
+	user_color = WHITE;
+	start_color = WHITE;
+	minimax_depth = 1;
+}
+ 
 Move* gui_game_mode(char board[BOARD_SIZE][BOARD_SIZE]){
 	if (game_on == 0){
 		glob_quit = 1;
@@ -566,9 +586,11 @@ int gui_setting_mode(){
 
 	init_main_menu();
 	if (currScreen == NULL) currScreen = mainMenu;
-	back2settings = 0;
-	glob_quit = 0;
-	start_game = 0;
+	else draw_tree(currScreen);
+	restore_defaults();
+	//back2settings = 0;
+	//glob_quit = 0;
+	//start_game = 0;
 	while (!glob_quit){
 		if (start_game) return 1;
 		run_events_loop(currScreen);

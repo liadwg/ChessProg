@@ -134,5 +134,6 @@ void open_main_menu();
 int gui_setting_mode();
 void init_promote_view();
 void show_best_move(Move *move);
+void set_player_color(COLOR i);
 
 #endif CHESS_UI_

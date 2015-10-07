@@ -738,8 +738,6 @@ int is_valid_board(char board[BOARD_SIZE][BOARD_SIZE]){
 		whites[i] = 0;
 		blacks[i] = 0;
 	}
-	piece_counter(board, whites, blacks);
-
 
 	bishop_fault = piece_counter(board, whites, blacks);
 
@@ -750,15 +748,18 @@ int is_valid_board(char board[BOARD_SIZE][BOARD_SIZE]){
 		free(blacks);
 		return 0;
 	}
-	for (int i = 2; i < 5; i++) if (whites[i] > 2 || blacks[i] > 2){
-		free(whites);
-		free(blacks);
-		return 0;
-	}
-	for (int j = 0; j < BOARD_SIZE - 1; j++){
-		if (get_type_by_piece(board[j][0]) == 5 || get_type_by_piece(board[j][BOARD_SIZE - 1]) == 5){
+	for (int i = 2; i < 5; i++){
+		if (whites[i] > 2 || blacks[i] > 2){
 			free(whites);
 			free(blacks);
+			return 0;
+		}
+	}
+	int i = 1;
+	free(whites);
+	free(blacks);
+	for (int j = 0; j < BOARD_SIZE - 1; j++){
+		if (get_type_by_piece(board[j][0]) == 5 || get_type_by_piece(board[j][BOARD_SIZE - 1]) == 5){
 			return 0;
 		}
 	}

@@ -602,12 +602,6 @@ int main(int argc, char * argv[]){
 							continue;
 						}
 						else break;
-						//while (move2do == NULL && game_on){
-						//	new_move = gui_game_mode(board);
-						//	if (new_move != NULL) move2do = is_valid_move(moves_head, new_move);
-						//}
-						//if (game_on) exc_move(board, move2do, curr_player);
-						//else break;
 					}
 					else{
 						console_alert(turn);

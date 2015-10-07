@@ -202,8 +202,6 @@ void free_tree(TreeNode *node){
 	}
 	if (node->type == BUTTON){
 		Button *b = (Button*)node->control;
-		//if (isdigit(b->name[strlen(b->name) - 1])) free(b->name); // ugly patch
-		//if (b->args != NULL) free(b->args);
 	}
 	free(node->control);
 	if (node->children != NULL) free(node->children);
@@ -235,6 +233,7 @@ void run_events_loop(TreeNode* screen){
 				quit_all();
 				stop = 1;
 				glob_quit = 1;
+				game_on = 0;
 				//exit(0);
 			}
 			else if (e.type == SDL_MOUSEBUTTONUP){
@@ -242,13 +241,12 @@ void run_events_loop(TreeNode* screen){
 				SDL_GetMouseState(&x, &y);
 				for (int i = 0; i < buttons_count; i++)
 					if (is_click_on_button(x, y, buttons[i])){
-					buttons[i]->handler(buttons[i]->args);
+					if (buttons[i]->handler)
+						buttons[i]->handler(buttons[i]->args);
 					stop = 1; // to global, stop from handlers
 					break;
 					}
 			}
-			//else if (e.type == SDL_KEYDOWN)
-			//	keyboard_handler(screen, e.key.keysym.sym);
 		}
 		SDL_Delay(1);
 	}

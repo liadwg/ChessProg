@@ -101,4 +101,36 @@ void add_label_to_button(TreeNode *button, char* pic);
 void remove_label_from_button(TreeNode *button);
 //void keybpard_handler(TreeNode *screen, SDLKey key);
 
+
+// Chess UI funcs
+void quit_all();
+TreeNode* get_button_node(TreeNode *node, int arg);
+char* get_piece_pic(char piece);
+char get_piece_by_pic(char* pic);
+//void update_board_gui(TreeNode *board_node, char board[BOARD_SIZE][BOARD_SIZE]);
+void set_piece_picked(char piece);
+void alert_state(int state, COLOR player);
+Move* generate_move(int col, int row);
+void tile_clicked(int tile);
+void screen_dismissed(TreeNode *screen);
+void cancel_clicked();
+void set_depth(int i);
+void init_AI_setting();
+void set_player(int i);
+void set_next(COLOR i);
+void board_set_ok();
+void init_game_window();
+void init_board_setting();
+void open_board_setting();
+void start_game_clicked();
+void init_player_selection();
+void load_slot(int slot);
+void save_slot(int slot);
+void init_load_save(int load_save);
+void open_load_save(int i);
+void init_main_menu();
+void open_main_menu();
+//Move* gui_game_mode(char board[BOARD_SIZE][BOARD_SIZE]);
+int gui_setting_mode();
+
 #endif CHESS_UI_

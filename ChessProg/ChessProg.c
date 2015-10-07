@@ -471,7 +471,9 @@ void console_alert(int alert){
 		else printf(TIE);
 		game_on = 0;
 	}
-	else if (alert == CHECK_POS) printf(CHECK);
+	else if{
+		(alert == CHECK_POS) printf(CHECK);
+	}
 }
 
 //checks if there is a cheak,mate or tie to be shown on the game screen (check/mate/tie)

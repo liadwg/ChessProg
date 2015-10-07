@@ -80,6 +80,38 @@ char get_piece_by_pic(char* pic){
 	return '\0';
 }
 
+// helper func to avoid compelation error regarding castin from char to int
+int char2int(char c){
+	if (c == WHITE_K) return 0;
+	if (c == WHITE_Q) return 1;
+	if (c == WHITE_B) return 2;
+	if (c == WHITE_R) return 3;
+	if (c == WHITE_N) return 4;
+	if (c == WHITE_P) return 5;
+	if (c == BLACK_K) return 10;
+	if (c == BLACK_Q) return 11;
+	if (c == BLACK_B) return 12;
+	if (c == BLACK_R) return 13;
+	if (c == BLACK_N) return 14;
+	if (c == BLACK_P) return 15;
+}
+
+// helper func to avoid compelation error regarding castin from char to int
+char int2char(int i){
+	if (i == 0) return WHITE_K;
+	if (i == 1) return WHITE_Q;
+	if (i == 2) return WHITE_B;
+	if (i == 3) return WHITE_R;
+	if (i == 4) return WHITE_N;
+	if (i == 5) return WHITE_P;
+	if (i == 10) return BLACK_K;
+	if (i == 11) return BLACK_Q;
+	if (i == 12) return BLACK_B;
+	if (i == 13) return BLACK_R;
+	if (i == 14) return BLACK_N;
+	if (i == 15) return BLACK_P;
+}
+
 // find button node in a specipic UI tree
 TreeNode* get_button_node(TreeNode *node, int arg){
 	if (node->type == BUTTON){
@@ -157,7 +189,8 @@ void update_board_gui(TreeNode *board_node, char board[BOARD_SIZE][BOARD_SIZE]){
 /************** BUTTON HANDLERS ****************/
 
 // respond to a piece picked from side panel (settings + promotions)
-void set_piece_picked(char piece){
+void set_piece_picked(int i){
+	char piece = int2char(i);
 	if (wait4promote){
 		move_to_do->promote = piece;
 		wait4promote = 0;
@@ -374,16 +407,16 @@ void init_promote_view(){
 	Panel *p_promote = (Panel*)promote_panel->control;
 	new_label(promote_panel, "promote_logo", p_promote->width / 2 - BUTTON_W / 2, 10, BUTTON_W, BUTTON_H, 0, "pics/promote_inst.bmp");
 	if (curr_player == WHITE){
-		new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H, TILE, TILE, 0, "pics/rook_w.bmp", set_piece_picked, (int)WHITE_R);
-		new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H + TILE, TILE, TILE, 0, "pics/bishop_w.bmp", set_piece_picked, (int)WHITE_B);
-		new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H + 2 * TILE, TILE, TILE, 0, "pics/knight_w.bmp", set_piece_picked, (int)WHITE_N);
-		new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H + 3 * TILE, TILE, TILE, 0, "pics/queen_w.bmp", set_piece_picked, (int)WHITE_Q);
+		new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H, TILE, TILE, 0, "pics/rook_w.bmp", set_piece_picked, char2int(WHITE_R));
+		new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H + TILE, TILE, TILE, 0, "pics/bishop_w.bmp", set_piece_picked, char2int(WHITE_B));
+		new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H + 2 * TILE, TILE, TILE, 0, "pics/knight_w.bmp", set_piece_picked, char2int(WHITE_N));
+		new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H + 3 * TILE, TILE, TILE, 0, "pics/queen_w.bmp", set_piece_picked, char2int(WHITE_Q));
 	}
 	else{
-		new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H, TILE, TILE, 0, "pics/rook_b.bmp", set_piece_picked, (int)BLACK_R);
-		new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H + TILE, TILE, TILE, 0, "pics/bishop_b.bmp", set_piece_picked, (int)BLACK_B);
-		new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H + 2 * TILE, TILE, TILE, 0, "pics/knight_b.bmp", set_piece_picked, (int)BLACK_N);
-		new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H + 3 * TILE, TILE, TILE, 0, "pics/queen_b.bmp", set_piece_picked, (int)BLACK_Q);
+		new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H, TILE, TILE, 0, "pics/rook_b.bmp", set_piece_picked, char2int(BLACK_R));
+		new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H + TILE, TILE, TILE, 0, "pics/bishop_b.bmp", set_piece_picked, char2int(BLACK_B));
+		new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H + 2 * TILE, TILE, TILE, 0, "pics/knight_b.bmp", set_piece_picked, char2int(BLACK_N));
+		new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H + 3 * TILE, TILE, TILE, 0, "pics/queen_b.bmp", set_piece_picked, char2int(BLACK_Q));
 	}
 
 	draw_tree(gameWindow);
@@ -469,18 +502,18 @@ void init_board_setting(){
 	TreeNode *tiles_panel = new_panel(menu_panel, "tiles_panel", 600, 100 + 2 * BUTTON_H, 200, (WIN_H - 100 + 2 * BUTTON_H), 12, NULL);
 	Panel *p_tiles = (Panel*)tiles_panel->control;
 	
-	new_button(tiles_panel, "piece_to_pick", p_tiles->width / 3 - TILE / 2, 0, TILE, TILE, 0, "pics/pawn_w.bmp", set_piece_picked, (int) WHITE_P);
-	new_button(tiles_panel, "piece_to_pick", p_tiles->width / 3 - TILE / 2, TILE, TILE, TILE, 0, "pics/rook_w.bmp", set_piece_picked, (int) WHITE_R);
-	new_button(tiles_panel, "piece_to_pick", p_tiles->width / 3 - TILE / 2, 2 * TILE, TILE, TILE, 0, "pics/bishop_w.bmp", set_piece_picked, (int) WHITE_B);
-	new_button(tiles_panel, "piece_to_pick", p_tiles->width / 3 - TILE / 2, 3 * TILE, TILE, TILE, 0, "pics/knight_w.bmp", set_piece_picked, (int)WHITE_N);
-	new_button(tiles_panel, "piece_to_pick", p_tiles->width / 3 - TILE / 2, 4 * TILE, TILE, TILE, 0, "pics/queen_w.bmp", set_piece_picked, (int)WHITE_Q);
-	new_button(tiles_panel, "piece_to_pick", p_tiles->width / 3 - TILE / 2, 5 * TILE, TILE, TILE, 0, "pics/king_w.bmp", set_piece_picked, (int)WHITE_K);
-	new_button(tiles_panel, "piece_to_pick", 2 * p_tiles->width / 3 - TILE / 2, 0, TILE, TILE, 0, "pics/pawn_b.bmp", set_piece_picked, (int)BLACK_P);
-	new_button(tiles_panel, "piece_to_pick", 2 * p_tiles->width / 3 - TILE / 2, TILE, TILE, TILE, 0, "pics/rook_b.bmp", set_piece_picked, (int)BLACK_R);
-	new_button(tiles_panel, "piece_to_pick", 2 * p_tiles->width / 3 - TILE / 2, 2 * TILE, TILE, TILE, 0, "pics/bishop_b.bmp", set_piece_picked, (int)BLACK_B);
-	new_button(tiles_panel, "piece_to_pick", 2 * p_tiles->width / 3 - TILE / 2, 3 * TILE, TILE, TILE, 0, "pics/knight_b.bmp", set_piece_picked, (int)BLACK_N);
-	new_button(tiles_panel, "piece_to_pick", 2 * p_tiles->width / 3 - TILE / 2, 4 * TILE, TILE, TILE, 0, "pics/queen_b.bmp", set_piece_picked, (int)BLACK_Q);
-	new_button(tiles_panel, "piece_to_pick", 2 * p_tiles->width / 3 - TILE / 2, 5 * TILE, TILE, TILE, 0, "pics/king_b.bmp", set_piece_picked, (int)BLACK_K);
+	new_button(tiles_panel, "piece_to_pick", p_tiles->width / 3 - TILE / 2, 0, TILE, TILE, 0, "pics/pawn_w.bmp", set_piece_picked, char2int(WHITE_P));
+	new_button(tiles_panel, "piece_to_pick", p_tiles->width / 3 - TILE / 2, TILE, TILE, TILE, 0, "pics/rook_w.bmp", set_piece_picked, char2int(WHITE_R));
+	new_button(tiles_panel, "piece_to_pick", p_tiles->width / 3 - TILE / 2, 2 * TILE, TILE, TILE, 0, "pics/bishop_w.bmp", set_piece_picked, char2int(WHITE_B));
+	new_button(tiles_panel, "piece_to_pick", p_tiles->width / 3 - TILE / 2, 3 * TILE, TILE, TILE, 0, "pics/knight_w.bmp", set_piece_picked, char2int(WHITE_N));
+	new_button(tiles_panel, "piece_to_pick", p_tiles->width / 3 - TILE / 2, 4 * TILE, TILE, TILE, 0, "pics/queen_w.bmp", set_piece_picked, char2int(WHITE_Q));
+	new_button(tiles_panel, "piece_to_pick", p_tiles->width / 3 - TILE / 2, 5 * TILE, TILE, TILE, 0, "pics/king_w.bmp", set_piece_picked, char2int(WHITE_K));
+	new_button(tiles_panel, "piece_to_pick", 2 * p_tiles->width / 3 - TILE / 2, 0, TILE, TILE, 0, "pics/pawn_b.bmp", set_piece_picked, char2int(BLACK_P));
+	new_button(tiles_panel, "piece_to_pick", 2 * p_tiles->width / 3 - TILE / 2, TILE, TILE, TILE, 0, "pics/rook_b.bmp", set_piece_picked, char2int(BLACK_R));
+	new_button(tiles_panel, "piece_to_pick", 2 * p_tiles->width / 3 - TILE / 2, 2 * TILE, TILE, TILE, 0, "pics/bishop_b.bmp", set_piece_picked, char2int(BLACK_B));
+	new_button(tiles_panel, "piece_to_pick", 2 * p_tiles->width / 3 - TILE / 2, 3 * TILE, TILE, TILE, 0, "pics/knight_b.bmp", set_piece_picked, char2int(BLACK_N));
+	new_button(tiles_panel, "piece_to_pick", 2 * p_tiles->width / 3 - TILE / 2, 4 * TILE, TILE, TILE, 0, "pics/queen_b.bmp", set_piece_picked, char2int(BLACK_Q));
+	new_button(tiles_panel, "piece_to_pick", 2 * p_tiles->width / 3 - TILE / 2, 5 * TILE, TILE, TILE, 0, "pics/king_b.bmp", set_piece_picked, char2int(BLACK_K));
 
 	for (int i = 0; i < BOARD_SIZE; i++) // every board tile is a transparent button
 		for (int j = 0; j < BOARD_SIZE; j++){

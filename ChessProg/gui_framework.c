@@ -100,40 +100,6 @@ TreeNode* new_button(TreeNode *parent, char* name, int x, int y, int width, int 
 	return new_node(res, BUTTON, children, parent);
 }
 
-// helper func to avoid compelation error regarding castin from char to int
-int char2int(char c){
-	if (c == WHITE_K) return 0;
-	if (c == WHITE_Q) return 1;
-	if (c == WHITE_B) return 2;
-	if (c == WHITE_R) return 3;
-	if (c == WHITE_N) return 4;
-	if (c == WHITE_P) return 5;
-	if (c == BLACK_K) return 10;
-	if (c == BLACK_Q) return 11;
-	if (c == BLACK_B) return 12;
-	if (c == BLACK_R) return 13;
-	if (c == BLACK_N) return 14;
-	if (c == BLACK_P) return 15;
-}
-
-// helper func to avoid compelation error regarding castin from char to int
-char int2char(int i){
-	if (i == 0) return WHITE_K;
-	if (i == 1) return WHITE_Q;
-	if (i == 2) return WHITE_B;
-	if (i == 3) return WHITE_R;
-	if (i == 4) return WHITE_N;
-	if (i == 5) return WHITE_P;
-	if (i == 10) return BLACK_K;
-	if (i == 11) return BLACK_Q;
-	if (i == 12) return BLACK_B;
-	if (i == 13) return BLACK_R;
-	if (i == 14) return BLACK_N;
-	if (i == 15) return BLACK_P;
-}
-
-
-
 // for board tiles - used in order to display pieces on the board tiles
 void add_label_to_button(TreeNode *button, char* pic){
 	Button *btn = button->control;

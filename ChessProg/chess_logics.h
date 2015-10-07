@@ -5,10 +5,6 @@
 #include "ChessProg.h"
 #endif CHESS_
 
-//#ifndef CHESS_UTILS_
-//#include "chess_utils.h"
-//#endif CHESS_UTILS_
-
 #include <ctype.h>
 
 
@@ -29,5 +25,9 @@ extern int gui_mode;
 extern int game_on;
 
 //void duplicate_board(char board1[BOARD_SIZE][BOARD_SIZE], char board2[BOARD_SIZE][BOARD_SIZE]);
+
+
+
+
 
 #endif CHESS_LOGICS_

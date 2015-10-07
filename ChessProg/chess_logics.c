@@ -8,7 +8,7 @@ if one of the standard functions fail, we free all pointers before aborting the 
 After we ran some tests we came to a conclusion that the maximum number of pointers allocated in a specific moment does not exceed 150-200,
 So we gave a very big buffer and used a fail safe so that if the array would fill up it wouldn't interfere with the program's functionality. */
 
-void* mem_list[1000];
+void* mem_list[5000];
 int mem_count = 0;
 int fail_safe = 1;
 
@@ -16,7 +16,7 @@ int fail_safe = 1;
 void add_to_list(void* mem){
 	mem_list[mem_count] = mem;
 	mem_count++;
-	if (mem_count > 950) {
+	if (mem_count > 4950) {
 		printf("WARNING - Memory allocation close to bounds, turning off pointer monitoring.");
 		fail_safe = 0;
 	}
@@ -88,15 +88,6 @@ void safe_free(void * mem){
 	//mem = NULL;
 }
 #define free(x) safe_free(x)
-
-#define foreach(item, array) \
-    for(int keep = 1, \
-            count = 0,\
-            size = sizeof (array) / sizeof *(array); \
-        keep && count != size; \
-        keep = !keep, count++) \
-      for(item = (array) + count; keep; keep = !keep)
-
 
 
 // Globals
@@ -328,62 +319,8 @@ int is_check(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
 			}
 		}
 	}
-		//if (!is_pos_threatened((Pos) { i, j }, board, !player)) return 0;
-
-		//Pos kdests[8] = {{ i - 1, j - 1 }, { i - 1, j }, { i - 1, j + 1 },
-		//				{ i + 1, j - 1 }, { i + 1, j }, { i + 1, j + 1 },
-		//				{ i, j - 1 }, { i, j + 1 }};
-		//foreach(Pos *p, kdests){
-		//	if (!is_pos_threatened(*p, board, !player)) return 1;
-		//} 
-		//// king is threatned and has nowhere to go, return mate
-		//return 2;	
 }
 
-//char get_piece_by_type(int type, COLOR player){
-//	switch (type){
-//	case 1:
-//		if (player == WHITE) return WHITE_Q;
-//		return BLACK_Q;
-//	case 2:
-//		if (player == WHITE) return WHITE_B;
-//		return BLACK_B;
-//	case 3:
-//		if (player == WHITE) return WHITE_R;
-//		return BLACK_R;
-//	case 4:
-//		if (player == WHITE) return WHITE_N;
-//		return BLACK_N;
-//	case 5:
-//		if (player == WHITE) return WHITE_P;
-//		return BLACK_P;
-//	case 6:
-//		if (player == WHITE) return WHITE_K;
-//		return BLACK_K;
-//	}
-//}
-//
-//char* get_piece_name_by_type(int type){
-//	switch (type){
-//	case 1: return "queen";
-//	case 2: return "bishop";
-//	case 3: return "rook";
-//	case 4: return "knight";
-//	case 5: return "pawn";
-//	case 6: return "king";
-//	}
-//}
-
-//int get_type_by_piece(char piece){
-//	switch (piece){
-//	case WHITE_K: case BLACK_K: return 0;
-//	case WHITE_Q: case BLACK_Q: return 1;
-//	case WHITE_B: case BLACK_B: return 2;
-//	case WHITE_R: case BLACK_R: return 3;
-//	case WHITE_N: case BLACK_N: return 4;
-//	case WHITE_P: case BLACK_P: return 5;
-//	}
-//}
 
 int piece_counter(char board[BOARD_SIZE][BOARD_SIZE], int * whites, int * blacks){
 	int white_b = -1, black_b = -1, bishop_fault = 0;
@@ -408,8 +345,6 @@ int piece_counter(char board[BOARD_SIZE][BOARD_SIZE], int * whites, int * blacks
 	}
 	return bishop_fault;
 }
-
-
 
 // executes a specific move on the given board
 void exc_move(char board[BOARD_SIZE][BOARD_SIZE], Move * move, COLOR color){
@@ -596,14 +531,12 @@ void get_moves_by_piece(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, Pos pi
 		get_pawn_moves(board, player, piece);
 		return;
 	case WHITE_K: case BLACK_K:
-		//tmp_dests = malloc(sizeof(Pos) * 8);
 		tmp_dests = (Pos[8]) { { piece.col - 1, piece.row - 1 }, { piece.col - 1, piece.row }, { piece.col - 1, piece.row + 1 },
 		{ piece.col + 1, piece.row - 1 }, { piece.col + 1, piece.row }, { piece.col + 1, piece.row + 1 },
 		{ piece.col, piece.row - 1 }, { piece.col, piece.row + 1 }
 		};
 		break;
 	case WHITE_N: case BLACK_N:
-		//tmp_dests = malloc(sizeof(Pos) * 8);
 		tmp_dests = (Pos[8]) { { piece.col - 2, piece.row - 1 }, { piece.col - 2, piece.row + 1 },
 		{ piece.col + 2, piece.row - 1 }, { piece.col + 2, piece.row + 1 },
 		{ piece.col - 1, piece.row - 2 }, { piece.col + 1, piece.row - 2 },
@@ -618,7 +551,6 @@ void get_moves_by_piece(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, Pos pi
 			}
 		}
 	}
-	//free(tmp_dests); 
 	return;
 }
 
@@ -680,61 +612,6 @@ int count_moves_num(Move* head){
 	return cnt;
 }
 
-//int piece_counter(char board[BOARD_SIZE][BOARD_SIZE], int * whites, int * blacks){
-//	int white_b = -1, black_b = -1, bishop_fault = 0;
-//
-//	for (int i = 0; i < BOARD_SIZE; i++){
-//		for (int j = 0; j < BOARD_SIZE; j++){
-//			switch (board[i][j]){
-//			case WHITE_P:
-//				whites[0]++;
-//				break;
-//			case WHITE_B:
-//				whites[1]++;
-//				if (white_b != -1 && (i + j) % 2 == white_b) bishop_fault = 1;
-//				white_b = (i + j) % 2;
-//				break;
-//			case WHITE_N:
-//				whites[2]++;
-//				break;
-//			case WHITE_R:
-//				whites[3]++;
-//				break;
-//			case WHITE_Q:
-//				whites[4]++;
-//				break;
-//			case WHITE_K:
-//				whites[5]++;
-//				break;
-//			case BLACK_P:
-//				blacks[0]++;
-//				break;
-//			case BLACK_B:
-//				blacks[1]++;
-//				if (black_b != -1 && (i + j) % 2 == black_b) bishop_fault = 1;
-//				black_b = (i + j) % 2;
-//				break;
-//			case BLACK_N:
-//				blacks[2]++;
-//				break;
-//			case BLACK_R:
-//				blacks[3]++;
-//				break;
-//			case BLACK_Q:
-//				blacks[4]++;
-//				break;
-//			case BLACK_K:
-//				blacks[5]++;
-//				break;
-//			default:
-//				break;
-//			}
-//		}
-//	}
-//	return bishop_fault;
-//}
-// calculates the score of the board from a player's prospective
-
 int estimate_best_depth(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
 	int p_moves, op_moves, p_exp, op_exp, sum;
 	int ret_depth = 0;
@@ -756,6 +633,7 @@ int estimate_best_depth(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
 	return ret_depth;
 }
 
+// calculates the score of the board from a player's prospective
 int calc_score(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
 	int whites[6] = { 0 }, blacks[6] = { 0 };
 
@@ -868,7 +746,7 @@ int alpha_beta_minimax(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, int dep
 		if (!is_check(board, curr_player)) return 450;
 		else return -500;
 	}
-	if (depth == minimax_depth || curr_move == NULL){// || (best_depth && board_count == BOARD_LIMIT)){
+	if (depth == minimax_depth || curr_move == NULL){
 		clear_old_moves(move_list);
 		return calc_score(board, curr_player);
 	}

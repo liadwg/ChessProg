@@ -144,6 +144,7 @@ void init_board(char board[BOARD_SIZE][BOARD_SIZE]);
 
 int is_valid_board(char board[BOARD_SIZE][BOARD_SIZE]);
 int load_game(char * path, char board[BOARD_SIZE][BOARD_SIZE]);
+int save_game(char board[BOARD_SIZE][BOARD_SIZE], COLOR color, char * file_name);
 void get_best_moves(char board[BOARD_SIZE][BOARD_SIZE], int depth);
 
 // Globals

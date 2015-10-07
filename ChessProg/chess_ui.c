@@ -60,6 +60,7 @@ char* get_piece_pic(char piece){
 	case BLACK_Q: return "pics/queen_b.bmp";
 	case WHITE_K: return "pics/king_w.bmp"; 
 	case BLACK_K: return "pics/king_b.bmp";
+	default: '/0';
 	}
 }
 
@@ -76,6 +77,7 @@ char get_piece_by_pic(char* pic){
 	if (strcmp(pic, get_piece_pic(BLACK_Q)) == 0) return BLACK_Q;
 	if (strcmp(pic, get_piece_pic(WHITE_K)) == 0) return WHITE_K;
 	if (strcmp(pic, get_piece_pic(BLACK_K)) == 0) return BLACK_K;
+	return '/0';
 }
 
 // find button node in a specipic UI tree
@@ -583,6 +585,7 @@ Move* gui_game_mode(char board[BOARD_SIZE][BOARD_SIZE]){
 		if ((move_to_do != NULL && !wait4promote) || back2settings) return move_to_do;
 		run_events_loop(currScreen);
 	}
+	return NULL;
 }
 
 // main UI loop for settings mode

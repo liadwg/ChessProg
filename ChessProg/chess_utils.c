@@ -7,7 +7,7 @@
 //After we ran some tests we came to a conclusion that the maximum number of pointers allocated in a specific moment does not exceed 150-200,
 //So we gave a very big buffer and used a fail safe so that if the array would fill up it wouldn't interfere with the program's functionality. */
 
-void* mem_list[1000];
+void* mem_list[3000];
 int mem_count = 0;
 int fail_safe = 1;
 

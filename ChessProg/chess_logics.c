@@ -126,8 +126,6 @@ void duplicate_board(char board1[BOARD_SIZE][BOARD_SIZE], char board2[BOARD_SIZE
 
 int is_pos_threatened(Pos pos, char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
 	Pos curr; 
-	//curr.col = pos.col; 
-	//curr.row = pos.row;
 	int blocked[4] = { 0 };
 	char* pieces;
 	char bpieces[6] = { BLACK_P, BLACK_B, BLACK_N, BLACK_R, BLACK_Q, BLACK_K };

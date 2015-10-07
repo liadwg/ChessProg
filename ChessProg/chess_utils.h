@@ -27,7 +27,7 @@ typedef struct move{
 } Move;
 
 
-extern void* mem_list[1000];
+extern void* mem_list[3000];
 extern int mem_count;
 extern int fail_safe;
 

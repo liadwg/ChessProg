@@ -524,24 +524,34 @@ int main(int argc, char * argv[]){
 							else break;
 						}
 						if (game_on) exc_move(board, move2do, curr_player);
+						if (!game_on) break;
 					}
 					else{ //console mode
 						console_alert(turn);
 						if (game_on) user_turn(board, curr_player);
+						if (!game_on){
+							char *command = input2str(stdin);
+							free(command);
+							break;
+						}
 					}
-					if (!game_on) break;
 
 					curr_player = !user_color;
 					turn = pre_turn_verify(board, curr_player);
 					if (gui_mode){
 						gui_alert(turn);
 						if (game_on) computer_turn(board, curr_player);
+						if (!game_on) break;
 					}
 					else{
 						console_alert(turn);
 						if (game_on) computer_turn(board, curr_player);
+						if (!game_on){
+							char *command = input2str(stdin);
+							free(command);
+							break;
+						}
 					}
-					if (!game_on) break;
 				}
 				//comp starts
 				else{
@@ -550,12 +560,17 @@ int main(int argc, char * argv[]){
 					if (gui_mode){
 						gui_alert(turn);
 						if (game_on) computer_turn(board, curr_player);
+						if (!game_on) break;
 					}
 					else{
 						console_alert(turn);
 						if (game_on) computer_turn(board, curr_player);
+						if (!game_on){
+							char *command = input2str(stdin);
+							free(command);
+							break;
+						}
 					}
-					if (!game_on) break;
 
 					curr_player = user_color; 
 					turn = pre_turn_verify(board, user_color);
@@ -569,12 +584,17 @@ int main(int argc, char * argv[]){
 							else break;
 						}
 						if (game_on) exc_move(board, move2do, curr_player);
+						if (!game_on) break;
 					}
 					else{
 						console_alert(turn);
 						if (game_on) user_turn(board, curr_player);
+						if (!game_on){
+							char *command = input2str(stdin);
+							free(command);
+							break;
+						}
 					}
-					if (!game_on) break;
 				}
 			}
 			// 2 players
@@ -592,12 +612,18 @@ int main(int argc, char * argv[]){
 						else break;
 					}
 					if (game_on) exc_move(board, move2do, curr_player);
+					if (!game_on) break;
 				}
 				else{
 					console_alert(turn);
 					if (game_on) user_turn(board, curr_player);
+					if (!game_on){
+						char *command = input2str(stdin);
+						free(command);
+						break;
+					}
 				}
-				if (!game_on) break;
+				
 
 				curr_player = !start_color;
 				turn = pre_turn_verify(board, curr_player);
@@ -611,16 +637,20 @@ int main(int argc, char * argv[]){
 						else break;
 					}
 					if (game_on) exc_move(board, move2do, curr_player);
+					if (!game_on) break;
 				}
 				else{
 					console_alert(turn);
 					if (game_on) user_turn(board, curr_player);
+					if (!game_on){
+						char *command = input2str(stdin);
+						free(command);
+						break;
+					}
 				}
-				if (!game_on) break;
+				
 			}
 		}
-		char *command = input2str(stdin);
-		free(command);
 	}
 }
 

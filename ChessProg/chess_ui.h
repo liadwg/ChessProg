@@ -127,7 +127,7 @@ TreeNode* new_node(void* control, CONTROL type, int child_num, TreeNode* parent)
 TreeNode* new_window(char *title, int width, int height, int children);
 TreeNode* new_panel(TreeNode *parent, char* name, int x, int y, int width, int height, int children, char* file);
 TreeNode* new_label(TreeNode *parent, char* name, int x, int y, int width, int height, int children, char* file);
-TreeNode* new_button(TreeNode *parent, char* name, int x, int y, int width, int height, int children, char* file, void* handler, int args);
+TreeNode* new_button(TreeNode *parent, char* name, int x, int y, int width, int height, int children, char* file, void(*handler)(int), int args);
 void add_label_to_button(TreeNode *button, char* pic);
 void remove_label_from_button(TreeNode *button);
 int draw_tree_rec(Window* root, TreeNode* node);

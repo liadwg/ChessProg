@@ -24,6 +24,8 @@ char gui_board[BOARD_SIZE][BOARD_SIZE];
 char tmp_board[BOARD_SIZE][BOARD_SIZE];
 Pos *src_pos = NULL;
 Move *move_to_do = NULL;
+int wait4promote = 0;
+TreeNode *tmp_panel = NULL;
 
 
 void quit_all(){
@@ -99,7 +101,15 @@ void update_board_gui(TreeNode *board_node, char board[BOARD_SIZE][BOARD_SIZE]){
 }
 
 void set_piece_picked(char piece){
-	piece_picked = piece;
+	if (wait4promote){
+		move_to_do->promote = piece;
+		wait4promote = 0;
+		TreeNode *menu = gameWindow->children[1]; // menu panel
+		free_tree(menu->children[2]);
+		menu->children[2] = tmp_panel;
+		tmp_panel = NULL;
+	}
+	else piece_picked = piece;
 }
 
 void alert_state(int state, COLOR player){
@@ -156,10 +166,16 @@ void tile_clicked(int tile){
 		update_board_gui(tile_node->parent, tmp_board);
 		draw_tree(currScreen);
 	}
-	else{ // gameWindow
+	else if (!wait4promote){ // gameWindow
 		if (src_pos == NULL && tile_node->child_num == 0) return;
 		else if (src_pos != NULL){
 			move_to_do = generate_move(button->args / 10, button->args % 10);
+			if (gui_board[move_to_do->piece.col][move_to_do->piece.row] == WHITE_P && move_to_do->dest.row == 7){
+				//white promote
+			}
+			if (gui_board[move_to_do->piece.col][move_to_do->piece.row] == BLACK_P && move_to_do->dest.row == 0){
+				// black promote
+			} 
 			// implement promotions!!
 			free(src_pos);
 			src_pos = NULL;
@@ -235,6 +251,29 @@ void open_main_menu(){
 	prevScreen = currScreen;
 	init_main_menu();
 	currScreen = mainMenu;
+}
+
+void init_promote_view(){
+	TreeNode *menu = gameWindow->children[1]; // menu panel
+	tmp_panel = menu->children[2]; // best move panel
+	menu->children[2] = NULL;
+	TreeNode *promote_panel = new_panel(menu, "promote_panel", 600, 40 + 2 * BUTTON_H, 200, (WIN_H - 100 + 2 * BUTTON_H), 5, NULL);
+	Panel *p_promote = (Panel*)promote_panel->control;
+	TreeNode *promote_logo = new_label(promote_panel, "promote_logo", p_promote->width / 2 - BUTTON_W / 2, 10, BUTTON_W, BUTTON_H, 0, "pics/promote_inst.bmp");
+	if (curr_player == WHITE){
+		TreeNode *piece21 = new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, 0, TILE, TILE, 0, "pics/rook_w.bmp", set_piece_picked, WHITE_R);
+		TreeNode *piece31 = new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, TILE, TILE, TILE, 0, "pics/bishop_w.bmp", set_piece_picked, WHITE_B);
+		TreeNode *piece41 = new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, 2 * TILE, TILE, TILE, 0, "pics/knight_w.bmp", set_piece_picked, WHITE_N);
+		TreeNode *piece51 = new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, 3 * TILE, TILE, TILE, 0, "pics/queen_w.bmp", set_piece_picked, WHITE_Q);
+	}
+	else{
+		TreeNode *piece22 = new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, 0, TILE, TILE, 0, "pics/rook_b.bmp", set_piece_picked, BLACK_R);
+		TreeNode *piece32 = new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, TILE, TILE, TILE, 0, "pics/bishop_b.bmp", set_piece_picked, BLACK_B);
+		TreeNode *piece42 = new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, 2 * TILE, TILE, TILE, 0, "pics/knight_b.bmp", set_piece_picked, BLACK_N);
+		TreeNode *piece52 = new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, 3 * TILE, TILE, TILE, 0, "pics/queen_b.bmp", set_piece_picked, BLACK_Q);
+	}
+
+	draw_tree(gameWindow);
 }
 
 void init_game_window(){
@@ -453,7 +492,7 @@ Move* gui_game_mode(char board[BOARD_SIZE][BOARD_SIZE]){
 	else init_game_window();
 	currScreen = gameWindow;
 	while (!glob_quit){
-		if (move_to_do != NULL) return move_to_do;
+		if (move_to_do != NULL && !wait4promote) return move_to_do;
 		run_events_loop(currScreen);
 	}
 }

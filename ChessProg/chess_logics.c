@@ -173,8 +173,8 @@ char get_piece_by_type(int type, COLOR player){
 	case 5:
 		if (player == WHITE) return WHITE_P;
 		return BLACK_P;
-	default: return;
 	}
+	//return;
 }
 
 int get_type_by_piece(char piece){
@@ -185,7 +185,6 @@ int get_type_by_piece(char piece){
 	case WHITE_R: case BLACK_R: return 3;
 	case WHITE_N: case BLACK_N: return 4;
 	case WHITE_P: case BLACK_P: return 5;
-	//default: return 0;
 	}
 }
 

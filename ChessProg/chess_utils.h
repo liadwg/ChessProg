@@ -1,20 +1,15 @@
 #ifndef CHESS_UTILS_
 #define CHESS_UTILS_
 
-//#ifndef CHESS_
-//#include "ChessProg.h"
-//#endif CHESS_
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
-//#include <ctype.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 #include <libxml/xmlwriter.h>
 
-#define perror_message(func_name) (perror("Error: standard function %s has failed", func_name));
+#define perror_message(func_name) (fprintf(stderr, "Error: standard function %s has failed\n", func_name))
 
 typedef enum { WHITE = 0, BLACK = 1 } COLOR;
 

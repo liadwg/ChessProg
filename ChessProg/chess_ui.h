@@ -3,7 +3,6 @@
 
 #include <SDL.h>
 #include <SDL_video.h>
-//#include "ChessProg.h"
 
 #ifndef CHESS_UTILS_
 #include "chess_utils.h"
@@ -31,17 +30,12 @@
 #define fgetc(x) safe_fgetc(x)
 #define free(x) safe_free(x)
 
-//#define printf(...) \
-//	if (printf(__VA_ARGS__) < 0){ \
-//		perror_message("printf"); \
-//		if (fail_safe) for (int i = 0; i < mem_count; i++) free(mem_list[i]); \
-//		abort();} \
-//				else (void)0
 #define printf(...) \
 	if (printf(__VA_ARGS__) < 0){ \
+		perror_message("printf"); \
 		if (fail_safe) for (int i = 0; i < mem_count; i++) free(mem_list[i]); \
 		abort();} \
-								else (void)0
+				else (void)0
 
 //structures
 typedef struct button

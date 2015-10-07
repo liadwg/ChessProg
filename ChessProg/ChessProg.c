@@ -430,7 +430,7 @@ void user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 					continue;
 				}
 				new_move->promote = 0;
-				if (is_EOB(new_move->dest, color)){ //promoting
+				if (is_EOB(new_move->dest, color)){ // gets piece to be promote from the user
 					char * piece_promote = strtok(NULL, " <,>");
 					char this_piece = board[new_move->piece.col][new_move->piece.row];
 					if (this_piece == BLACK_P || this_piece == WHITE_P){
@@ -438,7 +438,7 @@ void user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 						new_move->promote = get_piece_by_name(piece_promote, color);
 					}
 				}
-				Move * move2do = is_valid_move(moves_head, new_move);
+				Move * move2do = is_valid_move(moves_head, new_move); // the move is valid if the source, dest and score are equals
 				if (move2do == NULL){
 					printf(ILLEGAL_MOVE);
 					continue;
@@ -465,15 +465,6 @@ void user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 	clear_old_moves(moves_head);
 }
 
-//gui_user_turn(char board[BOARD_SIZE][BOARD_SIZE]){
-//	Move * new_move = NULL;
-//	Move * move2do = NULL;
-//	while (move2do == NULL && game_on){
-//		new_move = gui_game_mode(board);
-//		if (new_move != NULL) move2do = is_valid_move(moves_head, new_move);
-//		else break;
-//	}
-//}
 
 void console_alert(int alert){
 	if (alert == LOSE_POS || alert == TIE_POS){

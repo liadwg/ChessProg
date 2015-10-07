@@ -115,17 +115,18 @@ void set_piece_picked(char piece){
 
 void show_best_move(int depth){
 	if (depth == 0) depth = minimax_depth;
-	Move *move = get_best_move(gui_board, depth);
-	TreeNode *n1 = get_button_node(gameWindow->children[0], move->piece.col * 10 + move->piece.row)->children[0];
-	TreeNode *n2 = get_button_node(gameWindow->children[0], move->dest.col * 10 + move->dest.row);
+	get_best_moves(gui_board, depth);
+	
+	TreeNode *n1 = get_button_node(gameWindow->children[0], best_move->piece.col * 10 + best_move->piece.row)->children[0];
+	TreeNode *n2 = get_button_node(gameWindow->children[0], best_move->dest.col * 10 + best_move->dest.row);
 	if (n2->child_num != 0) n2 = n2->children[0];
 	
 	n1->child_num = 1;
 	n1->children = malloc(sizeof(TreeNode*));
 	n1->children[0] = NULL;
 	n2->child_num = 1;
-	n2->children[0] = NULL;
 	n2->children = malloc(sizeof(TreeNode*));
+	n2->children[0] = NULL;
 
 	TreeNode *l1 = new_label(n1, "highlight", ((Label*)n1->control)->x, ((Label*)n1->control)->y, TILE, TILE, 0, "pics/highlight_tile.bmp");
 	TreeNode *l2 = new_label(n2, "highlight", ((Label*)n2->control)->x, ((Label*)n2->control)->y, TILE, TILE, 0, "pics/highlight_tile.bmp");
@@ -150,6 +151,8 @@ void show_best_move(int depth){
 	free_tree(l2);
 	free(n1->children);
 	free(n2->children);
+	n1->children = NULL;
+	n2->children = NULL;
 	//realloc(gameWindow->children, sizeof(TreeNode*) * --gameWindow->child_num);
 	draw_tree(gameWindow);
 }

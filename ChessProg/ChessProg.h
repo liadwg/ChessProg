@@ -144,6 +144,7 @@ void init_board(char board[BOARD_SIZE][BOARD_SIZE]);
 
 int is_valid_board(char board[BOARD_SIZE][BOARD_SIZE]);
 int load_game(char * path, char board[BOARD_SIZE][BOARD_SIZE]);
+Move * get_best_moves(char board[BOARD_SIZE][BOARD_SIZE], int depth);
 
 // Globals
 extern COLOR user_color;
@@ -154,6 +155,7 @@ extern COLOR user_color;
 extern COLOR curr_player;
 //extern Move* best_move;
 extern char gui_board[BOARD_SIZE][BOARD_SIZE];
+
 
 #endif CHESS_
 

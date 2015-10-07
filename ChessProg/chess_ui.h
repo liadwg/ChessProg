@@ -16,6 +16,7 @@
 
 #define WIN_HEIGHT 600
 #define WIN_WIDTH 800
+#define BOARD_SIZE 8
 
 //structures
 typedef struct button
@@ -24,14 +25,12 @@ typedef struct button
 	SDL_Surface * img;
 	int x;
 	int y;
-	int abs_x;
-	int abs_y;
 	int width;
 	int height;
+	int abs_x; // to handle clicks more efficiantly
+	int abs_y; // to handle clicks more efficiantly
 	void(*handler)(void*); // pointer to the button handler function
-	//void* args;
-	//char* args;
-	int args;
+	int args; // handler arg
 } Button;
 
 typedef struct label
@@ -75,65 +74,84 @@ typedef struct treenode
 
 
 // Globals
-extern int glob_quit;
-extern TreeNode *mainMenu;
-extern TreeNode *settingsMenu;
-extern TreeNode *playerSelection;
-extern TreeNode *boardSetting;
-extern TreeNode *gameWindow;
+// Framework Globals
 extern Button **buttons;
 extern int buttons_count;
 
+// Screens Globals
+extern TreeNode *mainMenu;
+extern TreeNode *loadSave;
+extern TreeNode *AIsettingsMenu;
+extern TreeNode *playerSelection;
+extern TreeNode *boardSetting;
+extern TreeNode *gameWindow;
+extern TreeNode *prevScreen;
+extern TreeNode *currScreen;
+
+// Game-Flow Globals
+extern int glob_quit;
+extern int start_game;
+extern int board_ready;
+extern int back2settings;
+
+// Game Globals
+extern char gui_board[BOARD_SIZE][BOARD_SIZE];
+extern char tmp_board[BOARD_SIZE][BOARD_SIZE];
+extern char piece_picked;
+extern Pos *src_pos;
+extern Move *move_to_do;
+extern int wait4promote;
+extern TreeNode *tmp_panel;
 
 // GUI Framework funcs
 TreeNode* new_node(void* control, CONTROL type, int child_num, TreeNode* parent);
 TreeNode* new_window(char *title, int width, int height, int children);
 TreeNode* new_panel(TreeNode *parent, char* name, int x, int y, int width, int height, int children, char* file);
 TreeNode* new_label(TreeNode *parent, char* name, int x, int y, int width, int height, int children, char* file);
-TreeNode* new_button(TreeNode *parent, char* name, int x, int y, int width, int height, int children, char* file, void* handler, void* args);
+TreeNode* new_button(TreeNode *parent, char* name, int x, int y, int width, int height, int children, char* file, void* handler, int args);
+void add_label_to_button(TreeNode *button, char* pic);
+void remove_label_from_button(TreeNode *button);
 int draw_tree_rec(Window* root, TreeNode* node);
 int draw_tree(TreeNode* root);
 void free_tree(TreeNode *node);
 void get_screen_buttons(TreeNode *node);
 int is_click_on_button(int x, int y, Button *button);
 void run_events_loop(TreeNode* screen);
-void add_label_to_button(TreeNode *button, char* pic);
-void remove_label_from_button(TreeNode *button);
-//void keybpard_handler(TreeNode *screen, SDLKey key);
 
 
 // Chess UI funcs
 void quit_all();
-TreeNode* get_button_node(TreeNode *node, int arg);
 char* get_piece_pic(char piece);
 char get_piece_by_pic(char* pic);
-//void update_board_gui(TreeNode *board_node, char board[BOARD_SIZE][BOARD_SIZE]);
-void set_piece_picked(char piece);
 void alert_state(int state, COLOR player);
+TreeNode* get_button_node(TreeNode *node, int arg);
+void update_board_gui(TreeNode *board_node, char board[BOARD_SIZE][BOARD_SIZE]);
+void show_best_move(int depth);
+void set_piece_picked(char piece);
 Move* generate_move(int col, int row);
 void tile_clicked(int tile);
 void screen_dismissed(TreeNode *screen);
 void cancel_clicked();
 void set_depth(int i);
-void init_AI_setting();
 void set_player(int i);
 void set_next(COLOR i);
+void set_player_color(COLOR i);
 void board_set_ok();
-void init_game_window();
-void init_board_setting();
-void open_board_setting();
-void start_game_clicked();
-void init_player_selection();
 void load_slot(int slot);
 void save_slot(int slot);
-void init_load_save(int load_save);
+void open_board_setting();
+void start_game_clicked();
 void open_load_save(int i);
-void init_main_menu();
+void open_player_selection();
 void open_main_menu();
-//Move* gui_game_mode(char board[BOARD_SIZE][BOARD_SIZE]);
-int gui_setting_mode();
 void init_promote_view();
-void show_best_move(Move *move);
-void set_player_color(COLOR i);
+void init_game_window();
+void init_board_setting();
+void init_player_selection();
+void init_AI_setting();
+void init_load_save(int load_save);
+void init_main_menu();
+Move* gui_game_mode(char board[BOARD_SIZE][BOARD_SIZE]);
+int gui_setting_mode();
 
 #endif CHESS_UI_

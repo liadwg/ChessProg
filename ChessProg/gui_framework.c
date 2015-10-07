@@ -1,8 +1,10 @@
 #include "chess_ui.h"
 
+// Framework Globals
 Button **buttons = NULL;
 int buttons_count = 0;
 
+// add a new node under a specipied parent (inner func)
 TreeNode* new_node(void* control, CONTROL type, int child_num, TreeNode* parent){
 	TreeNode *node = malloc(sizeof(TreeNode));
 	node->type = type;
@@ -38,17 +40,16 @@ TreeNode* new_node(void* control, CONTROL type, int child_num, TreeNode* parent)
 	return node;
 }
 
+// create a new window
 TreeNode* new_window(char *title, int width, int height, int children){
 	SDL_WM_SetCaption(title, title);
 	SDL_Surface *w = SDL_SetVideoMode(width, height, 0, SDL_HWSURFACE | SDL_DOUBLEBUF);
 	if (w == NULL) {
-		printf("ERROR: failed to set video mode: %s\n", SDL_GetError());
-		return 1;
+		return NULL;
 	}
 	/* Clear window to BLACK*/
 	if (SDL_FillRect(w, 0, 0) != 0) {
-		printf("ERROR: failed to draw rect: %s\n", SDL_GetError());
-		return 1;
+		return NULL;
 	}
 	Window *res = malloc(sizeof(Window));
 	res->title = title;
@@ -58,6 +59,7 @@ TreeNode* new_window(char *title, int width, int height, int children){
 	return new_node(res, WINDOW, children, NULL);
 }
 
+// create a new panel
 TreeNode* new_panel(TreeNode *parent, char* name, int x, int y, int width, int height, int children, char* file){
 	Panel *res = malloc(sizeof(Panel));
 	res->img = NULL;
@@ -70,6 +72,7 @@ TreeNode* new_panel(TreeNode *parent, char* name, int x, int y, int width, int h
 	return new_node(res, PANEL, children, parent);
 }
 
+// create a new label
 TreeNode* new_label(TreeNode *parent, char* name, int x, int y, int width, int height, int children, char* file){
 	Label *res = malloc(sizeof(Label));
 	res->img = NULL;
@@ -82,7 +85,8 @@ TreeNode* new_label(TreeNode *parent, char* name, int x, int y, int width, int h
 	return new_node(res, LABEL, children, parent);
 }
 
-TreeNode* new_button(TreeNode *parent, char* name, int x, int y, int width, int height, int children, char* file, void* handler, void* args){
+// create a new button - recieves a handler (function pointer) + args
+TreeNode* new_button(TreeNode *parent, char* name, int x, int y, int width, int height, int children, char* file, void* handler, int args){
 	Button *res = malloc(sizeof(Button));
 	res->img = NULL;
 	if (file != NULL) res->img = SDL_LoadBMP(file);
@@ -96,6 +100,7 @@ TreeNode* new_button(TreeNode *parent, char* name, int x, int y, int width, int 
 	return new_node(res, BUTTON, children, parent);
 }
 
+// for board tiles - used in order to display pieces on the board tiles
 void add_label_to_button(TreeNode *button, char* pic){
 	Button *btn = button->control;
 	button->child_num = 1;
@@ -116,6 +121,7 @@ void remove_label_from_button(TreeNode *button){
 	button->child_num = 0;
 }
 
+// recursively draw the UI tree, returns 0 if succeded
 int draw_tree_rec(Window* root, TreeNode* node){
 	int x = 0, y = 0, width, height, res = 0;
 	SDL_Surface *img = NULL;
@@ -186,8 +192,10 @@ int draw_tree(TreeNode* root){
 	int chk = draw_tree_rec(win, root);
 	if (!chk) SDL_Flip(win->surface);
 	else return 1;
+	return 0;
 }
 
+// free all surfaces and allocated memory from a tree node downwards
 void free_tree(TreeNode *node){
 	for (int i = 0; i < node->child_num; i++){
 		free_tree(node->children[i]);
@@ -208,16 +216,17 @@ void free_tree(TreeNode *node){
 	node = NULL;
 }
 
+// collects all the buttons from a given UI tree
 void get_screen_buttons(TreeNode *node){
 	for (int i = 0; i < node->child_num; i++) get_screen_buttons(node->children[i]);
 	if (node->type == BUTTON) buttons[buttons_count++] = (Button*)node->control;
 }
 
-
 int is_click_on_button(int x, int y, Button *button){
 	return (x > button->abs_x && x < (button->abs_x + button->width) && y > button->abs_y && y < (button->abs_y + button->height));
 }
 
+// main framework loop - collects mouse clicks and if it hit a button calls the relevant handler with the relevant arg
 void run_events_loop(TreeNode* screen){
 	buttons = malloc(sizeof(Button*) * 100); // max num of buttons per panel
 	get_screen_buttons(screen);

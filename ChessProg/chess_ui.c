@@ -1,18 +1,6 @@
 #include "chess_ui.h"
 
-#define foreach(item, array) \
-    for(int keep = 1, \
-            count = 0,\
-            size = sizeof (array) / sizeof *(array); \
-        keep && count != size; \
-        keep = !keep, count++) \
-      for(item = (array) + count; keep; keep = !keep)
-
-int glob_quit = 0;
-int start_game = 0;
-int board_ready = 0;
-int back2settings = 0;
-char piece_picked = NULL;
+// Screens Globals
 TreeNode *mainMenu = NULL;
 TreeNode *loadSave = NULL;
 TreeNode *AIsettingsMenu = NULL;
@@ -21,14 +9,24 @@ TreeNode *boardSetting = NULL;
 TreeNode *gameWindow = NULL;
 TreeNode *prevScreen = NULL;
 TreeNode *currScreen = NULL;
+
+// Game-Flow Globals
+int glob_quit = 0;
+int start_game = 0;
+int board_ready = 0;
+int back2settings = 0;
+
+// Game Globals
 char gui_board[BOARD_SIZE][BOARD_SIZE];
 char tmp_board[BOARD_SIZE][BOARD_SIZE];
+char piece_picked = NULL;
 Pos *src_pos = NULL;
 Move *move_to_do = NULL;
 int wait4promote = 0;
 TreeNode *tmp_panel = NULL;
 
 
+// clear all UI Trees, kill screens and clear memory
 void quit_all(){
 	glob_quit = 1;
 	game_on = 0;
@@ -45,20 +43,9 @@ void quit_all(){
 	if (gameWindow != NULL) free_tree(gameWindow);
 	gameWindow = NULL;
 	atexit(SDL_Quit);
-	return 0;
 }
 
-TreeNode* get_button_node(TreeNode *node, int arg){
-	if (node->type == BUTTON){
-		Button *btn = (Button*)node->control;
-		if (btn->args == arg) return node;
-	}
-	for (int i = 0; i < node->child_num; i++)
-		if (get_button_node(node->children[i], arg) != NULL) 
-			return get_button_node(node->children[i], arg);
-	return NULL;
-}
-
+// attach pic to game piece and vise-versa
 char* get_piece_pic(char piece){
 	switch (piece){
 	case WHITE_P: return "pics/pawn_w.bmp";
@@ -91,6 +78,69 @@ char get_piece_by_pic(char* pic){
 	if (strcmp(pic, get_piece_pic(BLACK_K)) == 0) return BLACK_K;
 }
 
+// find button node in a specipic UI tree
+TreeNode* get_button_node(TreeNode *node, int arg){
+	if (node->type == BUTTON){
+		Button *btn = (Button*)node->control;
+		if (btn->args == arg) return node;
+	}
+	for (int i = 0; i < node->child_num; i++)
+		if (get_button_node(node->children[i], arg) != NULL) 
+			return get_button_node(node->children[i], arg);
+	return NULL;
+}
+
+// used to alert special states on the game screen (check/mate/tie)
+void alert_state(int state, COLOR player){
+	char *pic = NULL;
+	switch (state){
+	case TIE_POS: 
+		pic = "pics/tie.bmp";
+		break;
+	case CHECK_POS: 
+		pic = "pics/check.bmp";
+		break;
+	case LOSE_POS:
+		if (player == WHITE) pic = "pics/white_win.bmp";
+		else pic = "pics/black_win.bmp";
+		break;
+	}
+
+	realloc(gameWindow->children, sizeof(TreeNode*) * ++gameWindow->child_num);
+	gameWindow->children[gameWindow->child_num - 1] = NULL;
+	TreeNode *alert = new_panel(gameWindow, "alert panel", WIN_W / 2 - 300, WIN_H / 2 - 150, 600, 300, 0, pic);
+	draw_tree(gameWindow);
+	SDL_Delay(1000);
+	gameWindow->child_num--;
+	draw_tree(gameWindow);
+	SDL_Delay(1000);
+	gameWindow->child_num++;
+	draw_tree(gameWindow);
+	SDL_Delay(1000);
+	free_tree(alert);
+	realloc(gameWindow->children, sizeof(TreeNode*) * --gameWindow->child_num);
+	draw_tree(gameWindow);
+}
+
+void screen_dismissed(TreeNode *screen){
+	if (screen == mainMenu) mainMenu = NULL;
+	else if (screen == loadSave) loadSave = NULL;
+	else if (screen == AIsettingsMenu) AIsettingsMenu = NULL;
+	else if (screen == playerSelection) playerSelection = NULL;
+	else if (screen == boardSetting) boardSetting = NULL;
+	else if (screen == gameWindow) gameWindow = NULL;
+}
+
+void restore_defaults(){
+	back2settings = 0;
+	glob_quit = 0;
+	start_game = 0;
+	user_color = WHITE;
+	start_color = WHITE;
+	minimax_depth = 1;
+}
+
+// attach relevant pics to the board tiles, according to the current board setting
 void update_board_gui(TreeNode *board_node, char board[BOARD_SIZE][BOARD_SIZE]){
 	TreeNode *btn_node;
 	Button *button;
@@ -102,18 +152,22 @@ void update_board_gui(TreeNode *board_node, char board[BOARD_SIZE][BOARD_SIZE]){
 	}
 }
 
+/************** BUTTON HANDLERS ****************/
+
+// respond to a piece picked from side panel (settings + promotions)
 void set_piece_picked(char piece){
 	if (wait4promote){
 		move_to_do->promote = piece;
 		wait4promote = 0;
 		TreeNode *menu = gameWindow->children[1]; // menu panel
-		free_tree(menu->children[2]);
+		free_tree(menu->children[2]); // promote options panel
 		menu->children[2] = tmp_panel;
 		tmp_panel = NULL;
 	}
 	else piece_picked = piece;
 }
 
+// highlight the best move suggested for the player
 void show_best_move(int depth){
 	if (depth == 0) depth = minimax_depth;
 	get_best_moves(gui_board, depth);
@@ -155,37 +209,6 @@ void show_best_move(int depth){
 	draw_tree(gameWindow);
 }
 
-void alert_state(int state, COLOR player){
-	char *pic = NULL;
-	switch (state){
-	case TIE_POS: 
-		pic = "pics/tie.bmp";
-		break;
-	case CHECK_POS: 
-		pic = "pics/check.bmp";
-		break;
-	case LOSE_POS:
-		if (player == WHITE) pic = "pics/white_win.bmp";
-		else pic = "pics/black_win.bmp";
-		break;
-	}
-
-	realloc(gameWindow->children, sizeof(TreeNode*) * ++gameWindow->child_num);
-	gameWindow->children[gameWindow->child_num - 1] = NULL;
-	TreeNode *alert = new_panel(gameWindow, "alert panel", WIN_W / 2 - 300, WIN_H / 2 - 150, 600, 300, 0, pic);
-	draw_tree(gameWindow);
-	SDL_Delay(1000);
-	gameWindow->child_num--;
-	draw_tree(gameWindow);
-	SDL_Delay(1000);
-	gameWindow->child_num++;
-	draw_tree(gameWindow);
-	SDL_Delay(1000);
-	free_tree(alert);
-	realloc(gameWindow->children, sizeof(TreeNode*) * --gameWindow->child_num);
-	draw_tree(gameWindow);
-}
-
 Move* generate_move(int col, int row){
 	Move *res = malloc(sizeof(Move));
 	res->piece.col = src_pos->col;
@@ -197,6 +220,7 @@ Move* generate_move(int col, int row){
 	return res;
 }
 
+// handle a board tile click - set a piece in settings mode or generate a move representing the clicks in game mode
 void tile_clicked(int tile){
 	TreeNode *tile_node = get_button_node(currScreen, tile);
 	Button *button = (Button*)tile_node->control;
@@ -234,15 +258,7 @@ void tile_clicked(int tile){
 	}
 }
 
-void screen_dismissed(TreeNode *screen){
-	if (screen == mainMenu) mainMenu = NULL;
-	else if (screen == loadSave) loadSave = NULL;
-	else if (screen == AIsettingsMenu) AIsettingsMenu = NULL;
-	else if (screen == playerSelection) playerSelection = NULL;
-	else if (screen == boardSetting) boardSetting = NULL;
-	else if (screen == gameWindow) gameWindow = NULL;
-}
-
+// return to previous screen
 void cancel_clicked(){
 	if (currScreen == prevScreen) prevScreen = mainMenu; // make sure its ok in all flows
 	piece_picked = NULL;
@@ -257,31 +273,9 @@ void set_depth(int i){
 	cancel_clicked();
 }
 
-void init_AI_setting(){
-	if (AIsettingsMenu != NULL) free_tree(AIsettingsMenu);
-	AIsettingsMenu = new_window("Set Difficulty", WIN_W / 2, WIN_H, 1);
-
-	TreeNode *panel = new_panel(AIsettingsMenu, "AI_panel", 0, 0, WIN_W / 2, WIN_H, 9, NULL);
-	Panel *p = (Panel*)panel->control;
-	
-	TreeNode *set_color = new_label(panel, "next_logo", (p->width / 4) - 10 - BUTTON_W / 2, 50, BUTTON_W, BUTTON_H, 0, "pics/AI_color.bmp");
-	TreeNode *set_color_white = new_button(panel, "next_white", p->width / 2 - BUTTON_W / 2, 50, BUTTON_W, BUTTON_H, 0, "pics/white.bmp", set_player_color, BLACK);
-	TreeNode *set_color_black = new_button(panel, "next_black", (p->width / 4) * 3 + 10 - BUTTON_W / 2, 50, BUTTON_W, BUTTON_H, 0, "pics/black.bmp", set_player_color, WHITE);
-
-	TreeNode *diff = new_label(panel, "difficulty", (p->width / 4) - 10 - BUTTON_W / 2, 70 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/set_diff.bmp");
-	TreeNode *d1 = new_button(panel, "depth1", p->width / 2 - BUTTON_W / 2, 70 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/depth1.bmp", set_depth, 1);
-	TreeNode *d2 = new_button(panel, "depth2", (p->width / 4) * 3 + 10 - BUTTON_W / 2, 70 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/depth2.bmp", set_depth, 2);
-	TreeNode *d3 = new_button(panel, "depth3", p->width / 2 - BUTTON_W / 2, 80 + 2 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/depth3.bmp", set_depth, 3);
-	TreeNode *d4 = new_button(panel, "depth4", (p->width / 4) * 3 + 10 - BUTTON_W / 2, 80 + 2 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/depth4.bmp", set_depth, 4);
-	TreeNode *d_best = new_button(panel, "best_depth", p->width / 2 - BUTTON_W / 2, 90 + 3 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/best_depth.bmp", set_depth, -1);
-
-
-	draw_tree(AIsettingsMenu);
-}
-
 void set_player(int i){
 	game_mode = i;
-	if (i == 2){
+	if (i == 2){ // if set to play against AI, opens the set difficulty screen
 		prevScreen = currScreen;
 		init_AI_setting();
 		currScreen = AIsettingsMenu;
@@ -289,25 +283,86 @@ void set_player(int i){
 }
 
 void set_next(COLOR i){
-	start_color = i; // make sure thats what supposed to happen
+	start_color = i;
 }
 
 void set_player_color(COLOR i){
-	user_color = i; // make sure thats what supposed to happen
+	user_color = i;
 }
 
+// save the new board setting
 void board_set_ok(){
 	if (!is_valid_board(tmp_board)) return;
 	duplicate_board(tmp_board, gui_board);
 	cancel_clicked();
 }
 
+void load_slot(int slot){
+	start_game = 0;
+	char file[16] = "slots/game0.xml";
+	file[10] = slot + '0';
+	load_game(&file, gui_board);
+	board_ready = 1;
+	open_player_selection();
+}
+
+void save_slot(int slot){
+	char file[16] = "slots/game0.xml";
+	file[10] = slot + '0';
+	save_game(gui_board, curr_player, &file);
+	cancel_clicked();
+}
+
+/********************** Navigation Funcs **********************/
 void open_main_menu(){
 	prevScreen = currScreen;
 	init_main_menu();
 	currScreen = mainMenu;
 }
 
+void open_board_setting(){
+	prevScreen = currScreen;
+	init_board_setting();
+	currScreen = boardSetting;
+}
+
+void start_game_clicked(){
+	start_game = 1;
+	if (loadSave != NULL) free_tree(loadSave);
+	loadSave = NULL;
+	if (AIsettingsMenu != NULL) free_tree(AIsettingsMenu);
+	AIsettingsMenu = NULL;
+	if (playerSelection != NULL) free_tree(playerSelection);
+	playerSelection = NULL;
+	if (boardSetting != NULL) free_tree(boardSetting);
+	boardSetting = NULL;
+}
+
+void open_player_selection(){
+	if (start_game){ // killing game and going back to settings mode
+		quit_all();
+		game_on = 1;
+		back2settings = 1;
+		board_ready = 0;
+	}
+	prevScreen = currScreen;
+	init_player_selection();
+	currScreen = playerSelection;
+}
+
+void open_load_save(int i){
+	if (start_game && i == 0){ // killing game and going back to settings mode
+		quit_all();
+		game_on = 1;
+		back2settings = 1;
+	}
+	prevScreen = currScreen;
+	init_load_save(i);
+	currScreen = loadSave;
+}
+
+/******************************* Screen Initializers ******************************/
+// opening pieces panel in the in-game side menu
 void init_promote_view(){
 	wait4promote = 1;
 	TreeNode *menu = gameWindow->children[1]; // menu panel
@@ -363,7 +418,7 @@ void init_game_window(){
 		TreeNode *d = new_button(best_panel, "best_move", p_best->width / 2 - BUTTON_W / 2, 20 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/best_move.bmp", show_best_move, 0);
 	}
 
-	for (int i = 0; i < BOARD_SIZE; i++)
+	for (int i = 0; i < BOARD_SIZE; i++) // every board tile is a transparent button 
 		for (int j = 0; j < BOARD_SIZE; j++){
 		new_button(board_panel, "tile_btn", 40 + TILE * i, 40 + TILE * (BOARD_SIZE - 1 - j), TILE, TILE, 0, NULL, tile_clicked, i * 10 + j);
 		}
@@ -373,6 +428,27 @@ void init_game_window(){
 	draw_tree(gameWindow);
 }
 
+void init_AI_setting(){
+	if (AIsettingsMenu != NULL) free_tree(AIsettingsMenu);
+	AIsettingsMenu = new_window("Set Difficulty", WIN_W / 2, WIN_H, 1);
+
+	TreeNode *panel = new_panel(AIsettingsMenu, "AI_panel", 0, 0, WIN_W / 2, WIN_H, 9, NULL);
+	Panel *p = (Panel*)panel->control;
+	
+	TreeNode *set_color = new_label(panel, "next_logo", (p->width / 4) - 10 - BUTTON_W / 2, 50, BUTTON_W, BUTTON_H, 0, "pics/AI_color.bmp");
+	TreeNode *set_color_white = new_button(panel, "next_white", p->width / 2 - BUTTON_W / 2, 50, BUTTON_W, BUTTON_H, 0, "pics/white.bmp", set_player_color, BLACK);
+	TreeNode *set_color_black = new_button(panel, "next_black", (p->width / 4) * 3 + 10 - BUTTON_W / 2, 50, BUTTON_W, BUTTON_H, 0, "pics/black.bmp", set_player_color, WHITE);
+
+	TreeNode *diff = new_label(panel, "difficulty", (p->width / 4) - 10 - BUTTON_W / 2, 70 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/set_diff.bmp");
+	TreeNode *d1 = new_button(panel, "depth1", p->width / 2 - BUTTON_W / 2, 70 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/depth1.bmp", set_depth, 1);
+	TreeNode *d2 = new_button(panel, "depth2", (p->width / 4) * 3 + 10 - BUTTON_W / 2, 70 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/depth2.bmp", set_depth, 2);
+	TreeNode *d3 = new_button(panel, "depth3", p->width / 2 - BUTTON_W / 2, 80 + 2 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/depth3.bmp", set_depth, 3);
+	TreeNode *d4 = new_button(panel, "depth4", (p->width / 4) * 3 + 10 - BUTTON_W / 2, 80 + 2 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/depth4.bmp", set_depth, 4);
+	TreeNode *d_best = new_button(panel, "best_depth", p->width / 2 - BUTTON_W / 2, 90 + 3 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/best_depth.bmp", set_depth, -1);
+
+
+	draw_tree(AIsettingsMenu);
+}
 
 void init_board_setting(){
 	if (boardSetting != NULL) free_tree(boardSetting);
@@ -404,7 +480,7 @@ void init_board_setting(){
 	TreeNode *piece52 = new_button(tiles_panel, "piece_to_pick", 2 * p_tiles->width / 3 - TILE / 2, 4 * TILE, TILE, TILE, 0, "pics/queen_b.bmp", set_piece_picked, BLACK_Q);
 	TreeNode *piece62 = new_button(tiles_panel, "piece_to_pick", 2 * p_tiles->width / 3 - TILE / 2, 5 * TILE, TILE, TILE, 0, "pics/king_b.bmp", set_piece_picked, BLACK_K);
 
-	for (int i = 0; i < BOARD_SIZE; i++)
+	for (int i = 0; i < BOARD_SIZE; i++) // every board tile is a transparent button
 		for (int j = 0; j < BOARD_SIZE; j++){
 		new_button(board_panel, "tile_btn", 40 + TILE * i, 40 + TILE * (BOARD_SIZE - 1 - j), TILE, TILE, 0, NULL, tile_clicked, i * 10 + j);
 		}
@@ -413,24 +489,6 @@ void init_board_setting(){
 	duplicate_board(gui_board, tmp_board);
 
 	draw_tree(boardSetting);
-}
-
-void open_board_setting(){
-	prevScreen = currScreen;
-	init_board_setting();
-	currScreen = boardSetting;
-}
-
-void start_game_clicked(){
-	start_game = 1;
-	if (loadSave != NULL) free_tree(loadSave);
-	loadSave = NULL;
-	if (AIsettingsMenu != NULL) free_tree(AIsettingsMenu);
-	AIsettingsMenu = NULL;
-	if (playerSelection != NULL) free_tree(playerSelection);
-	playerSelection = NULL;
-	if (boardSetting != NULL) free_tree(boardSetting);
-	boardSetting = NULL;
 }
 
 void init_player_selection(){
@@ -457,36 +515,6 @@ void init_player_selection(){
 	
 	if (!board_ready) init_board(gui_board);
 	draw_tree(playerSelection);
-}
-
-void open_player_selection(){
-	if (start_game){ // killing game and going back to settings mode
-		quit_all();
-		game_on = 1;
-		back2settings = 1;
-		board_ready = 0;
-	}
-	prevScreen = currScreen;
-	init_player_selection();
-	currScreen = playerSelection;
-}
-
-
-void load_slot(int slot){
-	start_game = 0;
-	char file[16] = "slots/game0.xml";
-	file[10] = slot + '0';
-	load_game(&file, gui_board);
-	board_ready = 1;
-	open_player_selection();
-}
-
-
-void save_slot(int slot){
-	char file[16] = "slots/game0.xml";
-	file[10] = slot + '0';
-	save_game(gui_board, curr_player, &file);
-	cancel_clicked();
 }
 
 void init_load_save(int load_save){
@@ -518,17 +546,6 @@ void init_load_save(int load_save){
 	draw_tree(loadSave);
 }
 
-void open_load_save(int i){
-	if (start_game && i == 0){ // killing game and going back to settings mode
-		quit_all();
-		game_on = 1;
-		back2settings = 1;
-	} 
-	prevScreen = currScreen;
-	init_load_save(i);
-	currScreen = loadSave;
-}
-
 void init_main_menu(){
 	if (mainMenu != NULL) free_tree(mainMenu);
 
@@ -538,30 +555,17 @@ void init_main_menu(){
 
 	TreeNode *logo = new_label(panel, "logo", p->width / 2 - BUTTON_W / 2, 10, BUTTON_W, BUTTON_H, 0, "pics/logo.bmp");
 	TreeNode *button1 = new_button(panel, "new", p->width / 2 - BUTTON_W / 2, 100, BUTTON_W, BUTTON_H, 0, "pics/new_game.bmp", open_player_selection, NULL);
+	TreeNode *button2 = new_button(panel, "load", p->width / 2 - BUTTON_W / 2, 110 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/load_game.bmp", open_load_save, 0);
 	TreeNode *button3 = new_button(panel, "quit", p->width / 2 - BUTTON_W / 2, 120 + (BUTTON_H * 2), BUTTON_W, BUTTON_H, 0, "pics/quit.bmp", quit_all, NULL);
-	TreeNode *button2;
-	TreeNode *cancel;
-	if (start_game){
-		cancel = new_button(panel, "cancel", 20, p->height - 20 - BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/cancel.bmp", cancel_clicked, NULL);
-		//button2 = new_button(panel, "load", p->width / 2 - BUTTON_W / 2, 110 + BUTTON_H, BUTTON_W, BUTTON_H, 0, NULL, NULL, NULL);
-	}
-	else{
-		cancel = new_button(panel, "cancel", 20, p->height - 20 - BUTTON_H, BUTTON_W, BUTTON_H, 0, NULL, NULL, NULL);
-	}
-	button2 = new_button(panel, "load", p->width / 2 - BUTTON_W / 2, 110 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/load_game.bmp", open_load_save, 0);
+	
+	TreeNode *cancel; // cancel button - relevant only after game starts
+	if (start_game) cancel = new_button(panel, "cancel", 20, p->height - 20 - BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/cancel.bmp", cancel_clicked, NULL);
+	else cancel = new_button(panel, "cancel", 20, p->height - 20 - BUTTON_H, BUTTON_W, BUTTON_H, 0, NULL, NULL, NULL);
 
 	draw_tree(mainMenu);
 }
-
-void restore_defaults(){
-	back2settings = 0;
-	glob_quit = 0;
-	start_game = 0;
-	user_color = WHITE;
-	start_color = WHITE;
-	minimax_depth = 1;
-}
  
+// main UI loop for the game mode
 Move* gui_game_mode(char board[BOARD_SIZE][BOARD_SIZE]){
 	if (game_on == 0){
 		glob_quit = 1;
@@ -581,16 +585,14 @@ Move* gui_game_mode(char board[BOARD_SIZE][BOARD_SIZE]){
 	}
 }
 
-
+// main UI loop for settings mode
 int gui_setting_mode(){
 
 	init_main_menu();
 	if (currScreen == NULL) currScreen = mainMenu;
 	else draw_tree(currScreen);
-	restore_defaults();
-	//back2settings = 0;
-	//glob_quit = 0;
-	//start_game = 0;
+	restore_defaults(); // make sure default values when entering settings mode
+
 	while (!glob_quit){
 		if (start_game) return 1;
 		run_events_loop(currScreen);

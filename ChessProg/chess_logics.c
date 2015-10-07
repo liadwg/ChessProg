@@ -37,7 +37,6 @@ char* get_piece_name_by_type(int type){
 	case 3: return "rook";
 	case 4: return "knight";
 	case 5: return "pawn";
-	//default: return;
 	}
 	return NULL;
 }
@@ -297,7 +296,6 @@ void clear_illegal_moves(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
 void clear_old_moves(Move* head){
 	if (head != NULL){
 		clear_old_moves(head->next);
-		//free(head->dest);
 		free(head);
 	}
 }
@@ -548,7 +546,6 @@ int estimate_best_depth(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
 
 // calculates the score of the board from a player's prospective
 int calc_score(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
-	//int whites[6] = { 0 }, blacks[6] = { 0 };
 	int * whites = malloc(sizeof(int) * 6);
 	int * blacks = malloc(sizeof(int) * 6);
 	for (int i = 0; i < 6; i++){
@@ -563,92 +560,9 @@ int calc_score(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
 		5 * blacks[get_type_by_piece(BLACK_R)] + 9 * blacks[get_type_by_piece(BLACK_Q)] + 400 * blacks[get_type_by_piece(BLACK_K)];
 	free(whites);
 	free(blacks);
-	//if (best_depth) board_count++;
 	if (player == WHITE) return white_score - black_score;
 	else return black_score - white_score;
 }
-
-//int improved_calc_score(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
-//	// ***************************change it!
-//	int whites[6] = { 0 }, blacks[6] = { 0 };
-//	int pawns_scores[][] = {
-//			{ 0, 0, 0, 0, 0, 0, 0, 0 },
-//			{ 50, 50, 50, 50, 50, 50, 50, 50 },
-//			{ 10, 10, 20, 30, 30, 20, 10, 10 },
-//			{ 5, 5, 10, 27, 27, 10, 5, 5 },
-//			{ 0, 0, 0, 25, 25, 0, 0, 0 },
-//			{ 5, -5, -10, 0, 0, -10, -5, 5 },
-//			{ 5, 10, 10, -25, -25, 10, 10, 5 },
-//			{ 0, 0, 0, 0, 0, 0, 0, 0 } };
-//	int knights_score[][] = {
-//			{ -50, -40, -30, -30, -30, -30, -40, -50 }
-//			{ -40, -20, 0, 0, 0, 0, -20, -40 },
-//			{ -30, 0, 10, 15, 15, 10, 0, -30 },
-//			{ -30, 5, 15, 20, 20, 15, 5, -30 },
-//			{ -30, 0, 15, 20, 20, 15, 0, -30 },
-//			{ -30, 5, 10, 15, 15, 10, 5, -30 },
-//			{ -40, -20, 0, 5, 5, 0, -20, -40 },
-//			{ -50, -40, -20, -30, -30, -20, -40, -50 }
-//	};
-//
-//
-//	int bishops_score[][] = {
-//			{ -20, -10, -10, -10, -10, -10, -10, -20 },
-//			{ -10, 0, 0, 0, 0, 0, 0, -10 },
-//			{ -10, 0, 5, 10, 10, 5, 0, -10 },
-//			{ -10, 5, 5, 10, 10, 5, 5, -10 },
-//			{ -10, 0, 10, 10, 10, 10, 0, -10 },
-//			{ -10, 10, 10, 10, 10, 10, 10, -10 },
-//			{ -10, 5, 0, 0, 0, 0, 5, -10 },
-//			{ -20, -10, -40, -10, -10, -40, -10, -20 },
-//	};
-//
-//	int kings_start_score[][] = {
-//		{ -30, -40, -40, -50, -50, -40, -40, -30 },
-//		{ -30, -40, -40, -50, -50, -40, -40, -30 },
-//		{ -30, -40, -40, -50, -50, -40, -40, -30 },
-//		{ -30, -40, -40, -50, -50, -40, -40, -30 },
-//		{ -20, -30, -30, -40, -40, -30, -30, -20 },
-//		{ -10, -20, -20, -20, -20, -20, -20, -10 },
-//		{ 20, 20, 0, 0, 0, 0, 20, 20 },
-//		{ 20, 30, 10, 0, 0, 10, 30, 20 }
-//	};
-//
-//	int kings_end_score[][] = {
-//		{ -50, -40, -30, -20, -20, -30, -40, -50 },
-//		{ -30, -20, -10, 0, 0, -10, -20, -30 },
-//		{ -30, -10, 20, 30, 30, 20, -10, -30 },
-//		{ -30, -10, 30, 40, 40, 30, -10, -30 },
-//		{ -30, -10, 30, 40, 40, 30, -10, -30 },
-//		{ -30, -10, 20, 30, 30, 20, -10, -30 },
-//		{ -30, -30, 0, 0, 0, 0, -30, -30 },
-//		{ -50, -30, -30, -30, -30, -30, -30, -50 }
-//	};
-//
-//	piece_counter(board, whites, blacks);
-//
-//	int white_score = 100 * whites[get_type_by_piece(WHITE_P)] + 325 * whites[get_type_by_piece(WHITE_B)] + 320 * whites[get_type_by_piece(WHITE_N)]
-//		+ 500 * whites[get_type_by_piece(WHITE_R)] + 975 * whites[get_type_by_piece(WHITE_Q)] + 32767 * whites[get_type_by_piece(WHITE_K)];
-//	int black_score = 100 * blacks[get_type_by_piece(BLACK_P)] + 325 * blacks[get_type_by_piece(BLACK_B)] + 320 * blacks[get_type_by_piece(BLACK_N)] +
-//		500 * blacks[get_type_by_piece(BLACK_R)] + 975 * blacks[get_type_by_piece(BLACK_Q)] + 32767 * blacks[get_type_by_piece(BLACK_K)];
-//	
-//	if (remainingPieces < 10)
-//	{
-//		board.EndGamePhase = true;
-//
-//	//if (best_depth) board_count++;
-//	for (int i = 0; i < BOARD_SIZE; i++){
-//		for (int j = 0; j < BOARD_SIZE; j++){
-//			if (board[i][j] != EMPTY){
-//				if (get_type_by_piece(board[i][j]) == 5){
-//					if (get_color_by_piece(board[i][j]) == WHITE) white_score += PAWNS_SCORE[i][j];
-//			}
-//		}
-//	}
-//	if (player == WHITE) return white_score - black_score;
-//	else return black_score - white_score;
-//}
-//
 
 // minimax recursive func, using alpha-beta pruning
 int alpha_beta_minimax(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, int depth, int alpha, int beta){
@@ -729,7 +643,6 @@ int alpha_beta_minimax(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, int dep
 
 // safety check before starting the game
 int is_valid_board(char board[BOARD_SIZE][BOARD_SIZE]){
-	//int whites[6] = { 0 }, blacks[6] = { 0 };
 	int bishop_fault = 0;
 	int * whites = malloc(sizeof(int) * 6);
 	int * blacks = malloc(sizeof(int) * 6);

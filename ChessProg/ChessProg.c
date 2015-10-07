@@ -272,7 +272,6 @@ void conosle_settings_mode(char* str, char board[BOARD_SIZE][BOARD_SIZE]){
 			if (board[coor1[0] - 'a'][atoi(coor2) - 1] == piece2set) return; 
 			
 			//check if the added piece exceeds the amount of allowed pieces on the board
-			//int whites[6] = { 0 }, blacks[6] = { 0 }; 
 			int * whites = malloc(sizeof(int) * 6);
 			int * blacks = malloc(sizeof(int) * 6);
 			for (int i = 0; i < 6; i++){
@@ -465,16 +464,6 @@ void user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 	clear_old_moves(moves_head);
 }
 
-//gui_user_turn(char board[BOARD_SIZE][BOARD_SIZE]){
-//	Move * new_move = NULL;
-//	Move * move2do = NULL;
-//	while (move2do == NULL && game_on){
-//		new_move = gui_game_mode(board);
-//		if (new_move != NULL) move2do = is_valid_move(moves_head, new_move);
-//		else break;
-//	}
-//}
-
 void console_alert(int alert){
 	if (alert == LOSE_POS || alert == TIE_POS){
 		if (alert == LOSE_POS) printf(curr_player == WHITE ? BLACK_WIN : WHITE_WIN);
@@ -494,9 +483,7 @@ void gui_alert(int alert){
 
 int main(int argc, char * argv[]){
 	if (argc == 2) gui_mode = strcmp(argv[1], "gui") == 0 ? 1 : 0;
-	//gui_mode = 1;
 	char board[BOARD_SIZE][BOARD_SIZE];
-	//int end_pos = 0;
 	int start = 0;
 	//setting state
 	if (gui_mode){

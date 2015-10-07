@@ -139,7 +139,7 @@ void run_events_loop(TreeNode* screen);
 
 
 // Chess UI funcs
-void quit_all();
+void quit_all(int i);
 char* get_piece_pic(char piece);
 char get_piece_by_pic(char* pic);
 void alert_state(int state, COLOR player);
@@ -150,19 +150,19 @@ void set_piece_picked(int i);
 Move* generate_move(int col, int row);
 void tile_clicked(int tile);
 void screen_dismissed(TreeNode *screen);
-void cancel_clicked();
+void cancel_clicked(int i);
 void set_depth(int i);
 void set_player(int i);
-void set_next(COLOR i);
-void set_player_color(COLOR i);
-void board_set_ok();
+void set_next(int i);
+void set_player_color(int i);
+void board_set_ok(int i);
 void load_slot(int slot);
 void save_slot(int slot);
-void open_board_setting();
-void start_game_clicked();
+void open_board_setting(int i);
+void start_game_clicked(int i);
 void open_load_save(int i);
-void open_player_selection();
-void open_main_menu();
+void open_player_selection(int i);
+void open_main_menu(int i);
 void init_promote_view();
 void init_game_window();
 void init_board_setting();

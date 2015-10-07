@@ -27,7 +27,7 @@ TreeNode *tmp_panel = NULL;
 
 
 // clear all UI Trees, kill screens and clear memory
-void quit_all(){
+void quit_all(int i){
 	glob_quit = 1;
 	game_on = 0;
 	if (mainMenu != NULL) free_tree(mainMenu);
@@ -294,7 +294,7 @@ void tile_clicked(int tile){
 }
 
 // return to previous screen
-void cancel_clicked(){
+void cancel_clicked(int i){
 	if (currScreen == prevScreen) prevScreen = mainMenu; // make sure its ok in all flows
 	piece_picked = '\0';
 	free_tree(currScreen);
@@ -305,7 +305,7 @@ void cancel_clicked(){
 
 void set_depth(int i){
 	minimax_depth = i;
-	cancel_clicked();
+	cancel_clicked(0);
 }
 
 void set_player(int i){
@@ -317,19 +317,19 @@ void set_player(int i){
 	}
 }
 
-void set_next(COLOR i){
+void set_next(int i){
 	start_color = i;
 }
 
-void set_player_color(COLOR i){
+void set_player_color(int i){
 	user_color = i;
 }
 
 // save the new board setting
-void board_set_ok(){
+void board_set_ok(int i){
 	if (!is_valid_board(tmp_board)) return;
 	duplicate_board(tmp_board, gui_board);
-	cancel_clicked();
+	cancel_clicked(0);
 }
 
 void load_slot(int slot){
@@ -338,30 +338,30 @@ void load_slot(int slot){
 	file[10] = slot + '0';
 	load_game(file, gui_board);
 	board_ready = 1;
-	open_player_selection();
+	open_player_selection(0);
 }
 
 void save_slot(int slot){
 	char file[16] = "slots/game0.xml";
 	file[10] = slot + '0';
 	save_game(gui_board, curr_player, file);
-	cancel_clicked();
+	cancel_clicked(0);
 }
 
 /********************** Navigation Funcs **********************/
-void open_main_menu(){
+void open_main_menu(int i){
 	prevScreen = currScreen;
 	init_main_menu();
 	currScreen = mainMenu;
 }
 
-void open_board_setting(){
+void open_board_setting(int i){
 	prevScreen = currScreen;
 	init_board_setting();
 	currScreen = boardSetting;
 }
 
-void start_game_clicked(){
+void start_game_clicked(int i){
 	start_game = 1;
 	if (loadSave != NULL) free_tree(loadSave);
 	loadSave = NULL;
@@ -373,9 +373,9 @@ void start_game_clicked(){
 	boardSetting = NULL;
 }
 
-void open_player_selection(){
+void open_player_selection(int i){
 	if (start_game){ // killing game and going back to settings mode
-		quit_all();
+		quit_all(0);
 		game_on = 1;
 		back2settings = 1;
 		board_ready = 0;
@@ -387,7 +387,7 @@ void open_player_selection(){
 
 void open_load_save(int i){
 	if (start_game && i == 0){ // killing game and going back to settings mode
-		quit_all();
+		quit_all(0);
 		game_on = 1;
 		back2settings = 1;
 	}
@@ -605,7 +605,7 @@ void init_main_menu(){
 Move* gui_game_mode(char board[BOARD_SIZE][BOARD_SIZE]){
 	if (game_on == 0){
 		glob_quit = 1;
-		quit_all();
+		quit_all(0);
 	}
 	duplicate_board(board, gui_board);
 	move_to_do = NULL;

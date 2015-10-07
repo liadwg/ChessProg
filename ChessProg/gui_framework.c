@@ -242,7 +242,7 @@ void run_events_loop(TreeNode* screen){
 		{
 			if (e.type == SDL_QUIT)
 			{
-				quit_all();
+				quit_all(0);
 				stop = 1;
 				glob_quit = 1;
 				game_on = 0;

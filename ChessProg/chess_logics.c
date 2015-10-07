@@ -97,7 +97,6 @@ int get_type_by_piece(char piece){
 	case WHITE_N: case BLACK_N: return 4;
 	case WHITE_P: case BLACK_P: return 5;
 	}
-	return 0; // never getting here
 }
 
 COLOR get_color_by_piece(char piece){

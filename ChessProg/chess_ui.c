@@ -19,7 +19,7 @@ int back2settings = 0;
 // Game Globals
 char gui_board[BOARD_SIZE][BOARD_SIZE];
 char tmp_board[BOARD_SIZE][BOARD_SIZE];
-char piece_picked = NULL;
+char piece_picked = '\0';
 Pos *src_pos = NULL;
 Move *move_to_do = NULL;
 int wait4promote = 0;
@@ -227,10 +227,10 @@ void tile_clicked(int tile){
 	TreeNode *tile_node = get_button_node(currScreen, tile);
 	Button *button = (Button*)tile_node->control;
 	if (currScreen == boardSetting){
-		if (piece_picked == NULL && tile_node->child_num == 0) return;
-		else if (piece_picked != NULL){
+		if (piece_picked == '\0' && tile_node->child_num == 0) return;
+		else if (piece_picked != '\0'){
 			tmp_board[button->args / 10][button->args % 10] = piece_picked;
-			piece_picked = NULL;
+			piece_picked = '\0';
 		}
 		else{ // if (piece_picked == NULL && tile_node->child_num != 0)
 			Label *lbl = (Label*)tile_node->children[0]->control;
@@ -263,7 +263,7 @@ void tile_clicked(int tile){
 // return to previous screen
 void cancel_clicked(){
 	if (currScreen == prevScreen) prevScreen = mainMenu; // make sure its ok in all flows
-	piece_picked = NULL;
+	piece_picked = '\0';
 	free_tree(currScreen);
 	screen_dismissed(currScreen);
 	draw_tree(prevScreen);
@@ -374,16 +374,16 @@ void init_promote_view(){
 	Panel *p_promote = (Panel*)promote_panel->control;
 	TreeNode *promote_logo = new_label(promote_panel, "promote_logo", p_promote->width / 2 - BUTTON_W / 2, 10, BUTTON_W, BUTTON_H, 0, "pics/promote_inst.bmp");
 	if (curr_player == WHITE){
-		TreeNode *piece21 = new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H, TILE, TILE, 0, "pics/rook_w.bmp", set_piece_picked, WHITE_R);
-		TreeNode *piece31 = new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H + TILE, TILE, TILE, 0, "pics/bishop_w.bmp", set_piece_picked, WHITE_B);
-		TreeNode *piece41 = new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H + 2 * TILE, TILE, TILE, 0, "pics/knight_w.bmp", set_piece_picked, WHITE_N);
-		TreeNode *piece51 = new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H + 3 * TILE, TILE, TILE, 0, "pics/queen_w.bmp", set_piece_picked, WHITE_Q);
+		TreeNode *piece21 = new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H, TILE, TILE, 0, "pics/rook_w.bmp", set_piece_picked, (int)WHITE_R);
+		TreeNode *piece31 = new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H + TILE, TILE, TILE, 0, "pics/bishop_w.bmp", set_piece_picked, (int)WHITE_B);
+		TreeNode *piece41 = new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H + 2 * TILE, TILE, TILE, 0, "pics/knight_w.bmp", set_piece_picked, (int)WHITE_N);
+		TreeNode *piece51 = new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H + 3 * TILE, TILE, TILE, 0, "pics/queen_w.bmp", set_piece_picked, (int)WHITE_Q);
 	}
 	else{
-		TreeNode *piece22 = new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H, TILE, TILE, 0, "pics/rook_b.bmp", set_piece_picked, BLACK_R);
-		TreeNode *piece32 = new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H + TILE, TILE, TILE, 0, "pics/bishop_b.bmp", set_piece_picked, BLACK_B);
-		TreeNode *piece42 = new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H + 2 * TILE, TILE, TILE, 0, "pics/knight_b.bmp", set_piece_picked, BLACK_N);
-		TreeNode *piece52 = new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H + 3 * TILE, TILE, TILE, 0, "pics/queen_b.bmp", set_piece_picked, BLACK_Q);
+		TreeNode *piece22 = new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H, TILE, TILE, 0, "pics/rook_b.bmp", set_piece_picked, (int)BLACK_R);
+		TreeNode *piece32 = new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H + TILE, TILE, TILE, 0, "pics/bishop_b.bmp", set_piece_picked, (int)BLACK_B);
+		TreeNode *piece42 = new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H + 2 * TILE, TILE, TILE, 0, "pics/knight_b.bmp", set_piece_picked, (int)BLACK_N);
+		TreeNode *piece52 = new_button(promote_panel, "piece_to_pick", p_promote->width / 2 - TILE / 2, BUTTON_H + 3 * TILE, TILE, TILE, 0, "pics/queen_b.bmp", set_piece_picked, (int)BLACK_Q);
 	}
 
 	draw_tree(gameWindow);
@@ -469,18 +469,18 @@ void init_board_setting(){
 	TreeNode *tiles_panel = new_panel(menu_panel, "tiles_panel", 600, 100 + 2 * BUTTON_H, 200, (WIN_H - 100 + 2 * BUTTON_H), 12, NULL);
 	Panel *p_tiles = (Panel*)tiles_panel->control;
 	
-	TreeNode *piece11 = new_button(tiles_panel, "piece_to_pick", p_tiles->width / 3 - TILE / 2, 0, TILE, TILE, 0, "pics/pawn_w.bmp", set_piece_picked, WHITE_P);
-	TreeNode *piece21 = new_button(tiles_panel, "piece_to_pick", p_tiles->width / 3 - TILE / 2, TILE, TILE, TILE, 0, "pics/rook_w.bmp", set_piece_picked, WHITE_R);
-	TreeNode *piece31 = new_button(tiles_panel, "piece_to_pick", p_tiles->width / 3 - TILE / 2, 2 * TILE, TILE, TILE, 0, "pics/bishop_w.bmp", set_piece_picked, WHITE_B);
-	TreeNode *piece41 = new_button(tiles_panel, "piece_to_pick", p_tiles->width / 3 - TILE / 2, 3 * TILE, TILE, TILE, 0, "pics/knight_w.bmp", set_piece_picked, WHITE_N);
-	TreeNode *piece51 = new_button(tiles_panel, "piece_to_pick", p_tiles->width / 3 - TILE / 2, 4 * TILE, TILE, TILE, 0, "pics/queen_w.bmp", set_piece_picked, WHITE_Q);
-	TreeNode *piece61 = new_button(tiles_panel, "piece_to_pick", p_tiles->width / 3 - TILE / 2, 5 * TILE, TILE, TILE, 0, "pics/king_w.bmp", set_piece_picked, WHITE_K);
-	TreeNode *piece12 = new_button(tiles_panel, "piece_to_pick", 2 * p_tiles->width / 3 - TILE / 2, 0, TILE, TILE, 0, "pics/pawn_b.bmp", set_piece_picked, BLACK_P);
-	TreeNode *piece22 = new_button(tiles_panel, "piece_to_pick", 2 * p_tiles->width / 3 - TILE / 2, TILE, TILE, TILE, 0, "pics/rook_b.bmp", set_piece_picked, BLACK_R);
-	TreeNode *piece32 = new_button(tiles_panel, "piece_to_pick", 2 * p_tiles->width / 3 - TILE / 2, 2 * TILE, TILE, TILE, 0, "pics/bishop_b.bmp", set_piece_picked, BLACK_B);
-	TreeNode *piece42 = new_button(tiles_panel, "piece_to_pick", 2 * p_tiles->width / 3 - TILE / 2, 3 * TILE, TILE, TILE, 0, "pics/knight_b.bmp", set_piece_picked, BLACK_N);
-	TreeNode *piece52 = new_button(tiles_panel, "piece_to_pick", 2 * p_tiles->width / 3 - TILE / 2, 4 * TILE, TILE, TILE, 0, "pics/queen_b.bmp", set_piece_picked, BLACK_Q);
-	TreeNode *piece62 = new_button(tiles_panel, "piece_to_pick", 2 * p_tiles->width / 3 - TILE / 2, 5 * TILE, TILE, TILE, 0, "pics/king_b.bmp", set_piece_picked, BLACK_K);
+	TreeNode *piece11 = new_button(tiles_panel, "piece_to_pick", p_tiles->width / 3 - TILE / 2, 0, TILE, TILE, 0, "pics/pawn_w.bmp", set_piece_picked, (int) WHITE_P);
+	TreeNode *piece21 = new_button(tiles_panel, "piece_to_pick", p_tiles->width / 3 - TILE / 2, TILE, TILE, TILE, 0, "pics/rook_w.bmp", set_piece_picked, (int) WHITE_R);
+	TreeNode *piece31 = new_button(tiles_panel, "piece_to_pick", p_tiles->width / 3 - TILE / 2, 2 * TILE, TILE, TILE, 0, "pics/bishop_w.bmp", set_piece_picked, (int) WHITE_B);
+	TreeNode *piece41 = new_button(tiles_panel, "piece_to_pick", p_tiles->width / 3 - TILE / 2, 3 * TILE, TILE, TILE, 0, "pics/knight_w.bmp", set_piece_picked, (int)WHITE_N);
+	TreeNode *piece51 = new_button(tiles_panel, "piece_to_pick", p_tiles->width / 3 - TILE / 2, 4 * TILE, TILE, TILE, 0, "pics/queen_w.bmp", set_piece_picked, (int)WHITE_Q);
+	TreeNode *piece61 = new_button(tiles_panel, "piece_to_pick", p_tiles->width / 3 - TILE / 2, 5 * TILE, TILE, TILE, 0, "pics/king_w.bmp", set_piece_picked, (int)WHITE_K);
+	TreeNode *piece12 = new_button(tiles_panel, "piece_to_pick", 2 * p_tiles->width / 3 - TILE / 2, 0, TILE, TILE, 0, "pics/pawn_b.bmp", set_piece_picked, (int)BLACK_P);
+	TreeNode *piece22 = new_button(tiles_panel, "piece_to_pick", 2 * p_tiles->width / 3 - TILE / 2, TILE, TILE, TILE, 0, "pics/rook_b.bmp", set_piece_picked, (int)BLACK_R);
+	TreeNode *piece32 = new_button(tiles_panel, "piece_to_pick", 2 * p_tiles->width / 3 - TILE / 2, 2 * TILE, TILE, TILE, 0, "pics/bishop_b.bmp", set_piece_picked, (int)BLACK_B);
+	TreeNode *piece42 = new_button(tiles_panel, "piece_to_pick", 2 * p_tiles->width / 3 - TILE / 2, 3 * TILE, TILE, TILE, 0, "pics/knight_b.bmp", set_piece_picked, (int)BLACK_N);
+	TreeNode *piece52 = new_button(tiles_panel, "piece_to_pick", 2 * p_tiles->width / 3 - TILE / 2, 4 * TILE, TILE, TILE, 0, "pics/queen_b.bmp", set_piece_picked, (int)BLACK_Q);
+	TreeNode *piece62 = new_button(tiles_panel, "piece_to_pick", 2 * p_tiles->width / 3 - TILE / 2, 5 * TILE, TILE, TILE, 0, "pics/king_b.bmp", set_piece_picked, (int)BLACK_K);
 
 	for (int i = 0; i < BOARD_SIZE; i++) // every board tile is a transparent button
 		for (int j = 0; j < BOARD_SIZE; j++){
@@ -524,7 +524,7 @@ void init_load_save(int load_save){
 
 	char *title = "Load";
 	char *file = "pics/Load.bmp";
-	void(*func) = load_slot;
+	void(*func)(int) = load_slot;
 	if (load_save == 1){
 		title = "Save";
 		file = "pics/Save.bmp";
@@ -556,9 +556,9 @@ void init_main_menu(){
 	Panel *p = (Panel*)panel->control;
 
 	TreeNode *logo = new_label(panel, "logo", p->width / 2 - BUTTON_W / 2, 10, BUTTON_W, BUTTON_H, 0, "pics/logo.bmp");
-	TreeNode *button1 = new_button(panel, "new", p->width / 2 - BUTTON_W / 2, 100, BUTTON_W, BUTTON_H, 0, "pics/new_game.bmp", open_player_selection, 999);
-	TreeNode *button2 = new_button(panel, "load", p->width / 2 - BUTTON_W / 2, 110 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/load_game.bmp", open_load_save, 0);
-	TreeNode *button3 = new_button(panel, "quit", p->width / 2 - BUTTON_W / 2, 120 + (BUTTON_H * 2), BUTTON_W, BUTTON_H, 0, "pics/quit.bmp", quit_all, 999);
+	new_button(panel, "new", p->width / 2 - BUTTON_W / 2, 100, BUTTON_W, BUTTON_H, 0, "pics/new_game.bmp", open_player_selection, 999);
+	new_button(panel, "load", p->width / 2 - BUTTON_W / 2, 110 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/load_game.bmp", open_load_save, 0);
+	new_button(panel, "quit", p->width / 2 - BUTTON_W / 2, 120 + (BUTTON_H * 2), BUTTON_W, BUTTON_H, 0, "pics/quit.bmp", quit_all, 999);
 	
 	TreeNode *cancel; // cancel button - relevant only after game starts
 	if (start_game) cancel = new_button(panel, "cancel", 20, p->height - 20 - BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/cancel.bmp", cancel_clicked, 999);

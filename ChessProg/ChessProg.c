@@ -296,7 +296,6 @@ int pre_turn_verify(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 }
 
 
-
 // manages the computer's turn
 void computer_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 	curr_player = color;
@@ -316,7 +315,7 @@ void computer_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 	clear_old_moves(moves_head);
 }
 
-Move * get_best_moves(char board[BOARD_SIZE][BOARD_SIZE], int depth){
+void get_best_moves(char board[BOARD_SIZE][BOARD_SIZE], int depth){
 	int prev_best_depth = best_depth;
 	int prev_depth = minimax_depth;
 	if (depth == -1){
@@ -335,14 +334,9 @@ Move * get_best_moves(char board[BOARD_SIZE][BOARD_SIZE], int depth){
 // manages the users turn, game state user input loop
 void user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 	curr_player = color;
-	//int ret_val = GAME_ON;
 	char *word1;
 	char *command = NULL;
 	Move* new_move = NULL;
-	//get_all_moves(board, color);
-	//if (is_check(board, color) == 1 && moves_head == NULL) ret_val = LOSE_POS;
-	//if (is_check(board, color) != 1 && moves_head == NULL) ret_val = TIE_POS;
-	//if (is_check(board, color) == 1 && moves_head != NULL) printf(CHECK);
 	if (moves_head != NULL){
 		while (1){
 			printf(ENTER_YOUR_MOVE, color == WHITE ? "white" : "black");
@@ -537,16 +531,12 @@ int main(int argc, char * argv[]){
 							if (new_move != NULL) move2do = is_valid_move(moves_head, new_move);
 						}
 						if (game_on) exc_move(board, move2do, curr_player);
-						if (!game_on) break;
+						else break;
 					}
 					else{ //console mode
 						console_alert(turn);
 						if (game_on) user_turn(board, curr_player);
-						if (!game_on){
-							char *command = input2str(stdin);
-							free(command);
-							break;
-						}
+						else break;
 					}
 
 					curr_player = !user_color;
@@ -554,16 +544,12 @@ int main(int argc, char * argv[]){
 					if (gui_mode){
 						gui_alert(turn);
 						if (game_on) computer_turn(board, curr_player);
-						if (!game_on) break;
+						else break;
 					}
 					else{
 						console_alert(turn);
 						if (game_on) computer_turn(board, curr_player);
-						if (!game_on){
-							char *command = input2str(stdin);
-							free(command);
-							break;
-						}
+						else break;
 					}
 				}
 				//comp starts
@@ -578,11 +564,7 @@ int main(int argc, char * argv[]){
 					else{
 						console_alert(turn);
 						if (game_on) computer_turn(board, curr_player);
-						if (!game_on){
-							char *command = input2str(stdin);
-							free(command);
-							break;
-						}
+						else break;
 					}
 
 					curr_player = user_color; 
@@ -596,16 +578,12 @@ int main(int argc, char * argv[]){
 							if (new_move != NULL) move2do = is_valid_move(moves_head, new_move);
 						}
 						if (game_on) exc_move(board, move2do, curr_player);
-						if (!game_on) break;
+						else break;
 					}
 					else{
 						console_alert(turn);
 						if (game_on) user_turn(board, curr_player);
-						if (!game_on){
-							char *command = input2str(stdin);
-							free(command);
-							break;
-						}
+						else break;
 					}
 				}
 			}
@@ -623,16 +601,12 @@ int main(int argc, char * argv[]){
 						if (new_move != NULL) move2do = is_valid_move(moves_head, new_move);
 					}
 					if (game_on) exc_move(board, move2do, curr_player);
-					if (!game_on) break;
+					else break;
 				}
 				else{
 					console_alert(turn);
 					if (game_on) user_turn(board, curr_player);
-					if (!game_on){
-						char *command = input2str(stdin);
-						free(command);
-						break;
-					}
+					else break;
 				}
 				
 
@@ -647,20 +621,19 @@ int main(int argc, char * argv[]){
 						if (new_move != NULL) move2do = is_valid_move(moves_head, new_move);
 					}
 					if (game_on) exc_move(board, move2do, curr_player);
-					if (!game_on) break;
+					else break;
 				}
 				else{
 					console_alert(turn);
 					if (game_on) user_turn(board, curr_player);
-					if (!game_on){
-						char *command = input2str(stdin);
-						free(command);
-						break;
-					}
+					else break;
 				}
 				
 			}
 		}
+		if (!gui_mode){
+			char *command = input2str(stdin);
+			free(command);
 	}
 }
 

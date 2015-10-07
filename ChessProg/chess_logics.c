@@ -730,17 +730,37 @@ int alpha_beta_minimax(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, int dep
 
 // safety check before starting the game
 int is_valid_board(char board[BOARD_SIZE][BOARD_SIZE]){
-	int whites[6] = { 0 }, blacks[6] = { 0 };
+	//int whites[6] = { 0 }, blacks[6] = { 0 };
 	int bishop_fault = 0;
-	
+	int * whites = malloc(sizeof(int) * 6);
+	int * blacks = malloc(sizeof(int) * 6);
+	for (int i = 0; i < 6; i++){
+		whites[i] = 0;
+		blacks[i] = 0;
+	}
+	piece_counter(board, whites, blacks);
+
+
 	bishop_fault = piece_counter(board, whites, blacks);
 
 	if (whites[get_type_by_piece(WHITE_P)] > 8 || whites[get_type_by_piece(WHITE_K)] != 1 || whites[get_type_by_piece(WHITE_Q)] > 1 ||
-		blacks[get_type_by_piece(BLACK_P)] > 8 || blacks[get_type_by_piece(BLACK_K)] != 1 || blacks[get_type_by_piece(BLACK_Q)] > 1 || 
-		bishop_fault) return 0;
-	for (int i = 2; i < 5; i++) if (whites[i] > 2 || blacks[i] > 2) return 0;
+		blacks[get_type_by_piece(BLACK_P)] > 8 || blacks[get_type_by_piece(BLACK_K)] != 1 || blacks[get_type_by_piece(BLACK_Q)] > 1 ||
+		bishop_fault){
+		free(whites);
+		free(blacks);
+		return 0;
+	}
+	for (int i = 2; i < 5; i++) if (whites[i] > 2 || blacks[i] > 2){
+		free(whites);
+		free(blacks);
+		return 0;
+	}
 	for (int j = 0; j < BOARD_SIZE - 1; j++){
-		if (get_type_by_piece(board[j][0]) == 5 || get_type_by_piece(board[j][BOARD_SIZE - 1]) == 5) return 0;
+		if (get_type_by_piece(board[j][0]) == 5 || get_type_by_piece(board[j][BOARD_SIZE - 1]) == 5){
+			free(whites);
+			free(blacks);
+			return 0;
+		}
 	}
 	return 1;
 }

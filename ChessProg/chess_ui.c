@@ -96,6 +96,32 @@ void set_piece_picked(char piece){
 	piece_picked = piece;
 }
 
+void alert_state(int state, COLOR player){
+	char *pic = NULL;
+	switch (state){
+	case TIE_POS: pic = "pics/tie.bmp";
+	case CHECK_POS: pic = "pics/check.bmp";
+	case LOSE_POS:
+		if (player == WHITE) pic = "pics/white_win.bmp";
+		else pic = "pics/black_win.bmp";
+	}
+
+	realloc(gameWindow->children, sizeof(TreeNode*) * ++gameWindow->child_num);
+	gameWindow->children[gameWindow->child_num - 1] = NULL;
+	TreeNode *alert = new_panel(gameWindow, "alert panel", WIN_W / 2 - 300, WIN_H / 2 - 150, 600, 300, 0, pic);
+	draw_tree(gameWindow);
+	SDL_Delay(1000);
+	gameWindow->child_num--;
+	draw_tree(gameWindow);
+	SDL_Delay(1000);
+	gameWindow->child_num++;
+	draw_tree(gameWindow);
+	SDL_Delay(1000);
+	free_tree(alert);
+	realloc(gameWindow->children, sizeof(TreeNode*) * --gameWindow->child_num);
+	draw_tree(gameWindow);
+}
+
 Move* generate_move(int col, int row){
 	Move *res = malloc(sizeof(Move));
 	res->piece.col = src_pos->col;
@@ -388,8 +414,10 @@ void init_main_menu(){
 	draw_tree(mainMenu);
 }
 
-Move* gui_game_mode(int chk, char board[BOARD_SIZE][BOARD_SIZE]){
-	// handel chk (mate/tie -> game_on = 0)
+Move* gui_game_mode(char board[BOARD_SIZE][BOARD_SIZE]){
+	if (game_on == 0){
+		//quit all
+	}
 	duplicate_board(board, gui_board);
 	move_to_do = NULL;
 	if (gameWindow != NULL){

@@ -457,7 +457,7 @@ void console_alert(int alert){
 
 int main(int argc, char * argv[]){
 	if (argc == 2) gui_mode = strcmp(argv[1], "gui") == 0 ? 1 : 0;
-	//gui_mode = 1;
+	gui_mode = 1;
 	char board[BOARD_SIZE][BOARD_SIZE];
 	//int end_pos = 0;
 	int start = 0;
@@ -502,7 +502,7 @@ int main(int argc, char * argv[]){
 						Move * new_move = NULL;
 						Move * move2do = NULL;
 						while (move2do == NULL){
-							new_move = gui_game_mode(turn, board);
+							new_move = gui_game_mode(board);
 							move2do = is_valid_move(moves_head, new_move);
 						}
 						exc_move(board, move2do, curr_player);
@@ -519,7 +519,7 @@ int main(int argc, char * argv[]){
 						if (turn != GAME_ON){
 							COLOR alert_color = curr_player == WHITE ? BLACK : WHITE;
 							if (turn != CHECK_POS) game_on = 0;
-							//alert_state(turn, alert_color); *** turn on when we have the func!
+							alert_state(turn, alert_color);
 						}
 						if (game_on) computer_turn(board, curr_player);
 					}
@@ -537,7 +537,7 @@ int main(int argc, char * argv[]){
 						if (turn != GAME_ON){
 							COLOR alert_color = curr_player == WHITE ? BLACK : WHITE;
 							if (turn != CHECK_POS) game_on = 0;
-							//alert_state(turn, alert_color); *** turn on when we have the func!
+							alert_state(turn, alert_color);
 						}
 						if (game_on) computer_turn(board, curr_player);
 					}
@@ -553,7 +553,7 @@ int main(int argc, char * argv[]){
 						Move * new_move = NULL;
 						Move * move2do = NULL;
 						while (move2do == NULL){
-							new_move = gui_game_mode(turn, board); // why not to add the alerts here?
+							new_move = gui_game_mode(board); // why not to add the alerts here?
 							move2do = is_valid_move(moves_head, new_move);
 						}
 						exc_move(board, move2do, curr_player);
@@ -574,7 +574,7 @@ int main(int argc, char * argv[]){
 					Move * new_move = NULL;
 					Move * move2do = NULL;
 					while (move2do == NULL){
-						new_move = gui_game_mode(turn, board);
+						new_move = gui_game_mode(board);
 						move2do = is_valid_move(moves_head, new_move);
 					}
 					exc_move(board, move2do, curr_player);
@@ -591,7 +591,7 @@ int main(int argc, char * argv[]){
 					Move * new_move = NULL;
 					Move * move2do = NULL;
 					while (move2do == NULL){
-						new_move = gui_game_mode(curr_player, board);
+						new_move = gui_game_mode(board);
 						move2do = is_valid_move(moves_head, new_move);
 					}
 					exc_move(board, move2do, curr_player);

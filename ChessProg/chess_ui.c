@@ -105,11 +105,16 @@ void set_piece_picked(char piece){
 void alert_state(int state, COLOR player){
 	char *pic = NULL;
 	switch (state){
-	case TIE_POS: pic = "pics/tie.bmp";
-	case CHECK_POS: pic = "pics/check.bmp";
+	case TIE_POS: 
+		pic = "pics/tie.bmp";
+		break;
+	case CHECK_POS: 
+		pic = "pics/check.bmp";
+		break;
 	case LOSE_POS:
 		if (player == WHITE) pic = "pics/white_win.bmp";
 		else pic = "pics/black_win.bmp";
+		break;
 	}
 
 	realloc(gameWindow->children, sizeof(TreeNode*) * ++gameWindow->child_num);

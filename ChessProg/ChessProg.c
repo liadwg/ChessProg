@@ -463,6 +463,14 @@ void console_alert(int alert){
 	else if (alert == CHECK_POS) printf(CHECK);
 }
 
+void gui_alert(int alert){
+	if (alert != GAME_ON){
+		COLOR alert_color = curr_player == WHITE ? BLACK : WHITE;
+		if (alert != CHECK_POS) game_on = 0;
+		alert_state(alert, alert_color);
+	}
+}
+
 int main(int argc, char * argv[]){
 	if (argc == 2) gui_mode = strcmp(argv[1], "gui") == 0 ? 1 : 0;
 	gui_mode = 1;
@@ -507,13 +515,15 @@ int main(int argc, char * argv[]){
 					curr_player = user_color;
 					turn = pre_turn_verify(board, curr_player);
 					if (gui_mode){ //gui_mode
+						gui_alert(turn);
 						Move * new_move = NULL;
 						Move * move2do = NULL;
-						while (move2do == NULL){
+						while (move2do == NULL && game_on){
 							new_move = gui_game_mode(board);
-							move2do = is_valid_move(moves_head, new_move);
+							if (new_move != NULL) move2do = is_valid_move(moves_head, new_move);
+							else break;
 						}
-						exc_move(board, move2do, curr_player);
+						if (game_on) exc_move(board, move2do, curr_player);
 					}
 					else{ //console mode
 						console_alert(turn);
@@ -524,11 +534,7 @@ int main(int argc, char * argv[]){
 					curr_player = !user_color;
 					turn = pre_turn_verify(board, curr_player);
 					if (gui_mode){
-						if (turn != GAME_ON){
-							COLOR alert_color = curr_player == WHITE ? BLACK : WHITE;
-							if (turn != CHECK_POS) game_on = 0;
-							alert_state(turn, alert_color);
-						}
+						gui_alert(turn);
 						if (game_on) computer_turn(board, curr_player);
 					}
 					else{
@@ -542,11 +548,7 @@ int main(int argc, char * argv[]){
 					curr_player = !user_color;
 					turn = pre_turn_verify(board, curr_player);
 					if (gui_mode){
-						if (turn != GAME_ON){
-							COLOR alert_color = curr_player == WHITE ? BLACK : WHITE;
-							if (turn != CHECK_POS) game_on = 0;
-							alert_state(turn, alert_color);
-						}
+						gui_alert(turn);
 						if (game_on) computer_turn(board, curr_player);
 					}
 					else{
@@ -558,13 +560,15 @@ int main(int argc, char * argv[]){
 					curr_player = user_color; 
 					turn = pre_turn_verify(board, user_color);
 					if (gui_mode){
+						gui_alert(turn);
 						Move * new_move = NULL;
 						Move * move2do = NULL;
-						while (move2do == NULL){
-							new_move = gui_game_mode(board); // why not to add the alerts here?
-							move2do = is_valid_move(moves_head, new_move);
+						while (move2do == NULL && game_on){
+							new_move = gui_game_mode(board);
+							if (new_move != NULL) move2do = is_valid_move(moves_head, new_move);
+							else break;
 						}
-						exc_move(board, move2do, curr_player);
+						if (game_on) exc_move(board, move2do, curr_player);
 					}
 					else{
 						console_alert(turn);
@@ -579,13 +583,15 @@ int main(int argc, char * argv[]){
 				curr_player = start_color;
 				turn = pre_turn_verify(board, curr_player);
 				if (gui_mode){
+					gui_alert(turn);
 					Move * new_move = NULL;
 					Move * move2do = NULL;
-					while (move2do == NULL){
+					while (move2do == NULL && game_on){
 						new_move = gui_game_mode(board);
-						move2do = is_valid_move(moves_head, new_move);
+						if (new_move != NULL) move2do = is_valid_move(moves_head, new_move);
+						else break;
 					}
-					exc_move(board, move2do, curr_player);
+					if (game_on) exc_move(board, move2do, curr_player);
 				}
 				else{
 					console_alert(turn);
@@ -596,13 +602,15 @@ int main(int argc, char * argv[]){
 				curr_player = !start_color;
 				turn = pre_turn_verify(board, curr_player);
 				if (gui_mode){
+					gui_alert(turn);
 					Move * new_move = NULL;
 					Move * move2do = NULL;
-					while (move2do == NULL){
+					while (move2do == NULL && game_on){
 						new_move = gui_game_mode(board);
-						move2do = is_valid_move(moves_head, new_move);
+						if (new_move != NULL) move2do = is_valid_move(moves_head, new_move);
+						else break;
 					}
-					exc_move(board, move2do, curr_player);
+					if (game_on) exc_move(board, move2do, curr_player);
 				}
 				else{
 					console_alert(turn);

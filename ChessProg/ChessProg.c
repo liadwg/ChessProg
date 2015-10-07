@@ -381,8 +381,6 @@ void user_turn(char board[BOARD_SIZE][BOARD_SIZE], COLOR color){
 			else if (strcmp(word1, "save") == 0){
 				char * file_name = strtok(NULL, " <,>");
 				if (save_game(board, color, file_name) != 1){
-					gets(file_name);
-					remove(file_name);
 					printf(WRONG_FILE_NAME);
 					continue;
 				}

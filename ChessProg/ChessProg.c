@@ -95,8 +95,8 @@ int load_game(char * path, char board[BOARD_SIZE][BOARD_SIZE]){
 	root_element = xmlDocGetRootElement(doc);
 	for (xmlNode * cur_node = root_element; cur_node ; cur_node = cur_node->next) {
 		if (cur_node->type == XML_ELEMENT_NODE && strcmp((char*)cur_node->name, "game") == 0) {
-			cur_node = cur_node->children;
-			for (cur_node; cur_node; cur_node = cur_node->next){
+			//cur_node = cur_node->children
+			for (cur_node = cur_node->children; cur_node ; cur_node = cur_node->next){
 				if (cur_node->type == XML_ELEMENT_NODE && cur_node->children != NULL){
 					if (strcmp((char*) cur_node->name, "next_turn") == 0){
 						if (strcmp((char*)cur_node->children->content, "Black") == 0 ||
@@ -118,8 +118,8 @@ int load_game(char * path, char board[BOARD_SIZE][BOARD_SIZE]){
 					}
 					if (strcmp((char*)cur_node->name, "board") == 0){
 						clear_board(board);
-						cur_node = cur_node->children;
-						for (cur_node; cur_node; cur_node = cur_node->next){
+						//cur_node = cur_node->children;
+						for (cur_node = cur_node->children; cur_node; cur_node = cur_node->next){
 							if (cur_node->type == XML_ELEMENT_NODE && cur_node->children != NULL){
 								int j = (cur_node->name)[4] - '1';
 								for (int i = 0; i < BOARD_SIZE; i++){

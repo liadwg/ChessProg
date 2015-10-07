@@ -94,7 +94,7 @@ int load_game(char * path, char board[BOARD_SIZE][BOARD_SIZE]){
 	//start to reading the file
 	root_element = xmlDocGetRootElement(doc);
 	for (xmlNode * cur_node = root_element; cur_node ; cur_node = cur_node->next) {
-		if (cur_node->type == XML_ELEMENT_NODE && strcmp(cur_node->name, "game") == 0) {
+		if (cur_node->type == XML_ELEMENT_NODE && strcmp((char*)cur_node->name, "game") == 0) {
 			cur_node = cur_node->children;
 			for (cur_node; cur_node; cur_node = cur_node->next){
 				if (cur_node->type == XML_ELEMENT_NODE && cur_node->children != NULL){
@@ -103,7 +103,7 @@ int load_game(char * path, char board[BOARD_SIZE][BOARD_SIZE]){
 							strcmp((char*)cur_node->children->content, "black") == 0) start_color = BLACK;
 						else start_color = WHITE;
 					}
-					if (strcmp((char*)cur_node->name, "game_mode") == 0) game_mode = atoi(cur_node->children->content);
+					if (strcmp((char*)cur_node->name, "game_mode") == 0) game_mode = atoi((char*)cur_node->children->content);
 					if (strcmp((char*)cur_node->name, "difficulty") == 0){
 						if (strcmp((char*)cur_node->children->content, "best") == 0){
 							minimax_depth = 4;

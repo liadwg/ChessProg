@@ -193,11 +193,12 @@ int draw_tree(TreeNode* root){
 	Window *win = (Window*)root->control;
 	win->surface = SDL_SetVideoMode(win->width, win->height, 0, SDL_HWSURFACE | SDL_DOUBLEBUF);
 	int chk = draw_tree_rec(win, root);
-	if (!chk) 
+	if (!chk){
 		if (SDL_Flip(win->surface) != 0) {
-		printf("ERROR: failed to flip buffer: %s\n", SDL_GetError());
-		return 1;
+			printf("ERROR: failed to flip buffer: %s\n", SDL_GetError());
+			return 1;
 		}
+	}
 	else return 1;
 	return 0;
 }

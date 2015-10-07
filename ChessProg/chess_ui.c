@@ -94,6 +94,7 @@ int char2int(char c){
 	if (c == BLACK_R) return 13;
 	if (c == BLACK_N) return 14;
 	if (c == BLACK_P) return 15;
+	else return BAD;
 }
 
 // helper func to avoid compelation error regarding castin from char to int
@@ -110,6 +111,7 @@ char int2char(int i){
 	if (i == 13) return BLACK_R;
 	if (i == 14) return BLACK_N;
 	if (i == 15) return BLACK_P;
+	else return BAD;
 }
 
 // find button node in a specipic UI tree

@@ -549,14 +549,21 @@ int estimate_best_depth(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
 
 // calculates the score of the board from a player's prospective
 int calc_score(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
-	int whites[6] = { 0 }, blacks[6] = { 0 };
-
+	//int whites[6] = { 0 }, blacks[6] = { 0 };
+	int * whites = malloc(sizeof(int) * 6);
+	int * blacks = malloc(sizeof(int) * 6);
+	for (int i = 0; i < 6; i++){
+		whites[i] = 0;
+		blacks[i] = 0;
+	}
 	piece_counter(board, whites, blacks);
 
 	int white_score = whites[get_type_by_piece(WHITE_P)] + 3 * whites[get_type_by_piece(WHITE_B)] + 3 * whites[get_type_by_piece(WHITE_N)] 
 		+ 5 * whites[get_type_by_piece(WHITE_R)] + 9 * whites[get_type_by_piece(WHITE_Q)] + 400 * whites[get_type_by_piece(WHITE_K)];
 	int black_score = blacks[get_type_by_piece(BLACK_P)] + 3 * blacks[get_type_by_piece(BLACK_B)] + 3 * blacks[get_type_by_piece(BLACK_N)] + 
 		5 * blacks[get_type_by_piece(BLACK_R)] + 9 * blacks[get_type_by_piece(BLACK_Q)] + 400 * blacks[get_type_by_piece(BLACK_K)];
+	free(whites);
+	free(blacks);
 	//if (best_depth) board_count++;
 	if (player == WHITE) return white_score - black_score;
 	else return black_score - white_score;

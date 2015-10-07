@@ -11,6 +11,7 @@
 int glob_quit = 0;
 int start_game = 0;
 int board_ready = 0;
+int back2settings = 0;
 char piece_picked = NULL;
 TreeNode *mainMenu = NULL;
 TreeNode *loadSave = NULL;
@@ -131,9 +132,6 @@ void show_best_move(int depth){
 	TreeNode *l1 = new_label(n1, "highlight", ((Label*)n1->control)->x, ((Label*)n1->control)->y, TILE, TILE, 0, "pics/highlight_tile.bmp");
 	TreeNode *l2 = new_label(n2, "highlight", ((Label*)n2->control)->x, ((Label*)n2->control)->y, TILE, TILE, 0, "pics/highlight_tile.bmp");
 
-	//realloc(gameWindow->children, sizeof(TreeNode*) * ++gameWindow->child_num);
-	//gameWindow->children[gameWindow->child_num - 1] = NULL;
-	//TreeNode *alert = new_panel(gameWindow, "alert panel", WIN_W / 2 - 300, WIN_H / 2 - 150, 600, 300, 0, pic);
 	draw_tree(gameWindow);
 	SDL_Delay(1000);
 	n1->child_num--;
@@ -153,7 +151,7 @@ void show_best_move(int depth){
 	free(n2->children);
 	n1->children = NULL;
 	n2->children = NULL;
-	//realloc(gameWindow->children, sizeof(TreeNode*) * --gameWindow->child_num);
+	
 	draw_tree(gameWindow);
 }
 
@@ -415,7 +413,6 @@ void open_board_setting(){
 
 void start_game_clicked(){
 	start_game = 1;
-	//if (mainMenu != NULL) free_tree(mainMenu);
 	if (loadSave != NULL) free_tree(loadSave);
 	loadSave = NULL;
 	if (AIsettingsMenu != NULL) free_tree(AIsettingsMenu);
@@ -453,6 +450,11 @@ void init_player_selection(){
 }
 
 void open_player_selection(){
+	if (start_game){ // killing game and going back to settings mode
+		quit_all();
+		game_on = 1;
+		back2settings = 1;
+	}
 	prevScreen = currScreen;
 	init_player_selection();
 	currScreen = playerSelection;
@@ -506,6 +508,11 @@ void init_load_save(int load_save){
 }
 
 void open_load_save(int i){
+	if (start_game && i == 0){ // killing game and going back to settings mode
+		quit_all();
+		game_on = 1;
+		back2settings = 1;
+	} 
 	prevScreen = currScreen;
 	init_load_save(i);
 	currScreen = loadSave;
@@ -525,12 +532,12 @@ void init_main_menu(){
 	TreeNode *cancel;
 	if (start_game){
 		cancel = new_button(panel, "cancel", 20, p->height - 20 - BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/cancel.bmp", cancel_clicked, NULL);
-		button2 = new_button(panel, "load", p->width / 2 - BUTTON_W / 2, 110 + BUTTON_H, BUTTON_W, BUTTON_H, 0, NULL, NULL, NULL);
+		//button2 = new_button(panel, "load", p->width / 2 - BUTTON_W / 2, 110 + BUTTON_H, BUTTON_W, BUTTON_H, 0, NULL, NULL, NULL);
 	}
 	else{
 		cancel = new_button(panel, "cancel", 20, p->height - 20 - BUTTON_H, BUTTON_W, BUTTON_H, 0, NULL, NULL, NULL);
-		button2 = new_button(panel, "load", p->width / 2 - BUTTON_W / 2, 110 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/load_game.bmp", open_load_save, 0);
 	}
+	button2 = new_button(panel, "load", p->width / 2 - BUTTON_W / 2, 110 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/load_game.bmp", open_load_save, 0);
 
 	draw_tree(mainMenu);
 }
@@ -549,7 +556,7 @@ Move* gui_game_mode(char board[BOARD_SIZE][BOARD_SIZE]){
 	else init_game_window();
 	currScreen = gameWindow;
 	while (!glob_quit){
-		if (move_to_do != NULL && !wait4promote) return move_to_do;
+		if ((move_to_do != NULL && !wait4promote) || back2settings) return move_to_do;
 		run_events_loop(currScreen);
 	}
 }
@@ -559,6 +566,9 @@ int gui_setting_mode(){
 
 	init_main_menu();
 	if (currScreen == NULL) currScreen = mainMenu;
+	back2settings = 0;
+	glob_quit = 0;
+	start_game = 0;
 	while (!glob_quit){
 		if (start_game) return 1;
 		run_events_loop(currScreen);

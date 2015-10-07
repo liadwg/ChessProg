@@ -257,6 +257,7 @@ void set_depth(int i){
 }
 
 void init_AI_setting(){
+	if (AIsettingsMenu != NULL) free_tree(AIsettingsMenu);
 	AIsettingsMenu = new_window("Set Difficulty", WIN_W / 2, WIN_H, 1);
 
 	TreeNode *panel = new_panel(AIsettingsMenu, "AI_panel", 0, 0, WIN_W / 2, WIN_H, 5, NULL);
@@ -321,6 +322,7 @@ void init_promote_view(){
 }
 
 void init_game_window(){
+	if (gameWindow != NULL) free_tree(gameWindow);
 	char *title = "CHESS GAME";
 	gameWindow = new_window(title, WIN_W, WIN_H, 2);
 
@@ -362,6 +364,8 @@ void init_game_window(){
 
 
 void init_board_setting(){
+	if (boardSetting != NULL) free_tree(boardSetting);
+
 	char *title = "Board Setting";
 	boardSetting = new_window(title, WIN_W, WIN_H, 2);
 
@@ -420,6 +424,8 @@ void start_game_clicked(){
 }
 
 void init_player_selection(){
+	if (playerSelection != NULL) free_tree(playerSelection);
+
 	playerSelection = new_window("Player Selection", WIN_W / 2, (WIN_H * 2) / 3, 1);
 	TreeNode *panel = new_panel(playerSelection, "selection_panel", 0, 0, WIN_W / 2, (WIN_H * 2) / 3, 10, NULL);
 	Panel *p = (Panel*)panel->control;
@@ -468,6 +474,8 @@ void save_slot(int slot){
 }
 
 void init_load_save(int load_save){
+	if (loadSave != NULL) free_tree(loadSave);
+
 	char *title = "Load";
 	char *file = "pics/Load.bmp";
 	void(*func)(void*) = load_slot;
@@ -501,6 +509,8 @@ void open_load_save(int i){
 }
 
 void init_main_menu(){
+	if (mainMenu != NULL) free_tree(mainMenu);
+
 	mainMenu = new_window("Chess Main Menu", WIN_W / 2, (WIN_H * 2) / 3, 1);
 	TreeNode *panel = new_panel(mainMenu, "menu_panel", 0, 0, WIN_W / 2, (WIN_H * 2) / 3, 5, NULL);
 	Panel *p = (Panel*)panel->control;
@@ -545,7 +555,7 @@ Move* gui_game_mode(char board[BOARD_SIZE][BOARD_SIZE]){
 int gui_setting_mode(){
 
 	init_main_menu();
-	currScreen = mainMenu;
+	if (currScreen == NULL) currScreen = mainMenu;
 	while (!glob_quit){
 		if (start_game) return 1;
 		run_events_loop(currScreen);

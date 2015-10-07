@@ -96,6 +96,7 @@ int get_type_by_piece(char piece){
 	case WHITE_N: case BLACK_N: return 4;
 	case WHITE_P: case BLACK_P: return 5;
 	}
+	return -1; // added to avoid compilation warning - not very safe, but we made sure we never get here.
 }
 
 COLOR get_color_by_piece(char piece){
@@ -483,10 +484,9 @@ Move * get_all_moves(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
 // prints a single move in a specific format
 void print_move(Move* move){
 	printf("<%c,%d> to <%c,%d>", move->piece.col + 97, move->piece.row + 1, move->dest.col + 97, move->dest.row + 1);
-	if (move->promote > 0) printf(" %s", get_piece_name_by_type(move->promote));
+	if (move->promote > 0){ printf(" %s", get_piece_name_by_type(move->promote)); }
 	printf("\n");
 }
-
 
 void print_moves(Move* head){
 	while (head != NULL){
@@ -667,7 +667,6 @@ int is_valid_board(char board[BOARD_SIZE][BOARD_SIZE]){
 			return 0;
 		}
 	}
-	int i = 1;
 	free(whites);
 	free(blacks);
 	for (int j = 0; j < BOARD_SIZE - 1; j++){

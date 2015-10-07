@@ -86,7 +86,7 @@ TreeNode* new_label(TreeNode *parent, char* name, int x, int y, int width, int h
 }
 
 // create a new button - recieves a handler (function pointer) + args
-TreeNode* new_button(TreeNode *parent, char* name, int x, int y, int width, int height, int children, char* file, void* handler, int args){
+TreeNode* new_button(TreeNode *parent, char* name, int x, int y, int width, int height, int children, char* file, void(*handler), int args){
 	Button *res = malloc(sizeof(Button));
 	res->img = NULL;
 	if (file != NULL) res->img = SDL_LoadBMP(file);

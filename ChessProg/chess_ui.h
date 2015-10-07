@@ -48,7 +48,7 @@ typedef struct button
 	int height;
 	int abs_x; // to handle clicks more efficiantly
 	int abs_y; // to handle clicks more efficiantly
-	void(*handler)(void*); // pointer to the button handler function
+	void(*handler)(int); // pointer to the button handler function
 	int args; // handler arg
 } Button;
 

@@ -431,7 +431,6 @@ void get_pawn_moves(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, Pos piece)
 
 void get_moves_by_piece(char board[BOARD_SIZE][BOARD_SIZE], COLOR player, Pos piece){
 	Pos* tmp_dests;
-	int dests_num = 0;
 	switch (board[piece.col][piece.row]){
 	case WHITE_B: case BLACK_B:
 		get_bishop_moves(board, player, piece);
@@ -488,7 +487,7 @@ Move * get_all_moves(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
 // prints a single move in a specific format
 void print_move(Move* move){
 	printf("<%c,%d> to <%c,%d>", move->piece.col + 97, move->piece.row + 1, move->dest.col + 97, move->dest.row + 1);
-	if (move->promote > 0) printf(" %s", get_piece_name_by_type);
+	if (move->promote > 0) printf(" %s", get_piece_name_by_type(move->promote));
 	printf("\n");
 }
 

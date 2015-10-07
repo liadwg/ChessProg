@@ -213,7 +213,10 @@ int draw_tree_rec(Window* root, TreeNode* node){
 			SDL_FreeSurface(img);
 			return 1;
 		}
-		SDL_BlitSurface(img, &src, root->surface, &dest);
+		if (SDL_BlitSurface(img, &src, root->surface, &dest)!= 0){
+			SDL_FreeSurface(img);
+			printf("ERROR: failed to blit image: %s\n", SDL_GetError());
+		}
 	}
 
 	for (int i = 0; i < node->child_num; i++) res += draw_tree_rec(root, node->children[i]);
@@ -224,7 +227,11 @@ int draw_tree(TreeNode* root){
 	Window *win = (Window*)root->control;
 	win->surface = SDL_SetVideoMode(win->width, win->height, 0, SDL_HWSURFACE | SDL_DOUBLEBUF);
 	int chk = draw_tree_rec(win, root);
-	if (!chk) SDL_Flip(win->surface);
+	if (!chk) 
+		if (SDL_Flip(win->surface) != 0) {
+		printf("ERROR: failed to flip buffer: %s\n", SDL_GetError());
+		return 1;
+		}
 	else return 1;
 	return 0;
 }

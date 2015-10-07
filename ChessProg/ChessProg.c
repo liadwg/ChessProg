@@ -270,8 +270,10 @@ void conosle_settings_mode(char* str, char board[BOARD_SIZE][BOARD_SIZE]){
 			char * set_name = strtok(NULL, " ");
 			char piece2set = (strcmp(set_color,"white") == 0) ? get_piece_by_name(set_name, WHITE) : get_piece_by_name(set_name, BLACK);
 			if (board[coor1[0] - 'a'][atoi(coor2) - 1] == piece2set) return; 
-			int whites[6] = { 0 }, blacks[6] = { 0 }; //check if the added piece exceeds the amount of allowed pieces on the board 
-			piece_counter(board, &whites, &blacks);
+			
+			//check if the added piece exceeds the amount of allowed pieces on the board
+			int whites[6] = { 0 }, blacks[6] = { 0 };  
+			piece_counter(board, whites, blacks);
 			if (get_color_by_piece(piece2set) == WHITE){
 				if ((get_type_by_piece(piece2set) == 0) && whites[0] == 1) printf(WRONG_PIECE);
 				else if ((get_type_by_piece(piece2set) == 1) && whites[1] == 1) printf(WRONG_PIECE);
@@ -486,7 +488,7 @@ void gui_alert(int alert){
 
 int main(int argc, char * argv[]){
 	if (argc == 2) gui_mode = strcmp(argv[1], "gui") == 0 ? 1 : 0;
-	//gui_mode = 1;
+	gui_mode = 1;
 	char board[BOARD_SIZE][BOARD_SIZE];
 	//int end_pos = 0;
 	int start = 0;

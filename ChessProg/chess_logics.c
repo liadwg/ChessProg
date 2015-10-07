@@ -39,7 +39,7 @@ char* get_piece_name_by_type(int type){
 	case 5: return "pawn";
 	//default: return;
 	}
-	return;
+	return NULL;
 }
 
 int get_type_by_name(char * piece){
@@ -85,7 +85,7 @@ char get_piece_by_type(int type, COLOR player){
 		if (player == WHITE) return WHITE_P;
 		return BLACK_P;
 	}
-	//return;
+	return '\0';
 }
 
 int get_type_by_piece(char piece){
@@ -97,6 +97,7 @@ int get_type_by_piece(char piece){
 	case WHITE_N: case BLACK_N: return 4;
 	case WHITE_P: case BLACK_P: return 5;
 	}
+	return 0; // never getting here
 }
 
 COLOR get_color_by_piece(char piece){
@@ -552,7 +553,7 @@ int estimate_best_depth(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
 int calc_score(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
 	int whites[6] = { 0 }, blacks[6] = { 0 };
 
-	piece_counter(board, &whites, &blacks);
+	piece_counter(board, whites, blacks);
 
 	int white_score = whites[get_type_by_piece(WHITE_P)] + 3 * whites[get_type_by_piece(WHITE_B)] + 3 * whites[get_type_by_piece(WHITE_N)] 
 		+ 5 * whites[get_type_by_piece(WHITE_R)] + 9 * whites[get_type_by_piece(WHITE_Q)] + 400 * whites[get_type_by_piece(WHITE_K)];
@@ -620,7 +621,7 @@ int calc_score(char board[BOARD_SIZE][BOARD_SIZE], COLOR player){
 //		{ -50, -30, -30, -30, -30, -30, -30, -50 }
 //	};
 //
-//	piece_counter(board, &whites, &blacks);
+//	piece_counter(board, whites, blacks);
 //
 //	int white_score = 100 * whites[get_type_by_piece(WHITE_P)] + 325 * whites[get_type_by_piece(WHITE_B)] + 320 * whites[get_type_by_piece(WHITE_N)]
 //		+ 500 * whites[get_type_by_piece(WHITE_R)] + 975 * whites[get_type_by_piece(WHITE_Q)] + 32767 * whites[get_type_by_piece(WHITE_K)];
@@ -727,7 +728,7 @@ int is_valid_board(char board[BOARD_SIZE][BOARD_SIZE]){
 	int whites[6] = { 0 }, blacks[6] = { 0 };
 	int bishop_fault = 0;
 	
-	bishop_fault = piece_counter(board, &whites, &blacks);
+	bishop_fault = piece_counter(board, whites, blacks);
 
 	if (whites[get_type_by_piece(WHITE_P)] > 8 || whites[get_type_by_piece(WHITE_K)] != 1 || whites[get_type_by_piece(WHITE_Q)] > 1 ||
 		blacks[get_type_by_piece(BLACK_P)] > 8 || blacks[get_type_by_piece(BLACK_K)] != 1 || blacks[get_type_by_piece(BLACK_Q)] > 1 || 

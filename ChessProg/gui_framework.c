@@ -96,7 +96,7 @@ TreeNode* new_button(TreeNode *parent, char* name, int x, int y, int width, int 
 	res->width = width;
 	res->height = height;
 	res->handler = handler;
-	res->args = args;
+	if (args != 999) res->args = args; // used 999 as an int NULL
 	return new_node(res, BUTTON, children, parent);
 }
 

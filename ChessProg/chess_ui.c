@@ -61,7 +61,7 @@ char* get_piece_pic(char piece){
 	case WHITE_K: return "pics/king_w.bmp"; 
 	case BLACK_K: return "pics/king_b.bmp";
 	}
-	return;
+	return NULL;
 }
 
 char get_piece_by_pic(char* pic){
@@ -77,7 +77,7 @@ char get_piece_by_pic(char* pic){
 	if (strcmp(pic, get_piece_pic(BLACK_Q)) == 0) return BLACK_Q;
 	if (strcmp(pic, get_piece_pic(WHITE_K)) == 0) return WHITE_K;
 	if (strcmp(pic, get_piece_pic(BLACK_K)) == 0) return BLACK_K;
-	return '/0';
+	return '\0';
 }
 
 // find button node in a specipic UI tree
@@ -303,7 +303,7 @@ void load_slot(int slot){
 	start_game = 0;
 	char file[16] = "slots/game0.xml";
 	file[10] = slot + '0';
-	load_game(&file, gui_board);
+	load_game(file, gui_board);
 	board_ready = 1;
 	open_player_selection();
 }
@@ -311,7 +311,7 @@ void load_slot(int slot){
 void save_slot(int slot){
 	char file[16] = "slots/game0.xml";
 	file[10] = slot + '0';
-	save_game(gui_board, curr_player, &file);
+	save_game(gui_board, curr_player, file);
 	cancel_clicked();
 }
 
@@ -400,7 +400,7 @@ void init_game_window(){
 	Panel *p_menu = (Panel*)menu_panel->control;
 
 	TreeNode *save = new_button(menu_panel, "save", p_menu->width / 2 - BUTTON_W / 2, 10, BUTTON_W, BUTTON_H, 0, "pics/save_game.bmp", open_load_save, 1);
-	TreeNode *menu = new_button(menu_panel, "menu", p_menu->width / 2 - BUTTON_W / 2, 20 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/main_menu.bmp", open_main_menu, NULL);
+	TreeNode *menu = new_button(menu_panel, "menu", p_menu->width / 2 - BUTTON_W / 2, 20 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/main_menu.bmp", open_main_menu, 999);
 	if (game_mode == 1){ // PvsP mode
 		TreeNode *best_panel = new_panel(menu_panel, "best_panel", 600, 40 + 2 * BUTTON_H, 200, (WIN_H - 100 + 2 * BUTTON_H), 6, NULL);
 		Panel *p_best = (Panel*)best_panel->control;
@@ -464,8 +464,8 @@ void init_board_setting(){
 	Panel *p_menu = (Panel*)menu_panel->control;
 
 	TreeNode *logo = new_label(menu_panel, "logo", p_menu->width / 2 - BUTTON_W / 2, 10, BUTTON_W, BUTTON_H, 0, "pics/logo.bmp");
-	TreeNode *ok = new_button(menu_panel, "OK", p_menu->width / 2 - BUTTON_W / 2, 20 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/OK.bmp", board_set_ok, NULL);
-	TreeNode *cancel = new_button(menu_panel, "cancel", p_menu->width / 2 - BUTTON_W / 2, 30 + 2 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/cancel.bmp", cancel_clicked, NULL);
+	TreeNode *ok = new_button(menu_panel, "OK", p_menu->width / 2 - BUTTON_W / 2, 20 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/OK.bmp", board_set_ok, 999);
+	TreeNode *cancel = new_button(menu_panel, "cancel", p_menu->width / 2 - BUTTON_W / 2, 30 + 2 * BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/cancel.bmp", cancel_clicked, 999);
 	TreeNode *tiles_panel = new_panel(menu_panel, "tiles_panel", 600, 100 + 2 * BUTTON_H, 200, (WIN_H - 100 + 2 * BUTTON_H), 12, NULL);
 	Panel *p_tiles = (Panel*)tiles_panel->control;
 	
@@ -510,10 +510,10 @@ void init_player_selection(){
 	TreeNode *next_white = new_button(panel, "next_white", p->width / 2 - BUTTON_W / 2, 90 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/next_white.bmp", set_next, WHITE);
 	TreeNode *next_black = new_button(panel, "next_black", (p->width / 4) * 3 + 10 - BUTTON_W / 2, 90 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/next_black.bmp", set_next, BLACK);
 
-	TreeNode *set_board = new_button(panel, "set_board", p->width / 2 - BUTTON_W / 2, 110 + BUTTON_H * 2, BUTTON_W, BUTTON_H, 0, "pics/set_board.bmp", open_board_setting, NULL);
+	TreeNode *set_board = new_button(panel, "set_board", p->width / 2 - BUTTON_W / 2, 110 + BUTTON_H * 2, BUTTON_W, BUTTON_H, 0, "pics/set_board.bmp", open_board_setting, 999);
 
-	TreeNode *start = new_button(panel, "start", p->width - 20 - BUTTON_W, p->height - 20 - BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/start.bmp", start_game_clicked, NULL);
-	TreeNode *cancel = new_button(panel, "cancel", 20, p->height - 20 - BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/cancel.bmp", cancel_clicked, NULL);
+	TreeNode *start = new_button(panel, "start", p->width - 20 - BUTTON_W, p->height - 20 - BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/start.bmp", start_game_clicked, 999);
+	TreeNode *cancel = new_button(panel, "cancel", 20, p->height - 20 - BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/cancel.bmp", cancel_clicked, 999);
 	
 	if (!board_ready) init_board(gui_board);
 	draw_tree(playerSelection);
@@ -524,7 +524,7 @@ void init_load_save(int load_save){
 
 	char *title = "Load";
 	char *file = "pics/Load.bmp";
-	void(*func)(void*) = load_slot;
+	void(*func) = load_slot;
 	if (load_save == 1){
 		title = "Save";
 		file = "pics/Save.bmp";
@@ -543,7 +543,7 @@ void init_load_save(int load_save){
 	}
 	free(btn_pic);
 
-	TreeNode *cancel = new_button(panel, "cancel", 20, p->height - 20 - BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/cancel.bmp", cancel_clicked, NULL);
+	TreeNode *cancel = new_button(panel, "cancel", 20, p->height - 20 - BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/cancel.bmp", cancel_clicked, 999);
 
 	draw_tree(loadSave);
 }
@@ -556,13 +556,13 @@ void init_main_menu(){
 	Panel *p = (Panel*)panel->control;
 
 	TreeNode *logo = new_label(panel, "logo", p->width / 2 - BUTTON_W / 2, 10, BUTTON_W, BUTTON_H, 0, "pics/logo.bmp");
-	TreeNode *button1 = new_button(panel, "new", p->width / 2 - BUTTON_W / 2, 100, BUTTON_W, BUTTON_H, 0, "pics/new_game.bmp", open_player_selection, NULL);
+	TreeNode *button1 = new_button(panel, "new", p->width / 2 - BUTTON_W / 2, 100, BUTTON_W, BUTTON_H, 0, "pics/new_game.bmp", open_player_selection, 999);
 	TreeNode *button2 = new_button(panel, "load", p->width / 2 - BUTTON_W / 2, 110 + BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/load_game.bmp", open_load_save, 0);
-	TreeNode *button3 = new_button(panel, "quit", p->width / 2 - BUTTON_W / 2, 120 + (BUTTON_H * 2), BUTTON_W, BUTTON_H, 0, "pics/quit.bmp", quit_all, NULL);
+	TreeNode *button3 = new_button(panel, "quit", p->width / 2 - BUTTON_W / 2, 120 + (BUTTON_H * 2), BUTTON_W, BUTTON_H, 0, "pics/quit.bmp", quit_all, 999);
 	
 	TreeNode *cancel; // cancel button - relevant only after game starts
-	if (start_game) cancel = new_button(panel, "cancel", 20, p->height - 20 - BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/cancel.bmp", cancel_clicked, NULL);
-	else cancel = new_button(panel, "cancel", 20, p->height - 20 - BUTTON_H, BUTTON_W, BUTTON_H, 0, NULL, NULL, NULL);
+	if (start_game) cancel = new_button(panel, "cancel", 20, p->height - 20 - BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/cancel.bmp", cancel_clicked, 999);
+	else cancel = new_button(panel, "cancel", 20, p->height - 20 - BUTTON_H, BUTTON_W, BUTTON_H, 0, NULL, NULL, 999);
 
 	draw_tree(mainMenu);
 }

@@ -569,12 +569,13 @@ void init_load_save(int load_save){
 	Panel *p = (Panel*)panel->control;
 
 	new_label(panel, "logo", p->width / 2 - BUTTON_W / 2, 10, BUTTON_W, BUTTON_H, 0, file);
-	char *btn_pic = malloc(sizeof(char) * 15);
+	//char *btn_pic = malloc(sizeof(char) * 15);
 	for (int i = 0; i < SAVE_SLOTS; i++){
-		sprintf_s(btn_pic, 15, "pics/slot%d.bmp", i);
+		char btn_pic[15] = "pics/slot0.bmp";
+		btn_pic[9] = i + '0';
 		new_button(panel, "slot_btn", p->width / 2 - BUTTON_W / 2, 70 + (BUTTON_H + 10) * i, BUTTON_W, BUTTON_H, 0, btn_pic, func, i);
 	}
-	free(btn_pic);
+	//free(btn_pic);
 
 	new_button(panel, "cancel", 20, p->height - 20 - BUTTON_H, BUTTON_W, BUTTON_H, 0, "pics/cancel.bmp", cancel_clicked, 999);
 

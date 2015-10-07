@@ -526,7 +526,7 @@ int main(int argc, char * argv[]){
 						while (move2do == NULL){
 							new_move = gui_game_mode(board);
 							if (new_move != NULL) move2do = is_valid_move(moves_head, new_move);
-							else break;
+							if (!game_on) break;
 						}
 						if (game_on && move2do != NULL) exc_move(board, move2do, curr_player);
 						else if (game_on && move2do == NULL){
@@ -534,6 +534,7 @@ int main(int argc, char * argv[]){
 							duplicate_board(gui_board, board);
 							continue;
 						}
+						else break;
 					}
 					else{ //console mode
 						console_alert(turn);
@@ -561,7 +562,7 @@ int main(int argc, char * argv[]){
 					if (gui_mode){
 						gui_alert(turn);
 						if (game_on) computer_turn(board, curr_player);
-						if (!game_on) break;
+						else break;
 					}
 					else{
 						console_alert(turn);
@@ -575,12 +576,24 @@ int main(int argc, char * argv[]){
 						gui_alert(turn);
 						Move * new_move = NULL;
 						Move * move2do = NULL;
-						while (move2do == NULL && game_on){
+						while (move2do == NULL){
 							new_move = gui_game_mode(board);
 							if (new_move != NULL) move2do = is_valid_move(moves_head, new_move);
+							if (!game_on) break;
 						}
-						if (game_on) exc_move(board, move2do, curr_player);
+						if (game_on && move2do != NULL) exc_move(board, move2do, curr_player);
+						else if (game_on && move2do == NULL){
+							start = gui_setting_mode();
+							duplicate_board(gui_board, board);
+							continue;
+						}
 						else break;
+						//while (move2do == NULL && game_on){
+						//	new_move = gui_game_mode(board);
+						//	if (new_move != NULL) move2do = is_valid_move(moves_head, new_move);
+						//}
+						//if (game_on) exc_move(board, move2do, curr_player);
+						//else break;
 					}
 					else{
 						console_alert(turn);
@@ -598,11 +611,17 @@ int main(int argc, char * argv[]){
 					gui_alert(turn);
 					Move * new_move = NULL;
 					Move * move2do = NULL;
-					while (move2do == NULL && game_on){
+					while (move2do == NULL){
 						new_move = gui_game_mode(board);
 						if (new_move != NULL) move2do = is_valid_move(moves_head, new_move);
+						if (!game_on) break;
 					}
-					if (game_on) exc_move(board, move2do, curr_player);
+					if (game_on && move2do != NULL) exc_move(board, move2do, curr_player);
+					else if (game_on && move2do == NULL){
+						start = gui_setting_mode();
+						duplicate_board(gui_board, board);
+						continue;
+					}
 					else break;
 				}
 				else{
@@ -618,12 +637,18 @@ int main(int argc, char * argv[]){
 					gui_alert(turn);
 					Move * new_move = NULL;
 					Move * move2do = NULL;
-					while (move2do == NULL && game_on){
+					while (move2do == NULL){
 						new_move = gui_game_mode(board);
 						if (new_move != NULL) move2do = is_valid_move(moves_head, new_move);
+						if (!game_on) break;
 					}
-					if (game_on) exc_move(board, move2do, curr_player);
-					if (!game_on) break;
+					if (game_on && move2do != NULL) exc_move(board, move2do, curr_player);
+					else if (game_on && move2do == NULL){
+						start = gui_setting_mode();
+						duplicate_board(gui_board, board);
+						continue;
+					}
+					else break;
 				}
 				else{
 					console_alert(turn);

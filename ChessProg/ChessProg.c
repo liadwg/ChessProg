@@ -282,13 +282,13 @@ void conosle_settings_mode(char* str, char board[BOARD_SIZE][BOARD_SIZE]){
 			if (get_color_by_piece(piece2set) == WHITE){
 				if ((get_type_by_piece(piece2set) == 0) && whites[0] == 1) printf(WRONG_PIECE);
 				else if ((get_type_by_piece(piece2set) == 1) && whites[1] == 1) printf(WRONG_PIECE);
-				else if (whites[get_type_by_piece(piece2set)] == 2) printf(WRONG_PIECE);
+				else if (piece2set != EMPTY && whites[get_type_by_piece(piece2set)] == 2) printf(WRONG_PIECE);
 				else board[coor1[0] - 'a'][atoi(coor2) - 1] = piece2set;
 			}
 			if (get_color_by_piece(piece2set) == BLACK){
 				if ((get_type_by_piece(piece2set) == 0) && blacks[0] == 1) printf(WRONG_PIECE);
 				if ((get_type_by_piece(piece2set) == 1) && blacks[1] == 1) printf(WRONG_PIECE);
-				else if (blacks[get_type_by_piece(piece2set)] == 2) printf(WRONG_PIECE);
+				else if (piece2set != EMPTY && blacks[get_type_by_piece(piece2set)] == 2) printf(WRONG_PIECE);
 				else board[coor1[0] - 'a'][atoi(coor2) - 1] = piece2set;
 			}
 			free(whites);

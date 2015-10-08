@@ -306,7 +306,14 @@ void cancel_clicked(int i){
 }
 
 void set_depth(int i){
-	minimax_depth = i;
+	if (i == -1){
+		best_depth = 1;
+		minimax_depth = 4;
+	}
+	else{
+		best_depth = 0;
+		minimax_depth = i;
+	}
 	cancel_clicked(0);
 }
 

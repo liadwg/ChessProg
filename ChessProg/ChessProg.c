@@ -88,7 +88,7 @@ int get_line_by_node_name(char * name){
 int load_game(char * path, char board[BOARD_SIZE][BOARD_SIZE]){
 	xmlDoc *doc = NULL;
 	xmlNode *root_element = NULL;
-	doc = xmlReadFile(path, NULL, XML_PARSE_NOERROR);
+	doc = xmlReadFile(path, NULL, XML_PARSE_NOWARNING);
 	if (doc == NULL) return 0;
 	int EOxmlF = 0;
 	//start to reading the file
